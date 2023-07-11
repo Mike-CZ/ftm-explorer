@@ -105,13 +105,6 @@ func (rc *RingBuffer[K, V]) Len() int {
 	return len(rc.data)
 }
 
-// ringLen returns the number of elements in the buffer
-// this method is costly, since it iterates over the ring,
-// so it should only be used for testing
-func (rc *RingBuffer[K, V]) ringLen() int {
-	return rc.buffer.Len()
-}
-
 // printRingBuffer prints the buffer in the ring buffer
 func (rc *RingBuffer[K, V]) printRingBuffer() {
 	length := len(rc.data)
