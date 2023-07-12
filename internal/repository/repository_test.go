@@ -31,19 +31,10 @@ func TestRepository_GetBlockByNumber(t *testing.T) {
 	repository, mockRpc := createRepository(t)
 
 	// block should be returned from rpc because it is not in the buffer
-	block := types.Block{
-		Number:    100,
-		Epoch:     10,
-		Hash:      common.HexToHash("0x123"),
-		GasUsed:   1000,
-		TimeStamp: 10000,
-		Txs: []common.Hash{
-			common.HexToHash("0x456"),
-			common.HexToHash("0x789"),
-		},
-	}
+	block := types.Block{Number: 100}
+
 	// expect rpc.BlockByNumber to be called with block number 100
-	mockRpc.EXPECT().BlockByNumber(uint64(100)).Return(&block, nil)
+	mockRpc.EXPECT().BlockByNumber(gomock.Eq(uint64(100))).Return(&block, nil)
 	returnedBlock, err := repository.GetBlockByNumber(100)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
@@ -62,6 +53,22 @@ func TestRepository_GetBlockByNumber(t *testing.T) {
 	}
 	if returnedBlock.Number != block.Number {
 		t.Errorf("expected %v, got %v", block.Number, returnedBlock.Number)
+	}
+}
+
+// Test that repository returns transaction by hash.
+func TestRepository_GetTransactionByHash(t *testing.T) {
+	repository, mockRpc := createRepository(t)
+
+	// transaction should be returned from rpc
+	trx := types.Transaction{Hash: common.HexToHash("0x123")}
+	mockRpc.EXPECT().TransactionByHash(gomock.Eq(trx.Hash)).Return(&trx, nil)
+	returnedTrx, err := repository.GetTransactionByHash(trx.Hash)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if returnedTrx.Hash != trx.Hash {
+		t.Errorf("expected %v, got %v", trx.Hash, returnedTrx.Hash)
 	}
 }
 

@@ -1,6 +1,8 @@
 package types
 
 import (
+	"time"
+
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -14,8 +16,8 @@ type Block struct {
 	Hash common.Hash
 	// GasUsed represents the actual total used gas by all transactions in this block.
 	GasUsed uint64
-	// TimeStamp represents the unix timestamp for when the block was collated.
-	TimeStamp uint64
+	// TimeStamp represents the timestamp for when the block was collated.
+	TimeStamp time.Time
 	// Txs represents array of 32 bytes hashes of transactions included in the block.
 	Txs []common.Hash
 }
