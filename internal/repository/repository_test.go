@@ -34,7 +34,7 @@ func TestRepository_GetBlockByNumber(t *testing.T) {
 	block := types.Block{Number: 100}
 
 	// expect rpc.BlockByNumber to be called with block number 100
-	mockRpc.EXPECT().BlockByNumber(gomock.Eq(uint64(100))).Return(&block, nil)
+	mockRpc.EXPECT().BlockByNumber(gomock.Any(), gomock.Eq(uint64(100))).Return(&block, nil)
 	returnedBlock, err := repository.GetBlockByNumber(100)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
@@ -62,7 +62,7 @@ func TestRepository_GetTransactionByHash(t *testing.T) {
 
 	// transaction should be returned from rpc
 	trx := types.Transaction{Hash: common.HexToHash("0x123")}
-	mockRpc.EXPECT().TransactionByHash(gomock.Eq(trx.Hash)).Return(&trx, nil)
+	mockRpc.EXPECT().TransactionByHash(gomock.Any(), gomock.Eq(trx.Hash)).Return(&trx, nil)
 	returnedTrx, err := repository.GetTransactionByHash(trx.Hash)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)

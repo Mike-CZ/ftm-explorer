@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"ftm-explorer/internal/types"
 )
 
@@ -14,7 +15,9 @@ func (r *Repository) GetBlockByNumber(number uint64) (*types.Block, error) {
 	}
 
 	// get block from rpc if not exists in buffer
-	blk, err := r.rpc.BlockByNumber(number)
+	ctx, cancel := context.WithTimeout(context.Background(), kRpcTimeout)
+	defer cancel()
+	blk, err := r.rpc.BlockByNumber(ctx, number)
 	if err != nil {
 		return nil, err
 	}
@@ -41,5 +44,5 @@ func (r *Repository) GetLatestObservedBlock() *types.Block {
 // UpdateLatestObservedBlock updates the latest observed block.
 // It will add the block to the buffer.
 func (r *Repository) UpdateLatestObservedBlock(blk *types.Block) {
-	r.blkBuffer.Add(blk.Number, blk)
+	r.blkBuffer.Add(uint64(blk.Number), blk)
 }

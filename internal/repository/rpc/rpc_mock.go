@@ -4,10 +4,12 @@
 package rpc
 
 import (
+	context "context"
 	types "ftm-explorer/internal/types"
 	reflect "reflect"
 
 	common "github.com/ethereum/go-ethereum/common"
+	types0 "github.com/ethereum/go-ethereum/core/types"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -35,31 +37,57 @@ func (m *MockRpc) EXPECT() *MockRpcMockRecorder {
 }
 
 // BlockByNumber mocks base method.
-func (m *MockRpc) BlockByNumber(arg0 uint64) (*types.Block, error) {
+func (m *MockRpc) BlockByNumber(arg0 context.Context, arg1 uint64) (*types.Block, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "BlockByNumber", arg0)
+	ret := m.ctrl.Call(m, "BlockByNumber", arg0, arg1)
 	ret0, _ := ret[0].(*types.Block)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // BlockByNumber indicates an expected call of BlockByNumber.
-func (mr *MockRpcMockRecorder) BlockByNumber(arg0 interface{}) *gomock.Call {
+func (mr *MockRpcMockRecorder) BlockByNumber(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BlockByNumber", reflect.TypeOf((*MockRpc)(nil).BlockByNumber), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BlockByNumber", reflect.TypeOf((*MockRpc)(nil).BlockByNumber), arg0, arg1)
+}
+
+// Close mocks base method.
+func (m *MockRpc) Close() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Close")
+}
+
+// Close indicates an expected call of Close.
+func (mr *MockRpcMockRecorder) Close() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockRpc)(nil).Close))
+}
+
+// ObservedHeadProxy mocks base method.
+func (m *MockRpc) ObservedHeadProxy() <-chan *types0.Header {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ObservedHeadProxy")
+	ret0, _ := ret[0].(<-chan *types0.Header)
+	return ret0
+}
+
+// ObservedHeadProxy indicates an expected call of ObservedHeadProxy.
+func (mr *MockRpcMockRecorder) ObservedHeadProxy() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ObservedHeadProxy", reflect.TypeOf((*MockRpc)(nil).ObservedHeadProxy))
 }
 
 // TransactionByHash mocks base method.
-func (m *MockRpc) TransactionByHash(arg0 common.Hash) (*types.Transaction, error) {
+func (m *MockRpc) TransactionByHash(arg0 context.Context, arg1 common.Hash) (*types.Transaction, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "TransactionByHash", arg0)
+	ret := m.ctrl.Call(m, "TransactionByHash", arg0, arg1)
 	ret0, _ := ret[0].(*types.Transaction)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // TransactionByHash indicates an expected call of TransactionByHash.
-func (mr *MockRpcMockRecorder) TransactionByHash(arg0 interface{}) *gomock.Call {
+func (mr *MockRpcMockRecorder) TransactionByHash(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TransactionByHash", reflect.TypeOf((*MockRpc)(nil).TransactionByHash), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TransactionByHash", reflect.TypeOf((*MockRpc)(nil).TransactionByHash), arg0, arg1)
 }
