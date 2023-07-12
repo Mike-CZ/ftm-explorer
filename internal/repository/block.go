@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 	"ftm-explorer/internal/types"
+
+	eth "github.com/ethereum/go-ethereum/core/types"
 )
 
 // GetBlockByNumber returns the block identified by number.
@@ -45,4 +47,9 @@ func (r *Repository) GetLatestObservedBlock() *types.Block {
 // It will add the block to the buffer.
 func (r *Repository) UpdateLatestObservedBlock(blk *types.Block) {
 	r.blkBuffer.Add(uint64(blk.Number), blk)
+}
+
+// GetNewHeadersChannel returns a channel that will receive the latest headers from blockchain.
+func (r *Repository) GetNewHeadersChannel() <-chan *eth.Header {
+	return r.rpc.ObservedHeadProxy()
 }
