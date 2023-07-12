@@ -3,9 +3,11 @@ package repository
 import (
 	"ftm-explorer/internal/repository/rpc"
 	"ftm-explorer/internal/types"
+	"math/big"
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
+	eth "github.com/ethereum/go-ethereum/core/types"
 	"github.com/golang/mock/gomock"
 )
 
@@ -34,7 +36,7 @@ func TestRepository_GetBlockByNumber(t *testing.T) {
 	block := types.Block{Number: 100}
 
 	// expect rpc.BlockByNumber to be called with block number 100
-	mockRpc.EXPECT().BlockByNumber(gomock.Eq(uint64(100))).Return(&block, nil)
+	mockRpc.EXPECT().BlockByNumber(gomock.Any(), gomock.Eq(uint64(100))).Return(&block, nil)
 	returnedBlock, err := repository.GetBlockByNumber(100)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
@@ -62,13 +64,42 @@ func TestRepository_GetTransactionByHash(t *testing.T) {
 
 	// transaction should be returned from rpc
 	trx := types.Transaction{Hash: common.HexToHash("0x123")}
-	mockRpc.EXPECT().TransactionByHash(gomock.Eq(trx.Hash)).Return(&trx, nil)
+	mockRpc.EXPECT().TransactionByHash(gomock.Any(), gomock.Eq(trx.Hash)).Return(&trx, nil)
 	returnedTrx, err := repository.GetTransactionByHash(trx.Hash)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 	if returnedTrx.Hash != trx.Hash {
 		t.Errorf("expected %v, got %v", trx.Hash, returnedTrx.Hash)
+	}
+}
+
+// Test that repository returns transaction by hash.
+func TestRepository_GetNewHeadersChannel(t *testing.T) {
+	repository, mockRpc := createRepository(t)
+
+	// transaction should be returned from rpc
+	ch := make(chan *eth.Header, 10)
+
+	go func() {
+		// send 10 headers into the channel
+		for i := 1; i <= 10; i++ {
+			ch <- &eth.Header{Number: big.NewInt(int64(i))}
+		}
+		close(ch)
+	}()
+
+	// expect rpc.ObservedHeadProxy to be called
+	mockRpc.EXPECT().ObservedHeadProxy().Return(ch)
+	rch := repository.GetNewHeadersChannel()
+
+	// read 10 headers from the channel
+	number := big.NewInt(1)
+	for header := range rch {
+		if header.Number.Cmp(number) != 0 {
+			t.Errorf("expected %v, got %v", number.Uint64(), header.Number.Uint64())
+		}
+		number.Add(number, big.NewInt(1))
 	}
 }
 

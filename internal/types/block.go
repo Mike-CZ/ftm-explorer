@@ -1,23 +1,22 @@
 package types
 
 import (
-	"time"
-
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 // Block represents basic information provided by the API about block inside Opera blockchain.
 type Block struct {
 	// Number represents the block number.
-	Number uint64
+	Number hexutil.Uint64 `json:"number"`
 	// Epoch represents the block epoch.
-	Epoch uint64
+	Epoch hexutil.Uint64 `json:"epoch"`
 	// Hash represents hash of the block. nil when its pending block.
-	Hash common.Hash
+	Hash common.Hash `json:"hash"`
 	// GasUsed represents the actual total used gas by all transactions in this block.
-	GasUsed uint64
-	// TimeStamp represents the timestamp for when the block was collated.
-	TimeStamp time.Time
+	GasUsed hexutil.Uint64 `json:"gasUsed"`
+	// TimeStamp represents the unix timestamp for when the block was collated.
+	TimeStamp hexutil.Uint64 `json:"timestamp"`
 	// Txs represents array of 32 bytes hashes of transactions included in the block.
-	Txs []common.Hash
+	Txs []common.Hash `json:"transactions"`
 }
