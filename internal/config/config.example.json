@@ -1,0 +1,20 @@
+{
+  "rpc": {
+    "operaRpcUrl": "https://rpcapi.fantom.network",
+    "tracingRpcUrl": "https://rpcapi-tracing.fantom.network"
+  },
+  "api": {
+    "readTimeout": 2,
+    "writeTimeout": 15,
+    "idleTimeout": 1,
+    "headerTimeout": 1,
+    "resolverTimeout": 30,
+    "bindAddress": "localhost:16761",
+    "domainAddress": "localhost:16761",
+    "corsOrigin": ["*"]
+  },
+  "logger": {
+    "loggingLevel": 4,
+    "logFormat": "%{color}%{level:-8s} %{shortpkg}/%{shortfunc}%{color:reset}: %{message}"
+  }
+}

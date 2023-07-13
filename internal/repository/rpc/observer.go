@@ -22,7 +22,7 @@ const kObservedHeadChanCapacity = 10000
 // ObservedHeadProxy provides a channel fed with new headers.
 // It is not guaranteed that there won't be "gaps" between the headers.
 // This might happen when subscription fails, and we have to "simulate" it via rpc calls.
-func (rpc *OperaRpc) ObservedHeadProxy() chan *types.Header {
+func (rpc *OperaRpc) ObservedHeadProxy() <-chan *types.Header {
 	// If the channel is nil, initialize it.
 	if rpc.headers == nil {
 		rpc.sigClose = make(chan bool, 1)

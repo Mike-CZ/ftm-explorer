@@ -20,19 +20,29 @@ func (rpc *OperaRpc) TransactionByHash(ctx context.Context, hash common.Hash) (*
 		return nil, fmt.Errorf("failed to get transaction by hash: %v", err)
 	}
 
-	// get transaction receipt
-	var rec struct {
-		GasUsed hexutil.Uint64 `json:"gasUsed"`
-		Logs    []eth.Log      `json:"logs"`
-	}
-	err = rpc.ftm.Call(&rec, "ftm_getTransactionReceipt", hash)
-	if err != nil {
-		return nil, err
-	}
+	// get transaction receipt if transaction is not pending
+	if trx.BlockNumber != nil {
+		var rec struct {
+			CumulativeGasUsed hexutil.Uint64  `json:"cumulativeGasUsed"`
+			GasUsed           hexutil.Uint64  `json:"gasUsed"`
+			ContractAddress   *common.Address `json:"contractAddress,omitempty"`
+			Status            hexutil.Uint64  `json:"status"`
+			Logs              []eth.Log       `json:"logs"`
+		}
 
-	// assign receipt data
-	trx.GasUsed = rec.GasUsed
-	trx.Logs = rec.Logs
+		// call for the transaction receipt data
+		err := rpc.ftm.Call(&rec, "ftm_getTransactionReceipt", hash)
+		if err != nil {
+			return nil, err
+		}
+
+		// set data
+		trx.CumulativeGasUsed = &rec.CumulativeGasUsed
+		trx.GasUsed = &rec.GasUsed
+		trx.ContractAddress = rec.ContractAddress
+		trx.Status = &rec.Status
+		trx.Logs = rec.Logs
+	}
 
 	return &trx, nil
 }
