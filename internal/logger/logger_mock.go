@@ -6,7 +6,6 @@ package logger
 import (
 	reflect "reflect"
 
-	"github.com/docker/docker/daemon/logger"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -199,10 +198,10 @@ func (mr *MockLoggerMockRecorder) Infof(format interface{}, args ...interface{})
 }
 
 // ModuleLogger mocks base method.
-func (m *MockLogger) ModuleLogger(arg0 string) logger.Logger {
+func (m *MockLogger) ModuleLogger(arg0 string) Logger {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ModuleLogger", arg0)
-	ret0, _ := ret[0].(logger.Logger)
+	ret0, _ := ret[0].(Logger)
 	return ret0
 }
 
