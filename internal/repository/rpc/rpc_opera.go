@@ -1,6 +1,7 @@
 package rpc
 
 import (
+	"ftm-explorer/internal/config"
 	"sync"
 
 	"github.com/ethereum/go-ethereum/core/types"
@@ -19,8 +20,8 @@ type OperaRpc struct {
 }
 
 // NewOperaRpc returns a new rpc client for Fantom Opera
-func NewOperaRpc(url string) (*OperaRpc, error) {
-	ftm, err := client.Dial(url)
+func NewOperaRpc(cfg *config.Rpc) (*OperaRpc, error) {
+	ftm, err := client.Dial(cfg.OperaRpcUrl)
 	if err != nil {
 		return nil, err
 	}

@@ -1,0 +1,10 @@
+# Root schema definition
+schema {
+    query: Query
+}
+
+# Entry points for querying the API
+type Query {
+    # Get transaction information for given transaction hash.
+    transaction(hash:Bytes32!):Transaction
+}

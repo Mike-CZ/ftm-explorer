@@ -1,4 +1,4 @@
-// instruct go test to build this file only when the tag rpc is specified
+// instruct go test to build this file only when the tag opera_rpc is specified
 //go:build opera_rpc
 // +build opera_rpc
 
@@ -6,6 +6,7 @@ package rpc
 
 import (
 	"context"
+	"ftm-explorer/internal/config"
 	"math/big"
 	"sync"
 	"testing"
@@ -125,7 +126,7 @@ func TestOperaRpc_ObservedHeadProxy(t *testing.T) {
 }
 
 func createOperaRpc(t *testing.T) *OperaRpc {
-	rpc, err := NewOperaRpc("https://rpcapi.fantom.network")
+	rpc, err := NewOperaRpc(&config.Rpc{OperaRpcUrl: "https://rpcapi.fantom.network"})
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
