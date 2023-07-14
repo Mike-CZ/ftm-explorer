@@ -28,6 +28,7 @@ type apiTestCase struct {
 	checkResponse func(*testing.T, *http.Response)
 }
 
+// Test cases for the API server.
 func TestApiServer_Run(t *testing.T) {
 	// initialize stubs
 	ctrl := gomock.NewController(t)
@@ -44,6 +45,7 @@ func TestApiServer_Run(t *testing.T) {
 	// use table-driven testing to test multiple cases
 	testCases := []apiTestCase{
 		getTransactionTestCase(t),
+		getBlockTestCase(t),
 	}
 
 	for _, tc := range testCases {
@@ -57,7 +59,9 @@ func TestApiServer_Run(t *testing.T) {
 			if err != nil {
 				t.Fatalf("failed to make request: %v", err)
 			}
-			defer resp.Body.Close()
+			t.Cleanup(func() {
+				_ = resp.Body.Close()
+			})
 			if resp.StatusCode != http.StatusOK {
 				t.Fatalf("expected status OK, got %v", resp.Status)
 			}
@@ -92,6 +96,41 @@ func getTransactionTestCase(t *testing.T) apiTestCase {
 			}
 			// validate transaction
 			validateTransaction(t, trx, trxRes.Trx)
+		},
+	}
+}
+
+// getTransactionTestCase returns a test case for a transaction not found error.
+func getBlockTestCase(t *testing.T) apiTestCase {
+	block := getTestBlock(t)
+	return apiTestCase{
+		testName:    "GetBlock",
+		requestBody: fmt.Sprintf(`{"query": "query { block(number: \"%s\") { number, epoch, hash, parentHash, timestamp, gasLimit, gasUsed, transactions, transactionsCount }}"}`, block.Number.String()),
+		buildStubs: func(mockRepository *repository.MockRepository) {
+			mockRepository.EXPECT().GetBlockByNumber(gomock.Eq(uint64(block.Number))).Return(&block, nil)
+		},
+		checkResponse: func(t *testing.T, resp *http.Response) {
+			apiRes := decodeResponse(t, resp)
+			if len(apiRes.Errors) != 0 {
+				t.Errorf("expected no errors, got: %s", apiRes.Errors[0].Message)
+			}
+			// decode raw data into block
+			blockRes := struct {
+				Block struct {
+					types.Block
+					// add transactions count, which is not part of the block struct
+					TransactionsCount int32 `json:"transactionsCount"`
+				} `json:"block"`
+			}{}
+			if err := json.Unmarshal(apiRes.Data, &blockRes); err != nil {
+				t.Errorf("failed to unmarshall data: %v", err)
+			}
+			// validate block
+			validateBlock(t, block, blockRes.Block.Block)
+			// validate transactions count
+			if blockRes.Block.TransactionsCount != int32(len(block.Transactions)) {
+				t.Errorf("expected transactions count %v, got %v", len(block.Transactions), blockRes.Block.TransactionsCount)
+			}
 		},
 	}
 }
@@ -145,6 +184,70 @@ func getTestTransaction(t *testing.T) types.Transaction {
 	}
 }
 
+// getTestTransaction returns a test transaction.
+func getTestBlock(t *testing.T) types.Block {
+	t.Helper()
+	return types.Block{
+		Number:     hexutil.Uint64(65_797_494),
+		Epoch:      hexutil.Uint64(223_648),
+		Hash:       common.HexToHash("0x000369a000001e8b893fcc26dd34add080cc996746e468f728f6cff334722d65"),
+		ParentHash: common.HexToHash("0x000369a000001e8062583ee1cbb8044713711793de93f5a9a1e0733ac43929c1"),
+		Timestamp:  hexutil.Uint64(1_689_357_196),
+		GasLimit:   hexutil.Uint64(281_474_976_710_655),
+		GasUsed:    hexutil.Uint64(775_639),
+		Transactions: []common.Hash{
+			common.HexToHash("0x030b623eb60d312e5e866c401cb04959f450de6ce4184b76eacc2fe17bd29dee"),
+			common.HexToHash("0x3ab52dc0c6a376933e78f95a69003130272b1b26b0374cf757de1a3c2f27e209"),
+			common.HexToHash("0x3779f09001d187d076daf214c8b255acada58be1921d9bce648836f41753c607"),
+			common.HexToHash("0x8cba9acf51367104ee232cf0180b7ddb95d6525783c88da4463cfd5a5d749834"),
+			common.HexToHash("0x92f992ecbfeb174c0db9790ea844ec4c117f5fea1edb9a737524e7249b96869b"),
+		},
+	}
+}
+
+// validateBlock validates that the given block equals the expected block.
+func validateBlock(t *testing.T, blk types.Block, blkRes types.Block) {
+	t.Helper()
+	// number
+	if blk.Number != blkRes.Number {
+		t.Errorf("expected block number %v, got %v", blk.Number, blkRes.Number)
+	}
+	// epoch
+	if blk.Epoch != blkRes.Epoch {
+		t.Errorf("expected block epoch %v, got %v", blk.Epoch, blkRes.Epoch)
+	}
+	// hash
+	if blk.Hash != blkRes.Hash {
+		t.Errorf("expected block hash %v, got %v", blk.Hash, blkRes.Hash)
+	}
+	// parent hash
+	if blk.ParentHash != blkRes.ParentHash {
+		t.Errorf("expected block parent hash %v, got %v", blk.ParentHash, blkRes.ParentHash)
+	}
+	// timestamp
+	if blk.Timestamp != blkRes.Timestamp {
+		t.Errorf("expected block timestamp %v, got %v", blk.Timestamp, blkRes.Timestamp)
+	}
+	// gas limit
+	if blk.GasLimit != blkRes.GasLimit {
+		t.Errorf("expected block gas limit %v, got %v", blk.GasLimit, blkRes.GasLimit)
+	}
+	// gas used
+	if blk.GasUsed != blkRes.GasUsed {
+		t.Errorf("expected block gas used %v, got %v", blk.GasUsed, blkRes.GasUsed)
+	}
+	// transactions
+	if len(blk.Transactions) != len(blkRes.Transactions) {
+		t.Errorf("expected block transactions length %v, got %v", len(blk.Transactions), len(blkRes.Transactions))
+	} else {
+		for i, hash := range blk.Transactions {
+			if hash != blkRes.Transactions[i] {
+				t.Errorf("expected block transaction hash %v, got %v", hash, blkRes.Transactions[i])
+			}
+		}
+	}
+}
+
 // validateTransaction validates that the given transaction equals the expected transaction.
 func validateTransaction(t *testing.T, trx types.Transaction, trxRes types.Transaction) {
 	t.Helper()
@@ -173,7 +276,7 @@ func validateTransaction(t *testing.T, trx types.Transaction, trxRes types.Trans
 		t.Errorf("expected block number %v, got %v", *trx.BlockNumber, *trxRes.BlockNumber)
 	}
 	// from
-	if trx.From == trxRes.From {
+	if trx.From != trxRes.From {
 		t.Errorf("expected from %v, got %v", trx.From, trxRes.From)
 	}
 	// to

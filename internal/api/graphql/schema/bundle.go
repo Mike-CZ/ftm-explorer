@@ -2,6 +2,35 @@ package schema
 
 // Auto generated GraphQL schema bundle
 const schema = `
+type Block {
+    # Number is the number of this block, starting at 0 for the genesis block.
+    number: Long!
+
+    # Epoch is the number of this block's epoch.
+    epoch: Long!
+
+    # Hash is the unique block hash of this block.
+    hash: Bytes32!
+
+    # ParentHash is the unique block hash of the parent block of this block.
+    parentHash: Bytes32!
+
+    # Timestamp is the unix timestamp at which this block was mined.
+    timestamp: Long!
+
+    # GasLimit represents the maximum gas allowed in this block.
+    gasLimit: Long!
+
+    # GasUsed represents the actual total used gas by all transactions in this block.
+    gasUsed: Long!
+
+    # transactions is the list of unique hash values of transaction
+    # assigned to the block.
+    transactions: [Bytes32!]!
+
+    # TransactionCount is the number of transactions in this block.
+    transactionsCount: Int!
+}
 type Transaction {
     # Hash of the transaction
     hash: Bytes32!
@@ -93,5 +122,8 @@ schema {
 type Query {
     # Get transaction information for given transaction hash.
     transaction(hash:Bytes32!):Transaction
+
+    # Get block information by number.
+    block(number:Long!):Block
 }
 `
