@@ -2,38 +2,6 @@ package schema
 
 // Auto generated GraphQL schema bundle
 const schema = `
-# Root schema definition
-schema {
-    query: Query
-}
-
-# Entry points for querying the API
-type Query {
-    # Get transaction information for given transaction hash.
-    transaction(hash:Bytes32!):Transaction
-}
-# Bytes32 is a 32 byte binary string, represented by 0x prefixed hexadecimal hash.
-scalar Bytes32
-
-# Address is a 20 byte Opera address, represented as 0x prefixed hexadecimal number.
-scalar Address
-
-# BigInt is a large integer value. Input is accepted as either a JSON number,
-# or a hexadecimal string alternatively prefixed with 0x. Output is 0x prefixed hexadecimal.
-scalar BigInt
-
-# Long is a 64 bit unsigned integer value.
-scalar Long
-
-# Bytes is an arbitrary length binary string, represented as 0x-prefixed hexadecimal.
-# An empty byte string is represented as '0x'.
-scalar Bytes
-
-# Cursor is a string representing position in a sequential list of edges.
-scalar Cursor
-
-# Time represents date and time including time zone information in RFC3339 format.
-scalar Time
 type Transaction {
     # Hash of the transaction
     hash: Bytes32!
@@ -78,20 +46,52 @@ type Transaction {
     # Value is the value sent along with this transaction in WEI.
     value: BigInt!
 
-    # InputData is the data supplied to the target of the transaction.
+    # Input is the data supplied to the target of the transaction.
     # Contains smart contract byte code if this is contract creation.
     # Contains encoded contract state mutating function call if recipient
     # is a contract address.
-    inputData: Bytes!
+    input: Bytes!
 
-    # TrxIndex is the index of this transaction in the block. This will
+    # TransactionIndex is the index of this transaction in the block. This will
     # be null if the transaction is in a pending pool.
-    trxIndex: Long
+    transactionIndex: Long
 
     # Status is the return status of the transaction. This will be 1 if the
     # transaction succeeded, or 0 if it failed (due to a revert, or due to
     # running out of gas). If the transaction has not yet been processed, this
     # field will be null.
     status: Long
+}
+# Bytes32 is a 32 byte binary string, represented by 0x prefixed hexadecimal hash.
+scalar Bytes32
+
+# Address is a 20 byte Opera address, represented as 0x prefixed hexadecimal number.
+scalar Address
+
+# BigInt is a large integer value. Input is accepted as either a JSON number,
+# or a hexadecimal string alternatively prefixed with 0x. Output is 0x prefixed hexadecimal.
+scalar BigInt
+
+# Long is a 64 bit unsigned integer value.
+scalar Long
+
+# Bytes is an arbitrary length binary string, represented as 0x-prefixed hexadecimal.
+# An empty byte string is represented as '0x'.
+scalar Bytes
+
+# Cursor is a string representing position in a sequential list of edges.
+scalar Cursor
+
+# Time represents date and time including time zone information in RFC3339 format.
+scalar Time
+# Root schema definition
+schema {
+    query: Query
+}
+
+# Entry points for querying the API
+type Query {
+    # Get transaction information for given transaction hash.
+    transaction(hash:Bytes32!):Transaction
 }
 `
