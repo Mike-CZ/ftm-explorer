@@ -5,9 +5,9 @@ import (
 	"net/http"
 )
 
-// LoggingHandler defines HTTP handler middleware for logging incoming communication through provided Logger.
+// LoggingHandler defines HTTP handler middleware for logging incoming communication through provided ILogger.
 type LoggingHandler struct {
-	log     logger.Logger
+	log     logger.ILogger
 	handler http.Handler
 }
 

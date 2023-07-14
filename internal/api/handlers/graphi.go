@@ -49,7 +49,7 @@ const graphiqlTemplate = `
 `
 
 // GraphiHandler builds HTTP handler function for GraphiQL playground.
-func GraphiHandler(address string, log logger.Logger) http.Handler {
+func GraphiHandler(address string, log logger.ILogger) http.Handler {
 	// build the handler function
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// parse the template, we don't expect it to fail

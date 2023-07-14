@@ -14,13 +14,13 @@ import (
 // It is responsible for handling GraphQL requests.
 type ApiServer struct {
 	cfg      *config.ApiServer
-	log      logger.Logger
+	log      logger.ILogger
 	srv      *http.Server
 	resolver *resolvers.RootResolver
 }
 
 // NewApiServer creates a new GraphQL API server.
-func NewApiServer(cfg *config.ApiServer, repo *repository.Repository, log logger.Logger) *ApiServer {
+func NewApiServer(cfg *config.ApiServer, repo repository.IRepository, log logger.ILogger) *ApiServer {
 	apiLogger := log.ModuleLogger("api")
 	server := &ApiServer{
 		resolver: resolvers.NewResolver(repo, apiLogger),
@@ -45,7 +45,7 @@ func (api *ApiServer) makeHttpServer() {
 	srvMux := http.NewServeMux()
 
 	h := http.TimeoutHandler(
-		handlers.ApiHandler(api.cfg, api.resolver, api.log),
+		handlers.ApiHandler(api.cfg.CorsOrigin, api.resolver, api.log),
 		time.Second*time.Duration(api.cfg.ResolverTimeout),
 		"Service timeout.",
 	)

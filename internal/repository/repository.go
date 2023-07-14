@@ -17,12 +17,12 @@ const kRpcTimeout = 5 * time.Second
 // It contains the RPC client and a buffer for blocks.
 // The buffer is used to store the latest observed blocks.
 type Repository struct {
-	rpc       rpc.Rpc
+	rpc       rpc.IRpc
 	blkBuffer *buffer.RingBuffer[uint64, *types.Block]
 }
 
 // NewRepository creates a new repository.
-func NewRepository(rpc rpc.Rpc) *Repository {
+func NewRepository(rpc rpc.IRpc) *Repository {
 	return &Repository{
 		rpc:       rpc,
 		blkBuffer: buffer.NewRingBuffer[uint64, *types.Block](kBlkBufferSize),

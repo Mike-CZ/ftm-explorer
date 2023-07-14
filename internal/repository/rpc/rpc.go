@@ -8,8 +8,8 @@ import (
 	eth "github.com/ethereum/go-ethereum/core/types"
 )
 
-// Rpc represents the interface for the RPC client.
-type Rpc interface {
+// IRpc represents the interface for the RPC client.
+type IRpc interface {
 	// BlockByNumber returns the block identified by number.
 	BlockByNumber(context.Context, uint64) (*types.Block, error)
 	// TransactionByHash returns the transaction identified by hash.
