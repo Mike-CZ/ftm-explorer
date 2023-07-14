@@ -7,14 +7,14 @@ import (
 
 // RootResolver is GraphQL resolver of root namespace.
 type RootResolver struct {
-	repository *repository.Repository
-	log        logger.Logger
+	repository repository.IRepository
+	log        logger.ILogger
 }
 
 // NewResolver creates a new root resolver.
-func NewResolver(repository *repository.Repository, log logger.Logger) *RootResolver {
+func NewResolver(repository repository.IRepository, log logger.ILogger) *RootResolver {
 	return &RootResolver{
 		repository: repository,
-		log:        log,
+		log:        log.ModuleLogger("resolver"),
 	}
 }

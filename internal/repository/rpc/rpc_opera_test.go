@@ -83,11 +83,11 @@ func TestOperaRpc_BlockByNumber(t *testing.T) {
 	if blk.GasUsed != 2_566_683 {
 		t.Errorf("unexpected gas used: %v", blk.GasUsed)
 	}
-	if blk.TimeStamp != 1_682_833_408 {
-		t.Errorf("unexpected timestamp: %v", blk.TimeStamp)
+	if blk.Timestamp != 1_682_833_408 {
+		t.Errorf("unexpected timestamp: %v", blk.Timestamp)
 	}
-	if len(blk.Txs) != 16 {
-		t.Errorf("unexpected number of transactions: %v", len(blk.Txs))
+	if len(blk.Transactions) != 16 {
+		t.Errorf("unexpected number of transactions: %v", len(blk.Transactions))
 	}
 }
 

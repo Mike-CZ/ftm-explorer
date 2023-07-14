@@ -44,10 +44,10 @@ type Transaction struct {
 	Value hexutil.Big `json:"value"`
 
 	// Input represents the data send along with the transaction.
-	InputData hexutil.Bytes `json:"input"`
+	Input hexutil.Bytes `json:"input"`
 
 	// TrxIndex represents integer of the transaction's index position in the block. nil when it's pending.
-	TrxIndex *hexutil.Uint64 `json:"transactionIndex"`
+	TransactionIndex *hexutil.Uint64 `json:"transactionIndex"`
 
 	// Status represents transaction status; value is either 1 (success) or 0 (failure)
 	Status *hexutil.Uint64 `json:"status"`

@@ -1,7 +1,7 @@
 package logger
 
-// Logger specifies interface for leveled logger implementation.
-type Logger interface {
+// ILogger specifies interface for leveled logger implementation.
+type ILogger interface {
 	// Fatal logs fatal error without formatting.
 	Fatal(args ...interface{})
 
@@ -54,5 +54,5 @@ type Logger interface {
 	Printf(string, ...interface{})
 
 	// ModuleLogger derives new logger for sub-module.
-	ModuleLogger(string) Logger
+	ModuleLogger(string) ILogger
 }

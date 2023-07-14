@@ -7,4 +7,10 @@ schema {
 type Query {
     # Get transaction information for given transaction hash.
     transaction(hash:Bytes32!):Transaction
+
+    # Get block information by number.
+    block(number:Long!):Block
+
+    # Get recent observed blocks
+    recentBlocks(limit:Int!):[Block!]!
 }

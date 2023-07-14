@@ -3,7 +3,6 @@ package handlers
 import (
 	"ftm-explorer/internal/api/graphql/resolvers"
 	"ftm-explorer/internal/api/graphql/schema"
-	"ftm-explorer/internal/config"
 	"ftm-explorer/internal/logger"
 	"net/http"
 
@@ -14,9 +13,9 @@ import (
 )
 
 // ApiHandler constructs and return the API HTTP handlers chain for serving GraphQL API calls.
-func ApiHandler(cfg *config.ApiServer, resolver *resolvers.RootResolver, log logger.Logger) http.Handler {
+func ApiHandler(corsOrigins []string, resolver *resolvers.RootResolver, log logger.ILogger) http.Handler {
 	// Create new CORS handler and attach the logger into it, so we get information on Debug level if needed
-	corsHandler := cors.New(corsOptions(cfg))
+	corsHandler := cors.New(corsOptions(corsOrigins))
 
 	// we don't want to write a method for each type field if it could be matched directly
 	opts := []graphql.SchemaOpt{graphql.UseFieldResolvers()}
@@ -32,9 +31,9 @@ func ApiHandler(cfg *config.ApiServer, resolver *resolvers.RootResolver, log log
 }
 
 // corsOptions constructs new set of options for the CORS handler based on provided configuration.
-func corsOptions(cfg *config.ApiServer) cors.Options {
+func corsOptions(corsOrigins []string) cors.Options {
 	return cors.Options{
-		AllowedOrigins: cfg.CorsOrigin,
+		AllowedOrigins: corsOrigins,
 		AllowedMethods: []string{"HEAD", "GET", "POST"},
 		AllowedHeaders: []string{"Origin", "Accept", "Content-Type", "X-Requested-With"},
 		MaxAge:         300,

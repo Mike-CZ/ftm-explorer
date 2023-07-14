@@ -19,8 +19,8 @@ func (l *AppLogger) Printf(format string, args ...interface{}) {
 	l.Debugf(format, args...)
 }
 
-// ModuleLogger provides a new instance of the Logger for a module.
-func (l *AppLogger) ModuleLogger(module string) Logger {
+// ModuleLogger provides a new instance of the ILogger for a module.
+func (l *AppLogger) ModuleLogger(module string) ILogger {
 	var sb strings.Builder
 	sb.WriteString(l.Module)
 	sb.WriteString(".")
@@ -29,7 +29,7 @@ func (l *AppLogger) ModuleLogger(module string) Logger {
 	return &AppLogger{Logger: *log}
 }
 
-// New provides a new instance of the Logger.
+// New provides a new instance of the ILogger.
 func New(out io.Writer, cfg *config.Logger) *AppLogger {
 	backend := logging.NewLogBackend(out, "", 0)
 

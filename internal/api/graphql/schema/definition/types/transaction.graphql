@@ -42,15 +42,15 @@ type Transaction {
     # Value is the value sent along with this transaction in WEI.
     value: BigInt!
 
-    # InputData is the data supplied to the target of the transaction.
+    # Input is the data supplied to the target of the transaction.
     # Contains smart contract byte code if this is contract creation.
     # Contains encoded contract state mutating function call if recipient
     # is a contract address.
-    inputData: Bytes!
+    input: Bytes!
 
-    # TrxIndex is the index of this transaction in the block. This will
+    # TransactionIndex is the index of this transaction in the block. This will
     # be null if the transaction is in a pending pool.
-    trxIndex: Long
+    transactionIndex: Long
 
     # Status is the return status of the transaction. This will be 1 if the
     # transaction succeeded, or 0 if it failed (due to a revert, or due to
