@@ -10,4 +10,7 @@ type Query {
 
     # Get block information by number.
     block(number:Long!):Block
+
+    # Get recent observed blocks
+    recentBlocks(limit:Int!):[Block!]!
 }

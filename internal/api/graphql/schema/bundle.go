@@ -3,7 +3,7 @@ package schema
 // Auto generated GraphQL schema bundle
 const schema = `
 type Block {
-    # Number is the number of this block, starting at 0 for the genesis block.
+    # Number is the number of this block.
     number: Long!
 
     # Epoch is the number of this block's epoch.
@@ -125,5 +125,8 @@ type Query {
 
     # Get block information by number.
     block(number:Long!):Block
+
+    # Get recent observed blocks
+    recentBlocks(limit:Int!):[Block!]!
 }
 `

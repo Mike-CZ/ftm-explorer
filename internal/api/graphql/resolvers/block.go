@@ -1,6 +1,7 @@
 package resolvers
 
 import (
+	"fmt"
 	"ftm-explorer/internal/types"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -11,6 +12,33 @@ type Block struct {
 	types.Block
 }
 
+// NewBlock builds new resolvable block structure.
+func NewBlock(blk *types.Block) *Block {
+	if blk == nil {
+		return nil
+	}
+	return &Block{Block: *blk}
+}
+
+// RecentBlocks resolves recent observed blocks.
+func (rs *RootResolver) RecentBlocks(args *struct{ Limit int32 }) ([]*Block, error) {
+	if args.Limit <= 0 {
+		return nil, fmt.Errorf("invalid limit value")
+	}
+	blocks := rs.repository.GetLatestObservedBlocks(int(args.Limit))
+
+	if len(blocks) == 0 {
+		return []*Block{}, nil
+	}
+
+	rv := make([]*Block, len(blocks))
+	for i, b := range blocks {
+		rv[i] = NewBlock(b)
+	}
+
+	return rv, nil
+}
+
 // Block resolves block by number.
 func (rs *RootResolver) Block(args *struct{ Number hexutil.Uint64 }) (*Block, error) {
 	block, err := rs.repository.GetBlockByNumber(uint64(args.Number))
@@ -18,7 +46,7 @@ func (rs *RootResolver) Block(args *struct{ Number hexutil.Uint64 }) (*Block, er
 		rs.log.Warningf("Failed to get block by number [%d]; %v", args.Number, err)
 		return nil, err
 	}
-	return &Block{Block: *block}, nil
+	return NewBlock(block), nil
 }
 
 // TransactionsCount resolves number of transactions in the block.

@@ -46,6 +46,7 @@ func TestApiServer_Run(t *testing.T) {
 	testCases := []apiTestCase{
 		getTransactionTestCase(t),
 		getBlockTestCase(t),
+		getRecentBlocksTestCase(t),
 	}
 
 	for _, tc := range testCases {
@@ -130,6 +131,41 @@ func getBlockTestCase(t *testing.T) apiTestCase {
 			// validate transactions count
 			if blockRes.Block.TransactionsCount != int32(len(block.Transactions)) {
 				t.Errorf("expected transactions count %v, got %v", len(block.Transactions), blockRes.Block.TransactionsCount)
+			}
+		},
+	}
+}
+
+// getRecentBlocksTestCase returns a test case for a recent blocks query.
+func getRecentBlocksTestCase(_ *testing.T) apiTestCase {
+	blocks := []*types.Block{
+		{Number: hexutil.Uint64(1)}, {Number: hexutil.Uint64(2)}, {Number: hexutil.Uint64(3)},
+		{Number: hexutil.Uint64(4)}, {Number: hexutil.Uint64(5)},
+	}
+	return apiTestCase{
+		testName:    "GetRecentBlocks",
+		requestBody: `{"query": "query { recentBlocks(limit: 5) { number }}"}`,
+		buildStubs: func(mockRepository *repository.MockRepository) {
+			mockRepository.EXPECT().GetLatestObservedBlocks(gomock.Eq(5)).Return(blocks)
+		},
+		checkResponse: func(t *testing.T, resp *http.Response) {
+			apiRes := decodeResponse(t, resp)
+			if len(apiRes.Errors) != 0 {
+				t.Errorf("expected no errors, got: %s", apiRes.Errors[0].Message)
+			}
+			// decode raw data into block
+			blockRes := struct {
+				Blocks []*types.Block `json:"recentBlocks"`
+			}{}
+			if err := json.Unmarshal(apiRes.Data, &blockRes); err != nil {
+				t.Errorf("failed to unmarshall data: %v", err)
+			}
+			// validate blocks
+			if len(blockRes.Blocks) != len(blocks) {
+				t.Errorf("expected blocks count %v, got %v", len(blocks), len(blockRes.Blocks))
+			}
+			for i, block := range blocks {
+				validateBlock(t, *block, *blockRes.Blocks[i])
 			}
 		},
 	}
