@@ -29,7 +29,7 @@ func (r *Repository) GetBlockByNumber(number uint64) (*types.Block, error) {
 
 // GetLatestObservedBlocks returns the number of latest observed blocks.
 // It will only return blocks that are in the buffer.
-func (r *Repository) GetLatestObservedBlocks(count int) []*types.Block {
+func (r *Repository) GetLatestObservedBlocks(count uint) []*types.Block {
 	return r.blkBuffer.GetLatest(count)
 }
 
@@ -46,7 +46,7 @@ func (r *Repository) GetLatestObservedBlock() *types.Block {
 // UpdateLatestObservedBlock updates the latest observed block.
 // It will add the block to the buffer.
 func (r *Repository) UpdateLatestObservedBlock(blk *types.Block) {
-	r.blkBuffer.Add(uint64(blk.Number), blk)
+	r.blkBuffer.Add(blk)
 }
 
 // GetNewHeadersChannel returns a channel that will receive the latest headers from blockchain.

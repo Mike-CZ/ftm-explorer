@@ -47,6 +47,7 @@ func TestApiServer_Run(t *testing.T) {
 		getTransactionTestCase(t),
 		getBlockTestCase(t),
 		getRecentBlocksTestCase(t),
+		getCurrentBlockHeight(t),
 	}
 
 	for _, tc := range testCases {
@@ -146,7 +147,7 @@ func getRecentBlocksTestCase(_ *testing.T) apiTestCase {
 		testName:    "GetRecentBlocks",
 		requestBody: `{"query": "query { recentBlocks(limit: 5) { number }}"}`,
 		buildStubs: func(mockRepository *repository.MockRepository) {
-			mockRepository.EXPECT().GetLatestObservedBlocks(gomock.Eq(5)).Return(blocks)
+			mockRepository.EXPECT().GetLatestObservedBlocks(gomock.Eq(uint(5))).Return(blocks)
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
 			apiRes := decodeResponse(t, resp)
@@ -166,6 +167,35 @@ func getRecentBlocksTestCase(_ *testing.T) apiTestCase {
 			}
 			for i, block := range blocks {
 				validateBlock(t, *block, *blockRes.Blocks[i])
+			}
+		},
+	}
+}
+
+// getRecentBlocksTestCase returns a test case for a recent blocks query.
+func getCurrentBlockHeight(_ *testing.T) apiTestCase {
+	var blockHeight uint64 = 100_000
+	return apiTestCase{
+		testName:    "GetCurrentBlockHeight",
+		requestBody: `{"query": "query { currentBlockHeight}"}`,
+		buildStubs: func(mockRepository *repository.MockRepository) {
+			mockRepository.EXPECT().GetLatestObservedBlock().Return(&types.Block{Number: hexutil.Uint64(blockHeight)})
+		},
+		checkResponse: func(t *testing.T, resp *http.Response) {
+			apiRes := decodeResponse(t, resp)
+			if len(apiRes.Errors) != 0 {
+				t.Errorf("expected no errors, got: %s", apiRes.Errors[0].Message)
+			}
+			// decode raw data into response
+			heightRes := struct {
+				BlockHeight uint64 `json:"currentBlockHeight"`
+			}{}
+			if err := json.Unmarshal(apiRes.Data, &heightRes); err != nil {
+				t.Errorf("failed to unmarshall data: %v", err)
+			}
+			// validate height
+			if heightRes.BlockHeight != blockHeight {
+				t.Errorf("expected block height %v, got %v", blockHeight, heightRes.BlockHeight)
 			}
 		},
 	}

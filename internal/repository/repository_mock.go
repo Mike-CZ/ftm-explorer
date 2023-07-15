@@ -66,7 +66,7 @@ func (mr *MockRepositoryMockRecorder) GetLatestObservedBlock() *gomock.Call {
 }
 
 // GetLatestObservedBlocks mocks base method.
-func (m *MockRepository) GetLatestObservedBlocks(arg0 int) []*types.Block {
+func (m *MockRepository) GetLatestObservedBlocks(arg0 uint) []*types.Block {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLatestObservedBlocks", arg0)
 	ret0, _ := ret[0].([]*types.Block)

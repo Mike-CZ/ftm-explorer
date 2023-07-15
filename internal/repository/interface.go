@@ -12,7 +12,7 @@ type IRepository interface {
 	GetBlockByNumber(uint64) (*types.Block, error)
 
 	// GetLatestObservedBlocks returns the number of latest observed blocks.
-	GetLatestObservedBlocks(int) []*types.Block
+	GetLatestObservedBlocks(uint) []*types.Block
 
 	// GetLatestObservedBlock returns the latest observed block.
 	GetLatestObservedBlock() *types.Block

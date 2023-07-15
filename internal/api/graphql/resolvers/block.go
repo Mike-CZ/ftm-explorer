@@ -25,7 +25,7 @@ func (rs *RootResolver) RecentBlocks(args *struct{ Limit int32 }) ([]*Block, err
 	if args.Limit <= 0 {
 		return nil, fmt.Errorf("invalid limit value")
 	}
-	blocks := rs.repository.GetLatestObservedBlocks(int(args.Limit))
+	blocks := rs.repository.GetLatestObservedBlocks(uint(args.Limit))
 
 	if len(blocks) == 0 {
 		return []*Block{}, nil
