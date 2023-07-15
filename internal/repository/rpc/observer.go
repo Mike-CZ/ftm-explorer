@@ -17,7 +17,7 @@ const kHeadsObserverSubscribeTick = 5 * time.Second
 const kHeadObserverRpcTick = 500 * time.Millisecond
 
 // kObservedHeadChanCapacity represents the capacity of the channel fed with new headers.
-const kObservedHeadChanCapacity = 10000
+const kObservedHeadChanCapacity = 10_000
 
 // ObservedHeadProxy provides a channel fed with new headers.
 // It is not guaranteed that there won't be "gaps" between the headers.
@@ -25,7 +25,7 @@ const kObservedHeadChanCapacity = 10000
 func (rpc *OperaRpc) ObservedHeadProxy() <-chan *types.Header {
 	// If the channel is nil, initialize it.
 	if rpc.headers == nil {
-		rpc.sigClose = make(chan bool, 1)
+		rpc.sigClose = make(chan struct{}, 1)
 		rpc.headers = make(chan *types.Header, kObservedHeadChanCapacity)
 		rpc.wg.Add(1)
 		go rpc.observeBlocks()

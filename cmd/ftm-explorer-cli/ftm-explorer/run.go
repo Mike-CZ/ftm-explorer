@@ -7,6 +7,7 @@ import (
 	"ftm-explorer/internal/logger"
 	"ftm-explorer/internal/repository"
 	"ftm-explorer/internal/repository/rpc"
+	"ftm-explorer/internal/svc"
 
 	"github.com/urfave/cli/v2"
 )
@@ -34,6 +35,12 @@ func run(ctx *cli.Context) error {
 
 	// create logger
 	log := logger.New(ctx.App.Writer, &cfg.Logger)
+
+	// create and start services
+	scanner := svc.NewBlockScanner(repo, log)
+	observer := svc.NewBlockObserver(scanner.ScannedBlocks(), repo, log)
+	scanner.Start()
+	observer.Start()
 
 	// create api server
 	apiServer := api.NewApiServer(&cfg.Api, repo, log)

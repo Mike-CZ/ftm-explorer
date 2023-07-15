@@ -13,7 +13,7 @@ type OperaRpc struct {
 	ftm *client.Client
 	// received blocks proxy
 	wg       *sync.WaitGroup
-	sigClose chan bool
+	sigClose chan struct{}
 	headers  chan *types.Header
 	// closed flag
 	closed bool
@@ -39,7 +39,7 @@ func (rpc *OperaRpc) Close() {
 	}
 
 	if rpc.headers != nil {
-		rpc.sigClose <- true
+		rpc.sigClose <- struct{}{}
 		rpc.wg.Wait()
 		close(rpc.headers)
 		close(rpc.sigClose)
