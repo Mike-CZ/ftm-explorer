@@ -46,7 +46,7 @@ func run(ctx *cli.Context) error {
 	apiServer := api.NewApiServer(&cfg.Api, repo, log)
 
 	// run api server
-	apiServer.Run()
+	apiServer.Start()
 
 	return nil
 }

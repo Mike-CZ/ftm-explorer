@@ -128,5 +128,8 @@ type Query {
 
     # Get recent observed blocks
     recentBlocks(limit:Int!):[Block!]!
+
+    # Get current block height
+    currentBlockHeight:Int
 }
 `

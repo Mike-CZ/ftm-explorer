@@ -31,11 +31,12 @@ func NewApiServer(cfg *config.ApiServer, repo repository.IRepository, log logger
 	return server
 }
 
-// Run starts the GraphQL API server.
+// Start starts the GraphQL API server.
 // It blocks until the server is stopped.
-func (api *ApiServer) Run() {
+func (api *ApiServer) Start() {
+	api.log.Notice("starting API server")
 	if err := api.srv.ListenAndServe(); err != nil {
-		api.log.Fatalf("Failed to start API server: %s", err.Error())
+		api.log.Fatalf("failed to start API server: %s", err.Error())
 	}
 }
 

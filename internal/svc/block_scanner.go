@@ -88,7 +88,7 @@ func (bs *BlockScanner) execute() {
 			if targetBlock >= nextBlock && nextBlock > 0 {
 				block, err := bs.repo.GetBlockByNumber(nextBlock)
 				if err != nil {
-					bs.log.Errorf("block scanner can not proceed; %v", err)
+					bs.log.Warningf("block scanner can not proceed; %v", err)
 					continue
 				}
 				bs.outBlocks <- block
