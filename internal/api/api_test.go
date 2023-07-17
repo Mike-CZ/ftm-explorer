@@ -188,13 +188,13 @@ func getCurrentBlockHeight(_ *testing.T) apiTestCase {
 			}
 			// decode raw data into response
 			heightRes := struct {
-				BlockHeight uint64 `json:"currentBlockHeight"`
+				BlockHeight hexutil.Uint64 `json:"currentBlockHeight"`
 			}{}
 			if err := json.Unmarshal(apiRes.Data, &heightRes); err != nil {
 				t.Errorf("failed to unmarshall data: %v", err)
 			}
 			// validate height
-			if heightRes.BlockHeight != blockHeight {
+			if uint64(heightRes.BlockHeight) != blockHeight {
 				t.Errorf("expected block height %v, got %v", blockHeight, heightRes.BlockHeight)
 			}
 		},
