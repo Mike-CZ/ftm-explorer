@@ -25,7 +25,7 @@ func TestBlockObserver_Run(t *testing.T) {
 	defer observer.Stop()
 
 	// validate, that observed blocks are forwarded to the repository
-	for i := 1; i <= 10; i++ {
+	for i := 0; i <= 10; i++ {
 		blk := &types.Block{Number: hexutil.Uint64(i)}
 		mockRepository.EXPECT().UpdateLatestObservedBlock(gomock.Eq(blk))
 		blocks <- blk

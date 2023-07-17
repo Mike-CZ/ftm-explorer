@@ -63,8 +63,8 @@ func (bs *BlockScanner) execute() {
 	ticker := time.NewTicker(kScanTickDuration)
 	defer ticker.Stop()
 
-	var targetBlock uint64 = 0
-	var nextBlock uint64 = 0
+	var targetBlock *uint64
+	var nextBlock *uint64
 	for {
 		select {
 		// we should stop
@@ -77,22 +77,27 @@ func (bs *BlockScanner) execute() {
 				bs.log.Notice("new headers channel closed. stopping block scanner")
 				return
 			}
-			targetBlock = head.Number.Uint64()
+			// initialize target block if it is not initialized
+			if targetBlock == nil {
+				targetBlock = new(uint64)
+			}
+			*targetBlock = head.Number.Uint64()
 			bs.log.Debugf("block scanner target block set to %d", targetBlock)
 			// if we have no next block, set it to the target block
-			if nextBlock == 0 {
-				nextBlock = targetBlock
+			if nextBlock == nil {
+				nextBlock = new(uint64)
+				*nextBlock = *targetBlock
 			}
 		// scan new blocks
 		case <-ticker.C:
-			if targetBlock >= nextBlock && nextBlock > 0 {
-				block, err := bs.repo.GetBlockByNumber(nextBlock)
+			if targetBlock != nil && nextBlock != nil && *targetBlock >= *nextBlock {
+				block, err := bs.repo.GetBlockByNumber(*nextBlock)
 				if err != nil {
 					bs.log.Warningf("block scanner can not proceed; %v", err)
 					continue
 				}
 				bs.outBlocks <- block
-				nextBlock++
+				*nextBlock++
 			}
 		}
 	}

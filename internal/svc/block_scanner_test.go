@@ -25,7 +25,7 @@ func TestBlockScanner_Run(t *testing.T) {
 
 	// send heads into channel and expect them to be received by the scanner
 	go func() {
-		for i := 1; i <= 10; i++ {
+		for i := 0; i <= 10; i++ {
 			mockRepository.EXPECT().GetBlockByNumber(gomock.Eq(uint64(i))).Return(&types.Block{Number: hexutil.Uint64(i)}, nil)
 			heads <- &eth.Header{Number: big.NewInt(int64(i))}
 		}
@@ -40,7 +40,7 @@ func TestBlockScanner_Run(t *testing.T) {
 	scannedBlocks := scanner.ScannedBlocks()
 
 	// receive scanned blocks and check their numbers
-	for i := 1; i <= 10; i++ {
+	for i := 0; i <= 10; i++ {
 		block := <-scannedBlocks
 		if block.Number != hexutil.Uint64(i) {
 			t.Errorf("expected block number %d, got %d", i, block.Number)
