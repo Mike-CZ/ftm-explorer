@@ -4,9 +4,10 @@ import "github.com/op/go-logging"
 
 // Config is the base configuration structure.
 type Config struct {
-	Rpc    Rpc
-	Api    ApiServer
-	Logger Logger
+	Rpc     Rpc
+	Api     ApiServer
+	Logger  Logger
+	MongoDb MongoDb
 }
 
 // Rpc is the configuration structure for RPC.
@@ -30,4 +31,11 @@ type ApiServer struct {
 type Logger struct {
 	LoggingLevel logging.Level
 	LogFormat    string
+}
+
+// MongoDb is the configuration structure for MongoDB.
+type MongoDb struct {
+	Host     string
+	Port     int
+	Database string
 }

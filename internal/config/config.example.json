@@ -15,5 +15,10 @@
   "logger": {
     "loggingLevel": 4,
     "logFormat": "%{color}%{level:-8s} %{shortpkg}/%{shortfunc}%{color:reset}: %{message}"
+  },
+  "mongodb": {
+    "host": "localhost",
+    "port": 27017,
+    "db": "ftm-explorer"
   }
 }

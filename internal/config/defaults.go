@@ -23,4 +23,9 @@ func applyDefaults(cfg *viper.Viper) {
 	// logger
 	cfg.SetDefault("logger.loggingLevel", logging.INFO)
 	cfg.SetDefault("logger.logFormat", "%{color}%{level:-8s} %{shortpkg}/%{shortfunc}%{color:reset}: %{message}")
+
+	// mongodb
+	cfg.SetDefault("mongodb.host", "localhost")
+	cfg.SetDefault("mongodb.port", 27017)
+	cfg.SetDefault("mongodb.database", "ftm-explorer")
 }
