@@ -1,7 +1,6 @@
 {
   "rpc": {
-    "operaRpcUrl": "https://rpcapi.fantom.network",
-    "tracingRpcUrl": "https://rpcapi-tracing.fantom.network"
+    "operaRpcUrl": "https://rpcapi.fantom.network"
   },
   "api": {
     "readTimeout": 2,
