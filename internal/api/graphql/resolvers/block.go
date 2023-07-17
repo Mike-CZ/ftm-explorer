@@ -40,13 +40,12 @@ func (rs *RootResolver) RecentBlocks(args *struct{ Limit int32 }) ([]*Block, err
 }
 
 // CurrentBlockHeight resolves current block height.
-func (rs *RootResolver) CurrentBlockHeight() (*int32, error) {
+func (rs *RootResolver) CurrentBlockHeight() (*hexutil.Uint64, error) {
 	lastBlock := rs.repository.GetLatestObservedBlock()
 	if lastBlock == nil {
 		return nil, nil
 	}
-	height := int32(lastBlock.Number)
-	return &height, nil
+	return &lastBlock.Number, nil
 }
 
 // Block resolves block by number.

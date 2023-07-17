@@ -1,0 +1,7 @@
+type Tick {
+    # The timestamp of the tick
+    timestamp: Time!
+
+    # The value of the tick
+    value: Int!
+}

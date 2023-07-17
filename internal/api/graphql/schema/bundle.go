@@ -91,6 +91,13 @@ type Transaction {
     # field will be null.
     status: Long
 }
+type Tick {
+    # The timestamp of the tick
+    timestamp: Time!
+
+    # The value of the tick
+    value: Int!
+}
 # Bytes32 is a 32 byte binary string, represented by 0x prefixed hexadecimal hash.
 scalar Bytes32
 
@@ -130,6 +137,6 @@ type Query {
     recentBlocks(limit:Int!):[Block!]!
 
     # Get current block height
-    currentBlockHeight:Int
+    currentBlockHeight:Long
 }
 `

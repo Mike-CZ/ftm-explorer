@@ -15,5 +15,5 @@ type Query {
     recentBlocks(limit:Int!):[Block!]!
 
     # Get current block height
-    currentBlockHeight:Int
+    currentBlockHeight:Long
 }

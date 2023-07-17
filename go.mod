@@ -11,6 +11,7 @@ require (
 	github.com/rs/cors v1.7.0
 	github.com/spf13/viper v1.3.2
 	github.com/urfave/cli/v2 v2.17.2-0.20221006022127-8f469abc00aa
+	golang.org/x/exp v0.0.0-20230206171751-46f607a40771
 )
 
 require (
