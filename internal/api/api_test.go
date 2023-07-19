@@ -106,7 +106,7 @@ func getTransactionTestCase(t *testing.T) apiTestCase {
 func getBlockTestCase(t *testing.T) apiTestCase {
 	block := getTestBlock(t)
 	return apiTestCase{
-		testName:    "GetBlock",
+		testName:    "Block",
 		requestBody: fmt.Sprintf(`{"query": "query { block(number: \"%s\") { number, epoch, hash, parentHash, timestamp, gasLimit, gasUsed, transactions, transactionsCount }}"}`, block.Number.String()),
 		buildStubs: func(mockRepository *repository.MockRepository) {
 			mockRepository.EXPECT().GetBlockByNumber(gomock.Eq(uint64(block.Number))).Return(&block, nil)

@@ -1,0 +1,12 @@
+# AggResolution is the resolution of the aggregation
+enum AggResolution {
+    MINUTE,
+    HOUR,
+    DAY
+}
+
+# AggSubject is the subject of the aggregation
+enum AggSubject {
+    TXS_COUNT,
+    GAS_USED
+}

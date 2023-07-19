@@ -6,6 +6,7 @@ import (
 	"ftm-explorer/internal/config"
 	"ftm-explorer/internal/logger"
 	"ftm-explorer/internal/repository"
+	"ftm-explorer/internal/repository/db"
 	"ftm-explorer/internal/repository/rpc"
 	"ftm-explorer/internal/svc"
 
@@ -27,14 +28,14 @@ func run(ctx *cli.Context) error {
 	// load config
 	cfg := config.Load(ctx.String(flags.Cfg.Name))
 
+	// create logger
+	log := logger.New(ctx.App.Writer, &cfg.Logger)
+
 	// create repository
-	repo, err := createRepository(cfg)
+	repo, err := createRepository(cfg, log)
 	if err != nil {
 		return err
 	}
-
-	// create logger
-	log := logger.New(ctx.App.Writer, &cfg.Logger)
 
 	// create and start services
 	scanner := svc.NewBlockScanner(repo, log)
@@ -52,12 +53,19 @@ func run(ctx *cli.Context) error {
 }
 
 // createRepository creates a new repository instance.
-func createRepository(cfg *config.Config) (*repository.Repository, error) {
+func createRepository(cfg *config.Config, log logger.ILogger) (*repository.Repository, error) {
 	// create rpc connection
 	operaRpc, err := rpc.NewOperaRpc(&cfg.Rpc)
 	if err != nil {
 		return nil, err
 	}
+
+	// create db connection
+	database, err := db.NewMongoDb(&cfg.MongoDb, log)
+	if err != nil {
+		return nil, err
+	}
+
 	// create repository
-	return repository.NewRepository(operaRpc), nil
+	return repository.NewRepository(operaRpc, database), nil
 }

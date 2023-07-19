@@ -1,7 +1,7 @@
 type Tick {
     # The timestamp of the tick
-    timestamp: Time!
+    timestamp: Int!
 
     # The value of the tick
-    value: Int!
+    value: Long!
 }

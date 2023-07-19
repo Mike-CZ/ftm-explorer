@@ -93,10 +93,22 @@ type Transaction {
 }
 type Tick {
     # The timestamp of the tick
-    timestamp: Time!
+    timestamp: Int!
 
     # The value of the tick
-    value: Int!
+    value: Long!
+}
+# AggResolution is the resolution of the aggregation
+enum AggResolution {
+    MINUTE,
+    HOUR,
+    DAY
+}
+
+# AggSubject is the subject of the aggregation
+enum AggSubject {
+    TXS_COUNT,
+    GAS_USED
 }
 # Bytes32 is a 32 byte binary string, represented by 0x prefixed hexadecimal hash.
 scalar Bytes32
@@ -138,5 +150,13 @@ type Query {
 
     # Get current block height
     currentBlockHeight:Long
+
+    # Get block aggregated data by timestamp
+    # parameters:
+    #   subject: the subject of the aggregation - value of AggSubject enum
+    #   resolution: the resolution of the aggregation - value of AggResolution enum
+    #   ticks: the number of ticks to return
+    #   endTime: the end timestamp of the aggregation, if not specified, last block's timestamp is used
+    blockTimestampAggregations(subject: AggSubject!, resolution: AggResolution!, ticks:Int!, endTime:Int):[Tick!]!
 }
 `

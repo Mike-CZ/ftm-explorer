@@ -8,16 +8,58 @@ import (
 )
 
 // Block represents resolvable blockchain block structure.
-type Block struct {
-	types.Block
-}
+type Block types.Block
 
-// NewBlock builds new resolvable block structure.
-func NewBlock(blk *types.Block) *Block {
-	if blk == nil {
-		return nil
+// Tick represents resolvable blockchain tick structure.
+type Tick types.Tick[hexutil.Uint64]
+
+// BlockTimestampAggregations resolves block timestamp aggregations.
+func (rs *RootResolver) BlockTimestampAggregations(args *struct {
+	Subject    types.AggSubject
+	Resolution types.AggResolution
+	Ticks      int32
+	EndTime    *int32
+}) ([]Tick, error) {
+	// validate arguments
+	if args.Ticks <= 0 {
+		return nil, fmt.Errorf("invalid ticks value")
 	}
-	return &Block{Block: *blk}
+	if args.EndTime != nil && *args.EndTime <= 0 {
+		return nil, fmt.Errorf("invalid end time value")
+	}
+
+	// convert arguments
+	var endTime *uint64
+	if args.EndTime != nil {
+		e := uint64(*args.EndTime)
+		endTime = &e
+	}
+
+	// get data based on subject
+	var result []types.Tick[hexutil.Uint64]
+	var err error
+
+	switch args.Subject {
+	case types.AggSubjectTxsCount:
+		result, err = rs.repository.GetTrxCountAggByTimestamp(args.Resolution, uint(args.Ticks), endTime)
+	case types.AggSubjectGasUsed:
+		result, err = rs.repository.GetGasUsedAggByTimestamp(args.Resolution, uint(args.Ticks), endTime)
+	default:
+		return nil, fmt.Errorf("invalid subject value")
+	}
+
+	// check for errors
+	if err != nil {
+		return nil, err
+	}
+
+	// convert result
+	rv := make([]Tick, len(result))
+	for i, t := range result {
+		rv[i] = Tick(t)
+	}
+
+	return rv, nil
 }
 
 // RecentBlocks resolves recent observed blocks.
@@ -33,7 +75,8 @@ func (rs *RootResolver) RecentBlocks(args *struct{ Limit int32 }) ([]*Block, err
 
 	rv := make([]*Block, len(blocks))
 	for i, b := range blocks {
-		rv[i] = NewBlock(b)
+		blk := Block(*b)
+		rv[i] = &blk
 	}
 
 	return rv, nil
@@ -55,10 +98,16 @@ func (rs *RootResolver) Block(args *struct{ Number hexutil.Uint64 }) (*Block, er
 		rs.log.Warningf("Failed to get block by number [%d]; %v", args.Number, err)
 		return nil, err
 	}
-	return NewBlock(block), nil
+	blk := Block(*block)
+	return &blk, nil
 }
 
 // TransactionsCount resolves number of transactions in the block.
 func (blk *Block) TransactionsCount() int32 {
 	return int32(len(blk.Transactions))
+}
+
+// Timestamp resolves tick timestamp.
+func (t Tick) Timestamp() int32 {
+	return int32(t.Time)
 }

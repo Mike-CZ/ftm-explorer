@@ -4,6 +4,7 @@ import (
 	"ftm-explorer/internal/types"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	eth "github.com/ethereum/go-ethereum/core/types"
 )
 
@@ -25,4 +26,10 @@ type IRepository interface {
 
 	// GetTransactionByHash returns the transaction identified by hash.
 	GetTransactionByHash(common.Hash) (*types.Transaction, error)
+
+	// GetTrxCountAggByTimestamp returns aggregation of transactions in given time range.
+	GetTrxCountAggByTimestamp(types.AggResolution, uint, *uint64) ([]types.Tick[hexutil.Uint64], error)
+
+	// GetGasUsedAggByTimestamp returns aggregation of gas used in given time range.
+	GetGasUsedAggByTimestamp(types.AggResolution, uint, *uint64) ([]types.Tick[hexutil.Uint64], error)
 }
