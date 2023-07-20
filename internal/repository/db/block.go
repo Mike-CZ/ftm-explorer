@@ -38,7 +38,7 @@ func (db *MongoDb) TrxCountAggByTimestamp(ctx context.Context, endTime uint64, r
 
 	// prepare the result
 	ticksResult := make([]types.Tick[hexutil.Uint64], ticks)
-	for i, ts := uint(0), endTime; i < ticks; i, ts = i+1, ts-uint64(resolution) {
+	for i, ts := uint(0), endTime-uint64(resolution*(ticks-1)); i < ticks; i, ts = i+1, ts+uint64(resolution) {
 		ticksResult[i] = types.Tick[hexutil.Uint64]{
 			Time: ts,
 		}
@@ -61,7 +61,7 @@ func (db *MongoDb) GasUsedAggByTimestamp(ctx context.Context, endTime uint64, re
 
 	// prepare the result
 	ticksResult := make([]types.Tick[hexutil.Uint64], ticks)
-	for i, ts := uint(0), endTime; i < ticks; i, ts = i+1, ts-uint64(resolution) {
+	for i, ts := uint(0), endTime-uint64(resolution*(ticks-1)); i < ticks; i, ts = i+1, ts+uint64(resolution) {
 		ticksResult[i] = types.Tick[hexutil.Uint64]{
 			Time: ts,
 		}

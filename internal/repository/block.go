@@ -28,32 +28,6 @@ func (r *Repository) GetBlockByNumber(number uint64) (*types.Block, error) {
 	return blk, nil
 }
 
-// GetTrxCountAggByTimestamp returns aggregation of transactions in given time range.
-// It will fetch data from last block timestamp if endTime is nil.
-func (r *Repository) GetTrxCountAggByTimestamp(resolution types.AggResolution, ticks uint, endTime *uint64) ([]types.Tick[hexutil.Uint64], error) {
-	last := r.getLastBlockTimestamp(endTime)
-	if last == nil {
-		return nil, nil
-	}
-	// get aggregation from db
-	ctx, cancel := context.WithTimeout(context.Background(), kDbTimeout)
-	defer cancel()
-	return r.db.TrxCountAggByTimestamp(ctx, *last, resolution.ToDuration(), ticks)
-}
-
-// GetGasUsedAggByTimestamp returns aggregation of gas used in given time range.
-// It will fetch data from last block timestamp if endTime is nil.
-func (r *Repository) GetGasUsedAggByTimestamp(resolution types.AggResolution, ticks uint, endTime *uint64) ([]types.Tick[hexutil.Uint64], error) {
-	last := r.getLastBlockTimestamp(endTime)
-	if last == nil {
-		return nil, nil
-	}
-	// get aggregation from db
-	ctx, cancel := context.WithTimeout(context.Background(), kDbTimeout)
-	defer cancel()
-	return r.db.GasUsedAggByTimestamp(ctx, *last, resolution.ToDuration(), ticks)
-}
-
 // GetLatestObservedBlocks returns the number of latest observed blocks.
 // It will only return blocks that are in the buffer.
 func (r *Repository) GetLatestObservedBlocks(count uint) []*types.Block {
@@ -85,6 +59,32 @@ func (r *Repository) UpdateLatestObservedBlock(blk *types.Block) {
 // GetNewHeadersChannel returns a channel that will receive the latest headers from blockchain.
 func (r *Repository) GetNewHeadersChannel() <-chan *eth.Header {
 	return r.rpc.ObservedHeadProxy()
+}
+
+// GetTrxCountAggByTimestamp returns aggregation of transactions in given time range.
+// It will fetch data from last block timestamp if endTime is nil.
+func (r *Repository) GetTrxCountAggByTimestamp(resolution types.AggResolution, ticks uint, endTime *uint64) ([]types.Tick[hexutil.Uint64], error) {
+	last := r.getLastBlockTimestamp(endTime)
+	if last == nil {
+		return nil, nil
+	}
+	// get aggregation from db
+	ctx, cancel := context.WithTimeout(context.Background(), kDbTimeout)
+	defer cancel()
+	return r.db.TrxCountAggByTimestamp(ctx, *last, resolution.ToDuration(), ticks)
+}
+
+// GetGasUsedAggByTimestamp returns aggregation of gas used in given time range.
+// It will fetch data from last block timestamp if endTime is nil.
+func (r *Repository) GetGasUsedAggByTimestamp(resolution types.AggResolution, ticks uint, endTime *uint64) ([]types.Tick[hexutil.Uint64], error) {
+	last := r.getLastBlockTimestamp(endTime)
+	if last == nil {
+		return nil, nil
+	}
+	// get aggregation from db
+	ctx, cancel := context.WithTimeout(context.Background(), kDbTimeout)
+	defer cancel()
+	return r.db.GasUsedAggByTimestamp(ctx, *last, resolution.ToDuration(), ticks)
 }
 
 // getLastBlockTimestamp returns the timestamp of the last block if `endTime` is nil.

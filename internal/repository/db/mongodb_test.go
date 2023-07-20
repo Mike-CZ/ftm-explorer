@@ -98,15 +98,19 @@ func TestMongoDb_GetTransactionsPerDay(t *testing.T) {
 			t.Fatalf("failed to add block: %v", err)
 		}
 
-		// add 6 hours
-		ts = ts.Add(time.Hour * 6)
+		// add 6 hours only when there will be next iteration
+		if i < 9_999 {
+			ts = ts.Add(time.Hour * 6)
+		}
 	}
 
 	// we added in total 10.000 blocks, so we expect 2.500 days, because we have 4 blocks per day.
-	// since we moved by 2500 days, `ts` is already set on day with no blocks, but we need to add 2 more
-	// days to ticks to check last block with no transactions
+	// +2 is because we want to test boundaries
 	expectedDays := uint(2_500) + 2
-	tpd, err := db.TransactionsPerDay(ctx, ts, expectedDays)
+
+	// shift start by 24h where we should get 0 transactions
+	start := ts.Add(time.Hour * 24)
+	tpd, err := db.TrxCountAggByTimestamp(ctx, uint64(start.Unix()), types.AggResolutionDay.ToDuration(), expectedDays)
 	if err != nil {
 		t.Fatalf("failed to get transactions per day: %v", err)
 	}
@@ -116,41 +120,21 @@ func TestMongoDb_GetTransactionsPerDay(t *testing.T) {
 		t.Fatalf("expected %d days, got %d", expectedDays, len(tpd))
 	}
 
-	// check boundaries with no transactions
+	// check the boundaries
 	if tpd[0].Value != 0 {
-		t.Fatalf("expected 0 transactions for first day, got %d", tpd[0].Value)
+		t.Fatalf("expected 0 transactions, got %d", tpd[0].Value)
 	}
 	if tpd[len(tpd)-1].Value != 0 {
-		t.Fatalf("expected 0 transactions for last day, got %d", tpd[len(tpd)-1].Value)
+		t.Fatalf("expected 0 transactions, got %d", tpd[len(tpd)-1].Value)
 	}
 
 	// check transactions per day
-	// value of `i` starts from 1, because we skipped the first day, also omit the last day
 	for i, r := range tpd[1 : len(tpd)-1] {
 		day := i * 4
 		expected := (day%10 + 1) + ((day+1)%10 + 1) + ((day+2)%10 + 1) + ((day+3)%10 + 1)
 		if r.Value != hexutil.Uint64(expected) {
 			t.Fatalf("expected %d transactions, got %d", expected, r.Value)
 		}
-	}
-}
-
-// Test getting transactions per day from MongoDB
-func TestMongoDb_GetTransactionsPerHour(t *testing.T) {
-	db := startMongoDb(t)
-	defer func() {
-		db.Close()
-	}()
-
-	// start on 21st of February 2000 at 5:00 UTC
-	ts := time.Date(2000, 2, 15, 5, 0, 0, 0, time.UTC)
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
-	defer cancel()
-
-	_, err := db.TransactionsPerHour(ctx, ts, 4)
-	if err != nil {
-		t.Fatalf("failed to get transactions per hour: %v", err)
 	}
 }
 
