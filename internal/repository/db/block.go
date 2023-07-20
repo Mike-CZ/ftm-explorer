@@ -29,7 +29,7 @@ const (
 )
 
 // TrxCountAggByTimestamp returns aggregation of transactions in given time range.
-func (db *MongoDb) TrxCountAggByTimestamp(ctx context.Context, endTime uint64, resolution uint, ticks uint) ([]types.Tick[hexutil.Uint64], error) {
+func (db *MongoDb) TrxCountAggByTimestamp(ctx context.Context, endTime uint64, resolution uint, ticks uint) ([]types.HexUintTick, error) {
 	resMap, err := db.getBlkAggByTimestamp(ctx, endTime, resolution, ticks, kFiBlockTxCount)
 	if err != nil {
 		db.log.Critical(err)
@@ -37,9 +37,9 @@ func (db *MongoDb) TrxCountAggByTimestamp(ctx context.Context, endTime uint64, r
 	}
 
 	// prepare the result
-	ticksResult := make([]types.Tick[hexutil.Uint64], ticks)
+	ticksResult := make([]types.HexUintTick, ticks)
 	for i, ts := uint(0), endTime-uint64(resolution*(ticks-1)); i < ticks; i, ts = i+1, ts+uint64(resolution) {
-		ticksResult[i] = types.Tick[hexutil.Uint64]{
+		ticksResult[i] = types.HexUintTick{
 			Time: ts,
 		}
 		// check if there is some data for the entry
@@ -52,7 +52,7 @@ func (db *MongoDb) TrxCountAggByTimestamp(ctx context.Context, endTime uint64, r
 }
 
 // GasUsedAggByTimestamp returns aggregation of gas used in given time range.
-func (db *MongoDb) GasUsedAggByTimestamp(ctx context.Context, endTime uint64, resolution uint, ticks uint) ([]types.Tick[hexutil.Uint64], error) {
+func (db *MongoDb) GasUsedAggByTimestamp(ctx context.Context, endTime uint64, resolution uint, ticks uint) ([]types.HexUintTick, error) {
 	resMap, err := db.getBlkAggByTimestamp(ctx, endTime, resolution, ticks, kFiBlockGasUsed)
 	if err != nil {
 		db.log.Critical(err)
@@ -60,9 +60,9 @@ func (db *MongoDb) GasUsedAggByTimestamp(ctx context.Context, endTime uint64, re
 	}
 
 	// prepare the result
-	ticksResult := make([]types.Tick[hexutil.Uint64], ticks)
+	ticksResult := make([]types.HexUintTick, ticks)
 	for i, ts := uint(0), endTime-uint64(resolution*(ticks-1)); i < ticks; i, ts = i+1, ts+uint64(resolution) {
-		ticksResult[i] = types.Tick[hexutil.Uint64]{
+		ticksResult[i] = types.HexUintTick{
 			Time: ts,
 		}
 		// check if there is some data for the entry

@@ -4,7 +4,6 @@ import (
 	"context"
 	"ftm-explorer/internal/types"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	eth "github.com/ethereum/go-ethereum/core/types"
 )
 
@@ -46,14 +45,14 @@ func (r *Repository) GetLatestObservedBlock() *types.Block {
 
 // UpdateLatestObservedBlock updates the latest observed block.
 // It will add the block to the buffer.
-func (r *Repository) UpdateLatestObservedBlock(blk *types.Block) {
+func (r *Repository) UpdateLatestObservedBlock(blk *types.Block) error {
 	// add block to buffer
 	r.blkBuffer.Add(blk)
 
 	// add block to db
 	ctx, cancel := context.WithTimeout(context.Background(), kDbTimeout)
 	defer cancel()
-	r.db.AddBlock(ctx, blk)
+	return r.db.AddBlock(ctx, blk)
 }
 
 // GetNewHeadersChannel returns a channel that will receive the latest headers from blockchain.
@@ -63,7 +62,7 @@ func (r *Repository) GetNewHeadersChannel() <-chan *eth.Header {
 
 // GetTrxCountAggByTimestamp returns aggregation of transactions in given time range.
 // It will fetch data from last block timestamp if endTime is nil.
-func (r *Repository) GetTrxCountAggByTimestamp(resolution types.AggResolution, ticks uint, endTime *uint64) ([]types.Tick[hexutil.Uint64], error) {
+func (r *Repository) GetTrxCountAggByTimestamp(resolution types.AggResolution, ticks uint, endTime *uint64) ([]types.HexUintTick, error) {
 	last := r.getLastBlockTimestamp(endTime)
 	if last == nil {
 		return nil, nil
@@ -76,7 +75,7 @@ func (r *Repository) GetTrxCountAggByTimestamp(resolution types.AggResolution, t
 
 // GetGasUsedAggByTimestamp returns aggregation of gas used in given time range.
 // It will fetch data from last block timestamp if endTime is nil.
-func (r *Repository) GetGasUsedAggByTimestamp(resolution types.AggResolution, ticks uint, endTime *uint64) ([]types.Tick[hexutil.Uint64], error) {
+func (r *Repository) GetGasUsedAggByTimestamp(resolution types.AggResolution, ticks uint, endTime *uint64) ([]types.HexUintTick, error) {
 	last := r.getLastBlockTimestamp(endTime)
 	if last == nil {
 		return nil, nil

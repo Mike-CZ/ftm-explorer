@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"ftm-explorer/internal/repository/db"
 	"ftm-explorer/internal/repository/rpc"
 	"ftm-explorer/internal/types"
 	"math/big"
@@ -13,7 +14,7 @@ import (
 
 // Test that repository contains no blocks after initialization.
 func TestRepository_NoObservedBlocks(t *testing.T) {
-	repository, _ := createRepository(t)
+	repository, _, _ := createRepository(t)
 
 	// test latest block is nil
 	latestBlock := repository.GetLatestObservedBlock()
@@ -29,8 +30,8 @@ func TestRepository_NoObservedBlocks(t *testing.T) {
 }
 
 // Test that repository returns block by number.
-func TestRepository_GetBlockByNumber(t *testing.T) {
-	repository, mockRpc := createRepository(t)
+func TestRepository_GetAndUpdateBlockByNumber(t *testing.T) {
+	repository, mockRpc, mockDb := createRepository(t)
 
 	// block should be returned from rpc because it is not in the buffer
 	block := types.Block{Number: 100}
@@ -45,8 +46,13 @@ func TestRepository_GetBlockByNumber(t *testing.T) {
 		t.Errorf("expected %v, got %v", block.Number, returnedBlock.Number)
 	}
 
+	// block should be added into database on updating latest observed block
+	mockDb.EXPECT().AddBlock(gomock.Any(), gomock.Eq(&block)).Return(nil)
+
 	// update latest observed block
-	repository.UpdateLatestObservedBlock(&block)
+	if err := repository.UpdateLatestObservedBlock(&block); err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
 
 	// block should be returned from buffer because it is in the buffer
 	returnedBlock, err = repository.GetBlockByNumber(100)
@@ -60,7 +66,7 @@ func TestRepository_GetBlockByNumber(t *testing.T) {
 
 // Test that repository returns transaction by hash.
 func TestRepository_GetTransactionByHash(t *testing.T) {
-	repository, mockRpc := createRepository(t)
+	repository, mockRpc, _ := createRepository(t)
 
 	// transaction should be returned from rpc
 	trx := types.Transaction{Hash: common.HexToHash("0x123")}
@@ -76,7 +82,7 @@ func TestRepository_GetTransactionByHash(t *testing.T) {
 
 // Test that repository returns transaction by hash.
 func TestRepository_GetNewHeadersChannel(t *testing.T) {
-	repository, mockRpc := createRepository(t)
+	repository, mockRpc, _ := createRepository(t)
 
 	// transaction should be returned from rpc
 	ch := make(chan *eth.Header, 10)
@@ -104,9 +110,10 @@ func TestRepository_GetNewHeadersChannel(t *testing.T) {
 }
 
 // createRepository creates a new repository instance with mocked dependencies.
-func createRepository(t *testing.T) (*Repository, *rpc.MockRpc) {
+func createRepository(t *testing.T) (*Repository, *rpc.MockRpc, *db.MockDatabase) {
 	ctrl := gomock.NewController(t)
 	mockRpc := rpc.NewMockRpc(ctrl)
-	repository := NewRepository(mockRpc)
-	return repository, mockRpc
+	mockDb := db.NewMockDatabase(ctrl)
+	repository := NewRepository(mockRpc, mockDb)
+	return repository, mockRpc, mockDb
 }

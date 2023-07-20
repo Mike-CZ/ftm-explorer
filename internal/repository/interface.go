@@ -4,7 +4,6 @@ import (
 	"ftm-explorer/internal/types"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	eth "github.com/ethereum/go-ethereum/core/types"
 )
 
@@ -19,7 +18,7 @@ type IRepository interface {
 	GetLatestObservedBlock() *types.Block
 
 	// UpdateLatestObservedBlock updates the latest observed block.
-	UpdateLatestObservedBlock(*types.Block)
+	UpdateLatestObservedBlock(*types.Block) error
 
 	// GetNewHeadersChannel returns a channel that will receive the latest headers from blockchain.
 	GetNewHeadersChannel() <-chan *eth.Header
@@ -28,8 +27,8 @@ type IRepository interface {
 	GetTransactionByHash(common.Hash) (*types.Transaction, error)
 
 	// GetTrxCountAggByTimestamp returns aggregation of transactions in given time range.
-	GetTrxCountAggByTimestamp(types.AggResolution, uint, *uint64) ([]types.Tick[hexutil.Uint64], error)
+	GetTrxCountAggByTimestamp(types.AggResolution, uint, *uint64) ([]types.HexUintTick, error)
 
 	// GetGasUsedAggByTimestamp returns aggregation of gas used in given time range.
-	GetGasUsedAggByTimestamp(types.AggResolution, uint, *uint64) ([]types.Tick[hexutil.Uint64], error)
+	GetGasUsedAggByTimestamp(types.AggResolution, uint, *uint64) ([]types.HexUintTick, error)
 }

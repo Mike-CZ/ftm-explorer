@@ -11,7 +11,7 @@ import (
 type Block types.Block
 
 // Tick represents resolvable blockchain tick structure.
-type Tick types.Tick[hexutil.Uint64]
+type Tick types.HexUintTick
 
 // BlockTimestampAggregations resolves block timestamp aggregations.
 func (rs *RootResolver) BlockTimestampAggregations(args *struct {
@@ -36,7 +36,7 @@ func (rs *RootResolver) BlockTimestampAggregations(args *struct {
 	}
 
 	// get data based on subject
-	var result []types.Tick[hexutil.Uint64]
+	var result []types.HexUintTick
 	var err error
 
 	switch args.Subject {
