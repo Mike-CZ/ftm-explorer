@@ -38,9 +38,7 @@ func TestApiServer_Run(t *testing.T) {
 	// initialize test server
 	handler := handlers.ApiHandler([]string{"*"}, resolvers.NewResolver(mockRepository, mockLogger), mockLogger)
 	server := httptest.NewServer(handler)
-	t.Cleanup(func() {
-		server.Close()
-	})
+	defer server.Close()
 
 	// use table-driven testing to test multiple cases
 	testCases := []apiTestCase{
@@ -48,6 +46,8 @@ func TestApiServer_Run(t *testing.T) {
 		getBlockTestCase(t),
 		getRecentBlocksTestCase(t),
 		getCurrentBlockHeight(t),
+		getBlockTimestampTxsCountAggregations(t),
+		getBlockTimestampGasUsedAggregations(t),
 	}
 
 	for _, tc := range testCases {
@@ -196,6 +196,99 @@ func getCurrentBlockHeight(_ *testing.T) apiTestCase {
 			// validate height
 			if uint64(heightRes.BlockHeight) != blockHeight {
 				t.Errorf("expected block height %v, got %v", blockHeight, heightRes.BlockHeight)
+			}
+		},
+	}
+}
+
+// getBlockTimestampTxsCountAggregations returns a test case for a block timestamp trx count aggregations query.
+func getBlockTimestampTxsCountAggregations(_ *testing.T) apiTestCase {
+	agg := []types.HexUintTick{
+		{Value: hexutil.Uint64(178), Time: 1_690_099_503},
+		{Value: hexutil.Uint64(155), Time: 1_690_099_563},
+		{Value: hexutil.Uint64(201), Time: 1_690_099_623},
+		{Value: hexutil.Uint64(167), Time: 1_690_099_683},
+		{Value: hexutil.Uint64(180), Time: 1_690_099_743},
+	}
+	return apiTestCase{
+		testName:    "GetBlockTimestampAggregations",
+		requestBody: `{"query": "query { blockTimestampAggregations(subject: TXS_COUNT, resolution: MINUTE, ticks: 5) { timestamp, value }}"}`,
+		buildStubs: func(mockRepository *repository.MockRepository) {
+			mockRepository.EXPECT().GetTrxCountAggByTimestamp(gomock.Eq(types.AggResolutionMinute), gomock.Eq(uint(5)), gomock.Nil()).Return(agg, nil)
+		},
+		checkResponse: func(t *testing.T, resp *http.Response) {
+			apiRes := decodeResponse(t, resp)
+			if len(apiRes.Errors) != 0 {
+				t.Errorf("expected no errors, got: %s", apiRes.Errors[0].Message)
+			}
+			// decode raw data into response
+			var response struct {
+				Aggregations []struct {
+					Timestamp int32          `json:"timestamp"`
+					Value     hexutil.Uint64 `json:"value"`
+				} `json:"blockTimestampAggregations"`
+			}
+			if err := json.Unmarshal(apiRes.Data, &response); err != nil {
+				t.Errorf("failed to unmarshall data: %v", err)
+			}
+			// validate aggregations
+			if len(response.Aggregations) != len(agg) {
+				t.Errorf("expected aggregations count %v, got %v", len(agg), len(response.Aggregations))
+			}
+			for i, tick := range agg {
+				if response.Aggregations[i].Timestamp != int32(tick.Time) {
+					t.Errorf("expected timestamp %v, got %v", tick.Time, response.Aggregations[i].Timestamp)
+				}
+				if response.Aggregations[i].Value != tick.Value {
+					t.Errorf("expected value %v, got %v", tick.Value, response.Aggregations[i].Value)
+				}
+			}
+		},
+	}
+}
+
+// getBlockTimestampGasUsedAggregations returns a test case for a block timestamp gas used aggregations query.
+func getBlockTimestampGasUsedAggregations(_ *testing.T) apiTestCase {
+	agg := []types.HexUintTick{
+		{Value: hexutil.Uint64(105_803_475), Time: 1_690_099_503},
+		{Value: hexutil.Uint64(160_550_785), Time: 1_690_099_563},
+		{Value: hexutil.Uint64(116_962_544), Time: 1_690_099_623},
+		{Value: hexutil.Uint64(115_388_923), Time: 1_690_099_683},
+		{Value: hexutil.Uint64(91_255_380), Time: 1_690_099_743},
+	}
+	endTime := uint64(1_690_100_448)
+	return apiTestCase{
+		testName:    "GetBlockTimestampAggregations",
+		requestBody: `{"query": "query { blockTimestampAggregations(subject: GAS_USED, resolution: HOUR, ticks: 5, endTime: 1690100448) { timestamp, value }}"}`,
+		buildStubs: func(mockRepository *repository.MockRepository) {
+			mockRepository.EXPECT().GetGasUsedAggByTimestamp(gomock.Eq(types.AggResolutionHour), gomock.Eq(uint(5)), gomock.Eq(&endTime)).Return(agg, nil)
+		},
+		checkResponse: func(t *testing.T, resp *http.Response) {
+			apiRes := decodeResponse(t, resp)
+			if len(apiRes.Errors) != 0 {
+				t.Errorf("expected no errors, got: %s", apiRes.Errors[0].Message)
+			}
+			// decode raw data into response
+			var response struct {
+				Aggregations []struct {
+					Timestamp int32          `json:"timestamp"`
+					Value     hexutil.Uint64 `json:"value"`
+				} `json:"blockTimestampAggregations"`
+			}
+			if err := json.Unmarshal(apiRes.Data, &response); err != nil {
+				t.Errorf("failed to unmarshall data: %v", err)
+			}
+			// validate aggregations
+			if len(response.Aggregations) != len(agg) {
+				t.Errorf("expected aggregations count %v, got %v", len(agg), len(response.Aggregations))
+			}
+			for i, tick := range agg {
+				if response.Aggregations[i].Timestamp != int32(tick.Time) {
+					t.Errorf("expected timestamp %v, got %v", tick.Time, response.Aggregations[i].Timestamp)
+				}
+				if response.Aggregations[i].Value != tick.Value {
+					t.Errorf("expected value %v, got %v", tick.Value, response.Aggregations[i].Value)
+				}
 			}
 		},
 	}
