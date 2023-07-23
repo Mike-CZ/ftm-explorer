@@ -122,10 +122,10 @@ func TestMongoDb_GetTransactionsPerDay(t *testing.T) {
 
 	// check the boundaries
 	if tpd[0].Value != 0 {
-		t.Fatalf("expected 0 transactions, got %d", tpd[0].Value)
+		t.Fatalf("expected 0 entries, got %d", tpd[0].Value)
 	}
 	if tpd[len(tpd)-1].Value != 0 {
-		t.Fatalf("expected 0 transactions, got %d", tpd[len(tpd)-1].Value)
+		t.Fatalf("expected 0 entries, got %d", tpd[len(tpd)-1].Value)
 	}
 
 	// check transactions per day
@@ -134,6 +134,80 @@ func TestMongoDb_GetTransactionsPerDay(t *testing.T) {
 		expected := (day%10 + 1) + ((day+1)%10 + 1) + ((day+2)%10 + 1) + ((day+3)%10 + 1)
 		if r.Value != hexutil.Uint64(expected) {
 			t.Fatalf("expected %d transactions, got %d", expected, r.Value)
+		}
+	}
+}
+
+// Test getting gas used per day from MongoDB. The main focus is on big numbers.
+func TestMongoDb_GetGasUsedPerDay(t *testing.T) {
+	db := startMongoDb(t)
+	defer func() {
+		db.Close()
+	}()
+
+	// start on 21st of February 2000 at 5:00 UTC
+	ts := time.Date(2000, 2, 15, 5, 0, 0, 0, time.UTC)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
+	defer cancel()
+
+	// add 10.000 blocks
+	// we add 1 block per 6 hours, so we have 4 blocks per day
+	// we will add more gas than usual, so we don't have to add too many blocks
+	for i := 0; i < 10_000; i++ {
+		block := types.Block{
+			Number: hexutil.Uint64(i),
+			// add some really huge number
+			// let's say 1 tx costs 100_000_000 gas, we want 1 block per second with ~1000 transactions
+			// that means 100_000_000 * 1000 * 60 * 60 * 24 = 8_640_000_000_000_000
+			// and since we have 4 blocks per day, we need to divide it by 4 = 2_160_000_000_000_000
+			GasUsed:   2_160_000_000_000_000,
+			Timestamp: hexutil.Uint64(ts.Unix()),
+			Transactions: []common.Hash{
+				common.HexToHash("0x1"),
+			},
+		}
+
+		// add block
+		if err := db.AddBlock(ctx, &block); err != nil {
+			t.Fatalf("failed to add block: %v", err)
+		}
+
+		// add 6 hours only when there will be next iteration
+		if i < 9_999 {
+			ts = ts.Add(time.Hour * 6)
+		}
+	}
+
+	// we added in total 10.000 blocks, so we expect 2.500 days, because we have 4 blocks per day.
+	// +2 is because we want to test boundaries
+	expectedDays := uint(2_500) + 2
+
+	// shift start by 24h where we should get 0 gas used
+	start := ts.Add(time.Hour * 24)
+	gpd, err := db.GasUsedAggByTimestamp(ctx, uint64(start.Unix()), types.AggResolutionDay.ToDuration(), expectedDays)
+	if err != nil {
+		t.Fatalf("failed to get gas used per day: %v", err)
+	}
+
+	// check returned number of days
+	if len(gpd) != int(expectedDays) {
+		t.Fatalf("expected %d days, got %d", expectedDays, len(gpd))
+	}
+
+	// check the boundaries
+	if gpd[0].Value != 0 {
+		t.Fatalf("expected 0 entries, got %d", gpd[0].Value)
+	}
+	if gpd[len(gpd)-1].Value != 0 {
+		t.Fatalf("expected 0 entries, got %d", gpd[len(gpd)-1].Value)
+	}
+
+	// check gas used per day
+	expected := uint64(2_160_000_000_000_000 * 4)
+	for _, r := range gpd[1 : len(gpd)-1] {
+		if r.Value != hexutil.Uint64(expected) {
+			t.Fatalf("expected %d gas used, got %d", expected, r.Value)
 		}
 	}
 }
