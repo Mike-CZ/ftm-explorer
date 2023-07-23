@@ -114,6 +114,6 @@ func createRepository(t *testing.T) (*Repository, *rpc.MockRpc, *db.MockDatabase
 	ctrl := gomock.NewController(t)
 	mockRpc := rpc.NewMockRpc(ctrl)
 	mockDb := db.NewMockDatabase(ctrl)
-	repository := NewRepository(mockRpc, mockDb)
+	repository := NewRepository(10_000, mockRpc, mockDb)
 	return repository, mockRpc, mockDb
 }

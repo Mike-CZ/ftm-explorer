@@ -1,4 +1,7 @@
 {
+  "explorer": {
+    "blockBufferSize": 10000
+  },
   "rpc": {
     "operaRpcUrl": "https://rpcapi.fantom.network"
   },

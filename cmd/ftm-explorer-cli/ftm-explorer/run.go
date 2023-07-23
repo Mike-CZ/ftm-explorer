@@ -67,5 +67,5 @@ func createRepository(cfg *config.Config, log logger.ILogger) (*repository.Repos
 	}
 
 	// create repository
-	return repository.NewRepository(operaRpc, database), nil
+	return repository.NewRepository(cfg.Explorer.BlockBufferSize, operaRpc, database), nil
 }

@@ -7,9 +7,6 @@ import (
 	"time"
 )
 
-// kBlkBufferSize represents the size of the block buffer.
-const kBlkBufferSize = 10_000
-
 // kRpcTimeout represents the timeout for RPC calls.
 const kRpcTimeout = 5 * time.Second
 
@@ -26,10 +23,10 @@ type Repository struct {
 }
 
 // NewRepository creates a new repository.
-func NewRepository(rpc rpc.IRpc, db db.IDatabase) *Repository {
+func NewRepository(blkBufferSize uint, rpc rpc.IRpc, db db.IDatabase) *Repository {
 	return &Repository{
 		rpc:       rpc,
 		db:        db,
-		blkBuffer: buffer.NewBlocksBuffer(kBlkBufferSize),
+		blkBuffer: buffer.NewBlocksBuffer(blkBufferSize),
 	}
 }

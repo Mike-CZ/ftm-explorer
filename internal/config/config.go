@@ -4,10 +4,18 @@ import "github.com/op/go-logging"
 
 // Config is the base configuration structure.
 type Config struct {
-	Rpc     Rpc
-	Api     ApiServer
-	Logger  Logger
-	MongoDb MongoDb
+	Explorer Explorer
+	Rpc      Rpc
+	Api      ApiServer
+	Logger   Logger
+	MongoDb  MongoDb
+}
+
+// Explorer is the configuration structure for the explorer.
+type Explorer struct {
+	// BlockBufferSize is the size of the block buffer. The buffer is used to
+	// store blocks in memory, so that they can be accessed quickly.
+	BlockBufferSize uint
 }
 
 // Rpc is the configuration structure for RPC.

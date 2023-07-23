@@ -43,6 +43,9 @@ build/ftm-explorer
 ## Example config
 ```
 {
+  "explorer": {
+    "blockBufferSize": 10000
+  },
   "rpc": {
     "operaRpcUrl": "https://rpcapi.fantom.network"
   },

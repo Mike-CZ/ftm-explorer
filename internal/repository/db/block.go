@@ -148,8 +148,6 @@ func (db *MongoDb) getBlkAggByTimestamp(ctx context.Context, endTime uint64, res
 		Result int64 `bson:"aggregation"`
 	}
 
-	fmt.Printf("endTime: %d, ticks: %d, resolution: %d, aggField: %s\n", endTime, ticks, resolution, aggField)
-
 	// define the MongoDB Pipeline for the aggregation
 	pipeline := mongo.Pipeline{
 		// This stage filters the documents to only pass those with a 'kFiBlockTimestamp' value

@@ -7,6 +7,9 @@ import (
 
 // applyDefaults applies default values to the configuration.
 func applyDefaults(cfg *viper.Viper) {
+	// explorer
+	cfg.SetDefault("explorer.blockBufferSize", 10_000)
+
 	// rpc
 	cfg.SetDefault("rpc.operaRpcUrl", "https://rpcapi.fantom.network")
 
