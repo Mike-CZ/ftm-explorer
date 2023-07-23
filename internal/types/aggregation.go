@@ -4,6 +4,9 @@ package types
 type AggResolution string
 
 const (
+	// AggResolutionSeconds represents the resolution of aggregation by seconds.
+	AggResolutionSeconds AggResolution = "SECONDS"
+
 	// AggResolutionDay represents the resolution of aggregation by day.
 	AggResolutionDay AggResolution = "DAY"
 
@@ -23,6 +26,8 @@ func (ar AggResolution) ToDuration() uint {
 		return 60 * 60
 	case AggResolutionMinute:
 		return 60
+	case AggResolutionSeconds:
+		return 10 // set seconds to 10
 	}
 	return 0
 }

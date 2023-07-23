@@ -1,5 +1,6 @@
 # AggResolution is the resolution of the aggregation
 enum AggResolution {
+    SECONDS,
     MINUTE,
     HOUR,
     DAY

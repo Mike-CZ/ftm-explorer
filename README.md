@@ -72,3 +72,4 @@ In case you need to run mongodb in docker container locally for development, you
 ```
 docker run --name ftm-explorer-mongo -p 27017:27017 -e MONGO_INITDB_DATABASE=ftm-explorer mongo:6.0
 ```
+This configuration won't persist data. You need to add volume to the container to do so.
