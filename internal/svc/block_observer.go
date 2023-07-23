@@ -64,5 +64,8 @@ func (bs *BlockObserver) processBlock(block *types.Block) {
 	bs.log.Noticef("block observer processing block %d", block.Number)
 
 	// update latest observed block
-	bs.repo.UpdateLatestObservedBlock(block)
+	if err := bs.repo.UpdateLatestObservedBlock(block); err != nil {
+		bs.log.Errorf("error updating latest observed block: %v", err)
+		return
+	}
 }
