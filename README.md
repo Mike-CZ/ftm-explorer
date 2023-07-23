@@ -66,3 +66,9 @@ build/ftm-explorer
   }
 }
 ```
+
+## Local development
+In case you need to run mongodb in docker container locally for development, you can use the following command:
+```
+docker run --name ftm-explorer-mongo -p 27017:27017 -e MONGO_INITDB_DATABASE=ftm-explorer mongo:6.0
+```
