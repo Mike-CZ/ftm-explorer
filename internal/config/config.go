@@ -43,7 +43,7 @@ type Logger struct {
 
 // MongoDb is the configuration structure for MongoDB.
 type MongoDb struct {
-	Host     string
-	Port     int
-	Database string
+	Host string
+	Port int
+	Db   string
 }

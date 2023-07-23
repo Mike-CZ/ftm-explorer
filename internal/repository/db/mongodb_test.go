@@ -176,9 +176,9 @@ func startMongoDb(t *testing.T) *MongoDb {
 		log logger.ILogger
 	}{
 		cfg: &config.MongoDb{
-			Host:     "localhost",
-			Port:     p.Int(),
-			Database: dbName,
+			Host: "localhost",
+			Port: p.Int(),
+			Db:   dbName,
 		},
 		log: logger.NewMockLogger(),
 	}

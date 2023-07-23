@@ -23,7 +23,7 @@ type MongoDb struct {
 
 // NewMongoDb creates new MongoDb instance.
 func NewMongoDb(cfg *config.MongoDb, log logger.ILogger) (*MongoDb, error) {
-	log.Debugf("connecting mongodb at %s:%d/%s", cfg.Host, cfg.Port, cfg.Database)
+	log.Debugf("connecting mongodb at %s:%d/%s", cfg.Host, cfg.Port, cfg.Db)
 
 	// open the database connection
 	con, err := connectDb(cfg)
@@ -38,7 +38,7 @@ func NewMongoDb(cfg *config.MongoDb, log logger.ILogger) (*MongoDb, error) {
 	// return the bridge
 	db := &MongoDb{
 		client: con,
-		db:     con.Database(cfg.Database),
+		db:     con.Database(cfg.Db),
 		log:    log,
 	}
 

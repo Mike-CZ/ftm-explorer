@@ -30,5 +30,5 @@ func applyDefaults(cfg *viper.Viper) {
 	// mongodb
 	cfg.SetDefault("mongodb.host", "localhost")
 	cfg.SetDefault("mongodb.port", 27017)
-	cfg.SetDefault("mongodb.database", "ftm-explorer")
+	cfg.SetDefault("mongodb.db", "ftm-explorer")
 }
