@@ -13,7 +13,8 @@ For building/running the project, the following tools are required:
 [installation manual](https://go.dev/doc/install) or; if you need to maintain multiple versions,
 [this tutorial](https://go.dev/doc/manage-install) describes how to do so.
 * MongoDB: version 6.0 or later; to install and run it, follow the instructions on the
-[MongoDB website](https://docs.mongodb.com/manual/installation/).
+[MongoDB website](https://docs.mongodb.com/manual/installation/) or; run it in a Docker container as described
+below.
 
 ## Building
 
