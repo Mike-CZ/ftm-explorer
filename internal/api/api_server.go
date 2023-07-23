@@ -25,7 +25,7 @@ func NewApiServer(cfg *config.ApiServer, repo repository.IRepository, log logger
 	server := &ApiServer{
 		resolver: resolvers.NewResolver(repo, apiLogger),
 		cfg:      cfg,
-		log:      apiLogger,
+		log:      apiLogger.ModuleLogger("api"),
 	}
 	server.makeHttpServer()
 	return server
