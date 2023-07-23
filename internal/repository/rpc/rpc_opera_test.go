@@ -33,10 +33,10 @@ func TestOperaRpc_TransactionByHash(t *testing.T) {
 	if trx.Hash != common.HexToHash("0x640beacf2b750682b04faa1e3f8096a524d953dcf11a9f9d4eb55d59323729d7") {
 		t.Errorf("unexpected hash: %v", trx.Hash)
 	}
-	if trx.BlockHash != common.HexToHash("0x0003298d000011e5c9dc093c38330d28c8fa7c42c1494634857f3539f4527e0e") {
+	if *trx.BlockHash != common.HexToHash("0x0003298d000011e5c9dc093c38330d28c8fa7c42c1494634857f3539f4527e0e") {
 		t.Errorf("unexpected block hash: %v", trx.BlockHash)
 	}
-	if trx.BlockNumber != 61_118_012 {
+	if *trx.BlockNumber != 61_118_012 {
 		t.Errorf("unexpected block number: %v", trx.BlockNumber)
 	}
 	if trx.From != common.HexToAddress("0x0f83b3f4e728ea15c862498063f29fdb463d043c") {
@@ -45,7 +45,7 @@ func TestOperaRpc_TransactionByHash(t *testing.T) {
 	if trx.To == nil || *trx.To != common.HexToAddress("0x8f8ddaca443ceac1ee5676721d14cfc5c4548020") {
 		t.Errorf("unexpected to address: %v", trx.To)
 	}
-	if uint64(trx.GasUsed) != 64_848 {
+	if uint64(*trx.GasUsed) != 64_848 {
 		t.Errorf("unexpected gas used: %v", trx.GasUsed)
 	}
 	if trx.GasPrice.ToInt().Cmp(big.NewInt(217_949_672_299)) != 0 {
