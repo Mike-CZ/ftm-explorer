@@ -67,8 +67,14 @@ func connectDb(cfg *config.MongoDb) (*mongo.Client, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), kMongoDefaultTimeout)
 	defer cancel()
 
+	// prepare the connection string for authentication
+	ucs := ""
+	if cfg.User != nil && cfg.Password != nil {
+		ucs = fmt.Sprintf("%s:%s@", *cfg.User, *cfg.Password)
+	}
+
 	// create new MongoDb client
-	cs := fmt.Sprintf("mongodb://%s:%d", cfg.Host, cfg.Port)
+	cs := fmt.Sprintf("mongodb://%s%s:%d", ucs, cfg.Host, cfg.Port)
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(cs))
 	if err != nil {
 		return nil, err

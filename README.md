@@ -66,7 +66,9 @@ build/ftm-explorer
   "mongodb": {
     "host": "localhost",
     "port": 27017,
-    "db": "ftm-explorer"
+    "db": "ftm-explorer",
+    "user": null,
+    "password": null
   }
 }
 ```

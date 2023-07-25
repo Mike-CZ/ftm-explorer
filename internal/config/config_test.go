@@ -31,7 +31,9 @@ func TestConfig_Load(t *testing.T) {
 	  "mongodb": {
 		"host": "mongohost",
 		"port": 1111,
-		"db": "mongodb"
+		"db": "mongodb",
+		"user": "testUser",
+		"password": "testPassword"
 	  }
 	}`
 	// store config into temporary file
@@ -98,5 +100,17 @@ func TestConfig_Load(t *testing.T) {
 	}
 	if cfg.MongoDb.Db != "mongodb" {
 		t.Errorf("expected Mongodb.Db to be mongodb, got %s", cfg.MongoDb.Db)
+	}
+	if cfg.MongoDb.User == nil {
+		t.Errorf("expected Mongodb.User to be not nil")
+	}
+	if *cfg.MongoDb.User != "testUser" {
+		t.Errorf("expected Mongodb.User to be testUser, got %s", *cfg.MongoDb.User)
+	}
+	if cfg.MongoDb.Password == nil {
+		t.Errorf("expected Mongodb.Password to be not nil")
+	}
+	if *cfg.MongoDb.Password != "testPassword" {
+		t.Errorf("expected Mongodb.Password to be testPassword, got %s", *cfg.MongoDb.Password)
 	}
 }
