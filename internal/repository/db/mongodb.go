@@ -74,7 +74,7 @@ func connectDb(cfg *config.MongoDb) (*mongo.Client, error) {
 	}
 
 	// create new MongoDb client
-	cs := fmt.Sprintf("mongodb://%s%s:%d", ucs, cfg.Host, cfg.Port)
+	cs := fmt.Sprintf("mongodb://%s%s:%d/%s", ucs, cfg.Host, cfg.Port, cfg.Db)
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(cs))
 	if err != nil {
 		return nil, err
