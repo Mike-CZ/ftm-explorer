@@ -32,12 +32,12 @@ func TestBlockScanner_Run(t *testing.T) {
 	}()
 
 	// start scanner
-	scanner := NewBlockScanner(mockRepository, mockLogger)
-	scanner.Start()
-	defer scanner.Stop()
+	scanner := newBlockScanner(&Manager{repo: mockRepository, log: mockLogger})
+	scanner.start()
+	defer scanner.close()
 
 	// get output channel with scanned blocks
-	scannedBlocks := scanner.ScannedBlocks()
+	scannedBlocks := scanner.scannedBlocks()
 
 	// receive scanned blocks and check their numbers
 	for i := 0; i <= 10; i++ {

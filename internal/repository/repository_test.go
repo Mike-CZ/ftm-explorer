@@ -109,6 +109,22 @@ func TestRepository_GetNewHeadersChannel(t *testing.T) {
 	}
 }
 
+// Test that number of accounts is set and returned correctly.
+func TestRepository_GetAndSetNumberOfAccounts(t *testing.T) {
+	repository, _, _ := createRepository(t)
+
+	// test that number of accounts is 0 after initialization
+	if repository.GetNumberOfAccounts() != 0 {
+		t.Errorf("expected 0, got %v", repository.GetNumberOfAccounts())
+	}
+
+	// test that number of accounts is set correctly
+	repository.SetNumberOfAccounts(100)
+	if repository.GetNumberOfAccounts() != 100 {
+		t.Errorf("expected 100, got %v", repository.GetNumberOfAccounts())
+	}
+}
+
 // createRepository creates a new repository instance with mocked dependencies.
 func createRepository(t *testing.T) (*Repository, *rpc.MockRpc, *db.MockDatabase) {
 	ctrl := gomock.NewController(t)

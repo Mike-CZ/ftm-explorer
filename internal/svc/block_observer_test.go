@@ -20,9 +20,9 @@ func TestBlockObserver_Run(t *testing.T) {
 	blocks := make(chan *types.Block)
 
 	// start observer
-	observer := NewBlockObserver(blocks, mockRepository, mockLogger)
-	observer.Start()
-	defer observer.Stop()
+	observer := newBlockObserver(&Manager{repo: mockRepository, log: mockLogger}, blocks)
+	observer.start()
+	defer observer.close()
 
 	// validate, that observed blocks are forwarded to the repository
 	for i := 0; i <= 10; i++ {

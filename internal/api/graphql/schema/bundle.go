@@ -28,6 +28,9 @@ type Query {
     #   ticks: the number of ticks to return
     #   endTime: the end timestamp of the aggregation, if not specified, last block's timestamp is used
     blockTimestampAggregations(subject: AggSubject!, resolution: AggResolution!, ticks:Int!, endTime:Int):[Tick!]!
+
+    # Get total number of accounts
+    numberOfAccounts:Int!
 }
 type Tick {
     # The timestamp of the tick

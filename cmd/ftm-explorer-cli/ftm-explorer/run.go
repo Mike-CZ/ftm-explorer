@@ -37,11 +37,9 @@ func run(ctx *cli.Context) error {
 		return err
 	}
 
-	// create and start services
-	scanner := svc.NewBlockScanner(repo, log)
-	observer := svc.NewBlockObserver(scanner.ScannedBlocks(), repo, log)
-	scanner.Start()
-	observer.Start()
+	// create services manager and run it
+	mgr := svc.NewServiceManager(cfg, repo, log)
+	mgr.Start()
 
 	// create api server
 	apiServer := api.NewApiServer(&cfg.Api, repo, log)

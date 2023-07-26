@@ -11,6 +11,9 @@ func TestConfig_Load(t *testing.T) {
 	  "explorer": {
 		"blockBufferSize": 128964
 	  },
+	  "metaFetcher": {
+		"url": "metafetcher-test-url"
+	  },
 	  "rpc": {
 		"operaRpcUrl": "opera-rpc"
 	  },
@@ -58,6 +61,9 @@ func TestConfig_Load(t *testing.T) {
 	// Check the configuration values
 	if cfg.Explorer.BlockBufferSize != 128964 {
 		t.Errorf("expected Explorer.BlockBufferSize to be 128964, got %d", cfg.Explorer.BlockBufferSize)
+	}
+	if cfg.MetaFetcher.Url != "metafetcher-test-url" {
+		t.Errorf("expected MetaFetcher.Url to be metafetcher-test-url, got %s", cfg.MetaFetcher.Url)
 	}
 	if cfg.Rpc.OperaRpcUrl != "opera-rpc" {
 		t.Errorf("expected RPC.OperaRpcUrl to be opera-rpc, got %s", cfg.Rpc.OperaRpcUrl)

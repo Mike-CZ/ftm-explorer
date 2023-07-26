@@ -45,9 +45,10 @@ func TestApiServer_Run(t *testing.T) {
 		getTransactionTestCase(t),
 		getBlockTestCase(t),
 		getRecentBlocksTestCase(t),
-		getCurrentBlockHeight(t),
-		getBlockTimestampTxsCountAggregations(t),
-		getBlockTimestampGasUsedAggregations(t),
+		getCurrentBlockHeightTestCase(t),
+		getBlockTimestampTxsCountAggregationsTestCase(t),
+		getBlockTimestampGasUsedAggregationsTestCase(t),
+		getNumberOfAccountsTestCase(t),
 	}
 
 	for _, tc := range testCases {
@@ -173,7 +174,7 @@ func getRecentBlocksTestCase(_ *testing.T) apiTestCase {
 }
 
 // getRecentBlocksTestCase returns a test case for a recent blocks query.
-func getCurrentBlockHeight(_ *testing.T) apiTestCase {
+func getCurrentBlockHeightTestCase(_ *testing.T) apiTestCase {
 	var blockHeight uint64 = 100_000
 	return apiTestCase{
 		testName:    "GetCurrentBlockHeight",
@@ -201,8 +202,8 @@ func getCurrentBlockHeight(_ *testing.T) apiTestCase {
 	}
 }
 
-// getBlockTimestampTxsCountAggregations returns a test case for a block timestamp trx count aggregations query.
-func getBlockTimestampTxsCountAggregations(_ *testing.T) apiTestCase {
+// getBlockTimestampTxsCountAggregationsTestCase returns a test case for a block timestamp trx count aggregations query.
+func getBlockTimestampTxsCountAggregationsTestCase(_ *testing.T) apiTestCase {
 	agg := []types.HexUintTick{
 		{Value: hexutil.Uint64(178), Time: 1_690_099_503},
 		{Value: hexutil.Uint64(155), Time: 1_690_099_563},
@@ -247,8 +248,8 @@ func getBlockTimestampTxsCountAggregations(_ *testing.T) apiTestCase {
 	}
 }
 
-// getBlockTimestampGasUsedAggregations returns a test case for a block timestamp gas used aggregations query.
-func getBlockTimestampGasUsedAggregations(_ *testing.T) apiTestCase {
+// getBlockTimestampGasUsedAggregationsTestCase returns a test case for a block timestamp gas used aggregations query.
+func getBlockTimestampGasUsedAggregationsTestCase(_ *testing.T) apiTestCase {
 	agg := []types.HexUintTick{
 		{Value: hexutil.Uint64(105_803_475), Time: 1_690_099_503},
 		{Value: hexutil.Uint64(160_550_785), Time: 1_690_099_563},
@@ -289,6 +290,35 @@ func getBlockTimestampGasUsedAggregations(_ *testing.T) apiTestCase {
 				if response.Aggregations[i].Value != tick.Value {
 					t.Errorf("expected value %v, got %v", tick.Value, response.Aggregations[i].Value)
 				}
+			}
+		},
+	}
+}
+
+// getRecentBlocksTestCase returns a test case for a recent blocks query.
+func getNumberOfAccountsTestCase(_ *testing.T) apiTestCase {
+	var number uint64 = 4_250
+	return apiTestCase{
+		testName:    "GetNumberOfAccounts",
+		requestBody: `{"query": "query { numberOfAccounts}"}`,
+		buildStubs: func(mockRepository *repository.MockRepository) {
+			mockRepository.EXPECT().GetNumberOfAccounts().Return(number)
+		},
+		checkResponse: func(t *testing.T, resp *http.Response) {
+			apiRes := decodeResponse(t, resp)
+			if len(apiRes.Errors) != 0 {
+				t.Errorf("expected no errors, got: %s", apiRes.Errors[0].Message)
+			}
+			// decode raw data into response
+			numberRes := struct {
+				NumberOfAccounts int32 `json:"numberOfAccounts"`
+			}{}
+			if err := json.Unmarshal(apiRes.Data, &numberRes); err != nil {
+				t.Errorf("failed to unmarshall data: %v", err)
+			}
+			// validate number of accounts
+			if numberRes.NumberOfAccounts != int32(number) {
+				t.Errorf("expected number of accounts %v, got %v", number, numberRes.NumberOfAccounts)
 			}
 		},
 	}

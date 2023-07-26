@@ -1,10 +1,7 @@
 package svc
 
 import (
-	"ftm-explorer/internal/logger"
-	"ftm-explorer/internal/repository"
 	"ftm-explorer/internal/types"
-	"sync"
 	"time"
 )
 
@@ -14,48 +11,50 @@ const kOutBlockBufferCapacity = 10_000
 // kScanTickDuration represents the frequency of the scanner default progress.
 const kScanTickDuration = 5 * time.Millisecond
 
-// BlockScanner represents a scanner of blockchain blocks.
+// blockScanner represents a scanner of blockchain blocks.
 // It scans the blockchain for new blocks and sends them to the channel.
-type BlockScanner struct {
-	repo      repository.IRepository
-	log       logger.ILogger
+type blockScanner struct {
+	service
 	outBlocks chan *types.Block
 	sigClose  chan struct{}
-	wg        sync.WaitGroup
 }
 
-// NewBlockScanner creates a new block scanner.
-func NewBlockScanner(repo repository.IRepository, log logger.ILogger) *BlockScanner {
-	return &BlockScanner{
-		repo:      repo,
-		log:       log.ModuleLogger("block_scanner"),
+// newBlockScanner creates a new block scanner.
+func newBlockScanner(mgr *Manager) *blockScanner {
+	return &blockScanner{
+		service: service{
+			mgr:  mgr,
+			repo: mgr.repo,
+			log:  mgr.log.ModuleLogger("block_scanner"),
+		},
 		outBlocks: make(chan *types.Block, kOutBlockBufferCapacity),
 		sigClose:  make(chan struct{}, 1),
 	}
 }
 
-// ScannedBlocks returns a channel containing scanned blocks.
-func (bs *BlockScanner) ScannedBlocks() <-chan *types.Block {
+// scannedBlocks returns a channel containing scanned blocks.
+func (bs *blockScanner) scannedBlocks() <-chan *types.Block {
 	return bs.outBlocks
 }
 
-// Start starts the block scanner.
-func (bs *BlockScanner) Start() {
-	bs.wg.Add(1)
+// start starts the block scanner.
+func (bs *blockScanner) start() {
+	bs.mgr.started(bs)
 	go bs.execute()
 }
 
-// Stop stops the block scanner.
-func (bs *BlockScanner) Stop() {
+// close stops the block scanner.
+func (bs *blockScanner) close() {
 	bs.sigClose <- struct{}{}
-	bs.wg.Wait()
+	bs.mgr.finished(bs)
+}
+
+func (bs *blockScanner) name() string {
+	return "block_scanner"
 }
 
 // execute executes the block scanner.
-func (bs *BlockScanner) execute() {
-	bs.log.Notice("block scanner started")
-	defer bs.wg.Done()
-
+func (bs *blockScanner) execute() {
 	// get channel with new headers
 	heads := bs.repo.GetNewHeadersChannel()
 
@@ -67,14 +66,14 @@ func (bs *BlockScanner) execute() {
 	var nextBlock *uint64
 	for {
 		select {
-		// we should stop
+		// we should close
 		case <-bs.sigClose:
-			bs.log.Notice("block scanner stopped")
 			return
 		// we have a new target block
 		case head, ok := <-heads:
 			if !ok {
 				bs.log.Notice("new headers channel closed. stopping block scanner")
+				bs.mgr.finished(bs)
 				return
 			}
 			// initialize target block if it is not initialized
