@@ -107,6 +107,20 @@ func (mr *MockRepositoryMockRecorder) GetNewHeadersChannel() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNewHeadersChannel", reflect.TypeOf((*MockRepository)(nil).GetNewHeadersChannel))
 }
 
+// GetNumberOfAccounts mocks base method.
+func (m *MockRepository) GetNumberOfAccounts() uint64 {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetNumberOfAccounts")
+	ret0, _ := ret[0].(uint64)
+	return ret0
+}
+
+// GetNumberOfAccounts indicates an expected call of GetNumberOfAccounts.
+func (mr *MockRepositoryMockRecorder) GetNumberOfAccounts() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNumberOfAccounts", reflect.TypeOf((*MockRepository)(nil).GetNumberOfAccounts))
+}
+
 // GetTransactionByHash mocks base method.
 func (m *MockRepository) GetTransactionByHash(arg0 common.Hash) (*types.Transaction, error) {
 	m.ctrl.T.Helper()
@@ -135,6 +149,18 @@ func (m *MockRepository) GetTrxCountAggByTimestamp(arg0 types.AggResolution, arg
 func (mr *MockRepositoryMockRecorder) GetTrxCountAggByTimestamp(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTrxCountAggByTimestamp", reflect.TypeOf((*MockRepository)(nil).GetTrxCountAggByTimestamp), arg0, arg1, arg2)
+}
+
+// SetNumberOfAccounts mocks base method.
+func (m *MockRepository) SetNumberOfAccounts(arg0 uint64) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetNumberOfAccounts", arg0)
+}
+
+// SetNumberOfAccounts indicates an expected call of SetNumberOfAccounts.
+func (mr *MockRepositoryMockRecorder) SetNumberOfAccounts(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetNumberOfAccounts", reflect.TypeOf((*MockRepository)(nil).SetNumberOfAccounts), arg0)
 }
 
 // UpdateLatestObservedBlock mocks base method.

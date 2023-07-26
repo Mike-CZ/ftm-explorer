@@ -1,53 +1,52 @@
 package svc
 
 import (
-	"ftm-explorer/internal/logger"
-	"ftm-explorer/internal/repository"
 	"ftm-explorer/internal/types"
-	"sync"
 )
 
-// BlockObserver represents an observer of blockchain blocks.
-type BlockObserver struct {
-	repo     repository.IRepository
-	log      logger.ILogger
+// blockObserver represents an observer of blockchain blocks.
+type blockObserver struct {
+	service
 	inBlocks <-chan *types.Block
 	sigClose chan struct{}
-	wg       sync.WaitGroup
 }
 
-// NewBlockObserver creates a new block observer.
+// newBlockObserver creates a new block observer.
 // It observes new blocks which are sent to the channel. It then processes them.
-func NewBlockObserver(inBlocks <-chan *types.Block, repo repository.IRepository, log logger.ILogger) *BlockObserver {
-	return &BlockObserver{
-		repo:     repo,
-		log:      log.ModuleLogger("block_observer"),
+func newBlockObserver(mgr *Manager, inBlocks <-chan *types.Block) *blockObserver {
+	return &blockObserver{
+		service: service{
+			mgr:  mgr,
+			repo: mgr.repo,
+			log:  mgr.log.ModuleLogger("block_observer"),
+		},
 		inBlocks: inBlocks,
 		sigClose: make(chan struct{}, 1),
 	}
 }
 
-// Start starts the block observer.
-func (bs *BlockObserver) Start() {
-	bs.wg.Add(1)
+// start starts the block observer.
+func (bs *blockObserver) start() {
+	bs.mgr.started(bs)
 	go bs.execute()
 }
 
-// Stop stops the block observer.
-func (bs *BlockObserver) Stop() {
+// close stops the block observer.
+func (bs *blockObserver) close() {
 	bs.sigClose <- struct{}{}
-	bs.wg.Wait()
+	bs.mgr.finished(bs)
+}
+
+// name returns the name of the block observer.
+func (bs *blockObserver) name() string {
+	return "block_observer"
 }
 
 // execute executes the block observer.
-func (bs *BlockObserver) execute() {
-	bs.log.Notice("block observer started")
-	defer bs.wg.Done()
-
+func (bs *blockObserver) execute() {
 	for {
 		select {
 		case <-bs.sigClose:
-			bs.log.Notice("block observer stopped")
 			return
 		case block, ok := <-bs.inBlocks:
 			if !ok {
@@ -60,7 +59,7 @@ func (bs *BlockObserver) execute() {
 }
 
 // processBlock processes a block.
-func (bs *BlockObserver) processBlock(block *types.Block) {
+func (bs *blockObserver) processBlock(block *types.Block) {
 	bs.log.Noticef("block observer processing block %d", block.Number)
 
 	// update latest observed block

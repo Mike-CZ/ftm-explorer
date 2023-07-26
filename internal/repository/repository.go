@@ -20,13 +20,17 @@ type Repository struct {
 	rpc       rpc.IRpc
 	db        db.IDatabase
 	blkBuffer *buffer.BlocksBuffer
+
+	// numberOfAccounts is the number of accounts in the blockchain.
+	numberOfAccounts uint64
 }
 
 // NewRepository creates a new repository.
 func NewRepository(blkBufferSize uint, rpc rpc.IRpc, db db.IDatabase) *Repository {
 	return &Repository{
-		rpc:       rpc,
-		db:        db,
-		blkBuffer: buffer.NewBlocksBuffer(blkBufferSize),
+		rpc:              rpc,
+		db:               db,
+		blkBuffer:        buffer.NewBlocksBuffer(blkBufferSize),
+		numberOfAccounts: 0,
 	}
 }

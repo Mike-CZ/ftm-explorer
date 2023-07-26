@@ -46,6 +46,9 @@ build/ftm-explorer
   "explorer": {
     "blockBufferSize": 10000
   },
+  "metaFetcher": {
+    "url": "metafetcher-url"
+  },
   "rpc": {
     "operaRpcUrl": "https://rpcapi.fantom.network"
   },

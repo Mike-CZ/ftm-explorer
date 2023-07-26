@@ -31,4 +31,10 @@ type IRepository interface {
 
 	// GetGasUsedAggByTimestamp returns aggregation of gas used in given time range.
 	GetGasUsedAggByTimestamp(types.AggResolution, uint, *uint64) ([]types.HexUintTick, error)
+
+	// GetNumberOfAccounts returns the number of accounts in the blockchain.
+	GetNumberOfAccounts() uint64
+
+	// SetNumberOfAccounts sets the number of accounts in the blockchain.
+	SetNumberOfAccounts(uint64)
 }
