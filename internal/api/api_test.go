@@ -310,15 +310,15 @@ func getNumberOfAccountsTestCase(_ *testing.T) apiTestCase {
 				t.Errorf("expected no errors, got: %s", apiRes.Errors[0].Message)
 			}
 			// decode raw data into response
-			heightRes := struct {
+			numberRes := struct {
 				NumberOfAccounts int32 `json:"numberOfAccounts"`
 			}{}
-			if err := json.Unmarshal(apiRes.Data, &heightRes); err != nil {
+			if err := json.Unmarshal(apiRes.Data, &numberRes); err != nil {
 				t.Errorf("failed to unmarshall data: %v", err)
 			}
 			// validate number of accounts
-			if heightRes.NumberOfAccounts != int32(number) {
-				t.Errorf("expected number of accounts %v, got %v", number, heightRes.NumberOfAccounts)
+			if numberRes.NumberOfAccounts != int32(number) {
+				t.Errorf("expected number of accounts %v, got %v", number, numberRes.NumberOfAccounts)
 			}
 		},
 	}
