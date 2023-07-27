@@ -28,6 +28,10 @@ type Block {
     # assigned to the block.
     transactions: [Bytes32!]!
 
+    # fullTransactions is the list of transactions assigned to the block.
+    # this method will fetch all transaction details from the rpc.
+    fullTransactions: [Transaction!]!
+
     # TransactionCount is the number of transactions in this block.
     transactionsCount: Int!
 }
@@ -90,6 +94,9 @@ type Transaction {
     # running out of gas). If the transaction has not yet been processed, this
     # field will be null.
     status: Long
+
+    # Type is the type of the transaction.
+    type: String!
 }
 type Tick {
     # The timestamp of the tick

@@ -8,7 +8,10 @@ import (
 )
 
 // Block represents resolvable blockchain block structure.
-type Block types.Block
+type Block struct {
+	rs *RootResolver
+	types.Block
+}
 
 // Tick represents resolvable blockchain tick structure.
 type Tick types.HexUintTick
@@ -56,7 +59,7 @@ func (rs *RootResolver) BlockTimestampAggregations(args *struct {
 	// convert result
 	rv := make([]Tick, len(result))
 	for i, t := range result {
-		rv[i] = Tick(t)
+		rv[i] = (Tick)(t)
 	}
 
 	return rv, nil
@@ -75,7 +78,7 @@ func (rs *RootResolver) RecentBlocks(args *struct{ Limit int32 }) ([]*Block, err
 
 	rv := make([]*Block, len(blocks))
 	for i, b := range blocks {
-		blk := Block(*b)
+		blk := Block{rs: rs, Block: *b}
 		rv[i] = &blk
 	}
 
@@ -98,13 +101,30 @@ func (rs *RootResolver) Block(args *struct{ Number hexutil.Uint64 }) (*Block, er
 		rs.log.Warningf("Failed to get block by number [%d]; %v", args.Number, err)
 		return nil, err
 	}
-	blk := Block(*block)
+	blk := Block{rs: rs, Block: *block}
 	return &blk, nil
 }
 
 // TransactionsCount resolves number of transactions in the block.
 func (blk *Block) TransactionsCount() int32 {
 	return int32(len(blk.Transactions))
+}
+
+// FullTransactions resolves full transactions in the block.
+func (blk *Block) FullTransactions() ([]*Transaction, error) {
+	result := make([]*Transaction, 0)
+
+	// fetch transactions
+	for _, hash := range blk.Transactions {
+		trx, err := blk.rs.repository.GetTransactionByHash(hash)
+		if err != nil {
+			blk.rs.log.Warningf("Failed to get transaction by hash [%s]; %v", hash.Hex(), err)
+			return nil, err
+		}
+		result = append(result, (*Transaction)(trx))
+	}
+
+	return result, nil
 }
 
 // Timestamp resolves tick timestamp.

@@ -9,6 +9,7 @@ import (
 	"ftm-explorer/internal/logger"
 	"ftm-explorer/internal/repository"
 	"ftm-explorer/internal/types"
+	"ftm-explorer/internal/utils"
 	"math/big"
 	"net/http"
 	"net/http/httptest"
@@ -83,7 +84,7 @@ func getTransactionTestCase(t *testing.T) apiTestCase {
 	trx := getTestTransaction(t)
 	return apiTestCase{
 		testName:    "GetTransaction",
-		requestBody: fmt.Sprintf(`{"query": "query { transaction(hash: \"%s\") { hash, blockHash, blockNumber, from, to, contractAddress, nonce, gas, gasUsed, cumulativeGasUsed, gasPrice, value, input, transactionIndex, status }}"}`, trx.Hash.Hex()),
+		requestBody: fmt.Sprintf(`{"query": "query { transaction(hash: \"%s\") { hash, blockHash, blockNumber, from, to, contractAddress, nonce, gas, gasUsed, cumulativeGasUsed, gasPrice, value, input, transactionIndex, status, type }}"}`, trx.Hash.Hex()),
 		buildStubs: func(mockRepository *repository.MockRepository) {
 			mockRepository.EXPECT().GetTransactionByHash(gomock.Eq(trx.Hash)).Return(&trx, nil)
 		},
@@ -94,13 +95,21 @@ func getTransactionTestCase(t *testing.T) apiTestCase {
 			}
 			// decode raw data into transaction
 			trxRes := struct {
-				Trx types.Transaction `json:"transaction"`
+				Trx struct {
+					types.Transaction
+					// add type, which is not part of the transaction struct
+					Type string `json:"type"`
+				} `json:"transaction"`
 			}{}
 			if err := json.Unmarshal(apiRes.Data, &trxRes); err != nil {
 				t.Errorf("failed to unmarshall data: %v", err)
 			}
 			// validate transaction
-			validateTransaction(t, trx, trxRes.Trx)
+			validateTransaction(t, trx, trxRes.Trx.Transaction)
+			// validate type
+			if trxRes.Trx.Type != utils.ParseTrxType(&trxRes.Trx.Transaction) {
+				t.Errorf("expected type %s, got %s", utils.ParseTrxType(&trxRes.Trx.Transaction), trxRes.Trx.Type)
+			}
 		},
 	}
 }
@@ -108,11 +117,14 @@ func getTransactionTestCase(t *testing.T) apiTestCase {
 // getTransactionTestCase returns a test case for a transaction not found error.
 func getBlockTestCase(t *testing.T) apiTestCase {
 	block := getTestBlock(t)
+	trx := getTestTransaction(t)
 	return apiTestCase{
 		testName:    "GetBlock",
-		requestBody: fmt.Sprintf(`{"query": "query { block(number: \"%s\") { number, epoch, hash, parentHash, timestamp, gasLimit, gasUsed, transactions, transactionsCount }}"}`, block.Number.String()),
+		requestBody: fmt.Sprintf(`{"query": "query { block(number: \"%s\") { number, epoch, hash, parentHash, timestamp, gasLimit, gasUsed, transactions, transactionsCount, fullTransactions { hash } }}"}`, block.Number.String()),
 		buildStubs: func(mockRepository *repository.MockRepository) {
 			mockRepository.EXPECT().GetBlockByNumber(gomock.Eq(uint64(block.Number))).Return(&block, nil)
+			// always return the same transaction for any hash for this test
+			mockRepository.EXPECT().GetTransactionByHash(gomock.Any()).Return(&trx, nil).AnyTimes()
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
 			apiRes := decodeResponse(t, resp)
@@ -124,7 +136,8 @@ func getBlockTestCase(t *testing.T) apiTestCase {
 				Block struct {
 					types.Block
 					// add transactions count, which is not part of the block struct
-					TransactionsCount int32 `json:"transactionsCount"`
+					TransactionsCount int32               `json:"transactionsCount"`
+					FullTransactions  []types.Transaction `json:"fullTransactions"`
 				} `json:"block"`
 			}{}
 			if err := json.Unmarshal(apiRes.Data, &blockRes); err != nil {
@@ -135,6 +148,12 @@ func getBlockTestCase(t *testing.T) apiTestCase {
 			// validate transactions count
 			if blockRes.Block.TransactionsCount != int32(len(block.Transactions)) {
 				t.Errorf("expected transactions count %d, got %d", len(block.Transactions), blockRes.Block.TransactionsCount)
+			}
+			// validate transaction hashes, all should be the same
+			for _, tx := range blockRes.Block.FullTransactions {
+				if tx.Hash != trx.Hash {
+					t.Errorf("expected transaction hash %s, got %s", trx.Hash.Hex(), tx.Hash.Hex())
+				}
 			}
 		},
 	}

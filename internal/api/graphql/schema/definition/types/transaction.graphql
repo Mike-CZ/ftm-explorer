@@ -57,4 +57,7 @@ type Transaction {
     # running out of gas). If the transaction has not yet been processed, this
     # field will be null.
     status: Long
+
+    # Type is the type of the transaction.
+    type: String!
 }
