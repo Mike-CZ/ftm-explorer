@@ -31,13 +31,13 @@ To clean up a build, use `make clean`.
 
 ## Running
 
-To run Explorer, you can run the `ftm-explorer` executable created by the build process:
+To run Explorer, you can run the `demonet-explorer` executable created by the build process:
 ```
-build/ftm-explorer <cmd> <args...>
+build/demonet-explorer <cmd> <args...>
 ```
 To list the available commands, run
 ```
-build/ftm-explorer
+build/demonet-explorer
 ```
 
 ## Example config
@@ -69,7 +69,7 @@ build/ftm-explorer
   "mongodb": {
     "host": "localhost",
     "port": 27017,
-    "db": "ftm-explorer",
+    "db": "demonet-explorer",
     "user": null,
     "password": null
   }
@@ -79,6 +79,6 @@ build/ftm-explorer
 ## Local development
 In case you need to run mongodb in docker container locally for development, you can use the following command:
 ```
-docker run --name ftm-explorer-mongo -p 27017:27017 -e MONGO_INITDB_DATABASE=ftm-explorer mongo:6.0
+docker run --name demonet-explorer-mongo -p 27017:27017 -e MONGO_INITDB_DATABASE=demonet-explorer mongo:6.0
 ```
 This configuration won't persist data. You need to add volume to the container to do so.

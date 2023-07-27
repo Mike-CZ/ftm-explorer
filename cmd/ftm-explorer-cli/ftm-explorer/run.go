@@ -17,7 +17,7 @@ import (
 var CmdRun = cli.Command{
 	Action: run,
 	Name:   "run",
-	Usage:  `Runs the fantom explorer.`,
+	Usage:  `Runs the demonet explorer.`,
 	Flags: []cli.Flag{
 		&flags.Cfg,
 	},

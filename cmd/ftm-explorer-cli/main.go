@@ -10,8 +10,8 @@ import (
 
 func initApp() *cli.App {
 	return &cli.App{
-		Name:     "Fantom Explorer",
-		HelpName: "ftm-explorer",
+		Name:     "Demonet Explorer",
+		HelpName: "demonet-explorer",
 		Usage:    "starts observing blocks and aggregating data, serving it via API.",
 		Commands: []*cli.Command{
 			&ftm_explorer.CmdRun,

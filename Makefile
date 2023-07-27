@@ -25,7 +25,7 @@ all: bundle ftm-explorer
 ftm-explorer:
 	@go build \
     		-ldflags="-X 'ftm-explorer/cmd/ftm-explorer-cli/version.Version=$(APP_VERSION)' -X 'ftm-explorer/cmd/ftm-explore-cli/version.Time=$(BUILD_DATE)' -X 'ftm-explorer/cmd/ftm-explorer-cli/version.Compiler=$(BUILD_COMPILER)' -X 'ftm-explorer/cmd/ftm-explorer-cli/version.Commit=$(BUILD_COMMIT)' -X 'ftm-explorer/cmd/ftm-explorer-cli/version.CommitTime=$(BUILD_COMMIT_TIME)'" \
-    		-o $(GO_BIN)/ftm-explorer \
+    		-o $(GO_BIN)/demonet-explorer \
     		-v \
     		./cmd/ftm-explorer-cli
 
