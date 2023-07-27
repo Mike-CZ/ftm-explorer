@@ -22,9 +22,6 @@ func TestMongoDb_Connection(t *testing.T) {
 // Test adding and getting a block from MongoDB
 func TestMongoDb_AddAndGetBlock(t *testing.T) {
 	db := startMongoDb(t)
-	defer func() {
-		db.Close()
-	}()
 
 	// define block to add
 	block := types.Block{
@@ -69,9 +66,6 @@ func TestMongoDb_AddAndGetBlock(t *testing.T) {
 // Test getting transactions per day from MongoDB
 func TestMongoDb_GetTransactionsPerDay(t *testing.T) {
 	db := startMongoDb(t)
-	defer func() {
-		db.Close()
-	}()
 
 	// start on 21st of February 2000 at 5:00 UTC
 	ts := time.Date(2000, 2, 15, 5, 0, 0, 0, time.UTC)
@@ -141,9 +135,6 @@ func TestMongoDb_GetTransactionsPerDay(t *testing.T) {
 // Test getting gas used per day from MongoDB. The main focus is on big numbers.
 func TestMongoDb_GetGasUsedPerDay(t *testing.T) {
 	db := startMongoDb(t)
-	defer func() {
-		db.Close()
-	}()
 
 	// start on 21st of February 2000 at 5:00 UTC
 	ts := time.Date(2000, 2, 15, 5, 0, 0, 0, time.UTC)
@@ -212,6 +203,51 @@ func TestMongoDb_GetGasUsedPerDay(t *testing.T) {
 	}
 }
 
+// Test incrementing and getting trx count from MongoDB.
+func TestMongoDb_IncrementAndGetTrxCount(t *testing.T) {
+	db := startMongoDb(t)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
+	defer cancel()
+
+	// try getting trx count without previous increment
+	trxCount, err := db.TrxCount(ctx)
+	if err != nil {
+		t.Fatalf("failed to get trx count: %v", err)
+	}
+	if trxCount != 0 {
+		t.Fatalf("expected 0 trx count, got %d", trxCount)
+	}
+
+	// increment trx count
+	if err := db.IncrementTrxCount(ctx, 5); err != nil {
+		t.Fatalf("failed to increment trx count: %v", err)
+	}
+
+	// try getting trx count after increment
+	trxCount, err = db.TrxCount(ctx)
+	if err != nil {
+		t.Fatalf("failed to get trx count: %v", err)
+	}
+	if trxCount != 5 {
+		t.Fatalf("expected 5 trx count, got %d", trxCount)
+	}
+
+	// increment trx count again
+	if err := db.IncrementTrxCount(ctx, 10); err != nil {
+		t.Fatalf("failed to increment trx count: %v", err)
+	}
+
+	// try getting trx count after increment
+	trxCount, err = db.TrxCount(ctx)
+	if err != nil {
+		t.Fatalf("failed to get trx count: %v", err)
+	}
+	if trxCount != 15 {
+		t.Fatalf("expected 15 trx count, got %d", trxCount)
+	}
+}
+
 // startMongoDb starts MongoDB in a Docker container and returns the MongoDb instance.
 func startMongoDb(t *testing.T) *MongoDb {
 	t.Helper()
@@ -260,6 +296,9 @@ func startMongoDb(t *testing.T) *MongoDb {
 	if err != nil {
 		t.Fatalf("NewMongoDb() error = %v", err)
 	}
+	t.Cleanup(func() {
+		db.Close()
+	})
 
 	return db
 }

@@ -125,6 +125,34 @@ func TestRepository_GetAndSetNumberOfAccounts(t *testing.T) {
 	}
 }
 
+// Test that repository transaction count is returned correctly.
+func TestRepository_GetTrxCount(t *testing.T) {
+	repository, _, mockDb := createRepository(t)
+
+	// transaction should be returned from rpc
+	count := uint64(100)
+	mockDb.EXPECT().TrxCount(gomock.Any()).Return(count, nil)
+	returnedCount, err := repository.GetTrxCount()
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if returnedCount != count {
+		t.Errorf("expected %v, got %v", count, returnedCount)
+	}
+}
+
+// Test that repository transaction count is called correctly.
+func TestRepository_IncrementTrxCount(t *testing.T) {
+	repository, _, mockDb := createRepository(t)
+
+	// check that trx increment is called on database
+	mockDb.EXPECT().IncrementTrxCount(gomock.Any(), gomock.Eq(uint(10))).Return(nil)
+	err := repository.IncrementTrxCount(10)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
 // createRepository creates a new repository instance with mocked dependencies.
 func createRepository(t *testing.T) (*Repository, *rpc.MockRpc, *db.MockDatabase) {
 	ctrl := gomock.NewController(t)

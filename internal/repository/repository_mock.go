@@ -136,6 +136,21 @@ func (mr *MockRepositoryMockRecorder) GetTransactionByHash(arg0 interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTransactionByHash", reflect.TypeOf((*MockRepository)(nil).GetTransactionByHash), arg0)
 }
 
+// GetTrxCount mocks base method.
+func (m *MockRepository) GetTrxCount() (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTrxCount")
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTrxCount indicates an expected call of GetTrxCount.
+func (mr *MockRepositoryMockRecorder) GetTrxCount() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTrxCount", reflect.TypeOf((*MockRepository)(nil).GetTrxCount))
+}
+
 // GetTrxCountAggByTimestamp mocks base method.
 func (m *MockRepository) GetTrxCountAggByTimestamp(arg0 types.AggResolution, arg1 uint, arg2 *uint64) ([]types.HexUintTick, error) {
 	m.ctrl.T.Helper()
@@ -149,6 +164,20 @@ func (m *MockRepository) GetTrxCountAggByTimestamp(arg0 types.AggResolution, arg
 func (mr *MockRepositoryMockRecorder) GetTrxCountAggByTimestamp(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTrxCountAggByTimestamp", reflect.TypeOf((*MockRepository)(nil).GetTrxCountAggByTimestamp), arg0, arg1, arg2)
+}
+
+// IncrementTrxCount mocks base method.
+func (m *MockRepository) IncrementTrxCount(arg0 uint) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IncrementTrxCount", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// IncrementTrxCount indicates an expected call of IncrementTrxCount.
+func (mr *MockRepositoryMockRecorder) IncrementTrxCount(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IncrementTrxCount", reflect.TypeOf((*MockRepository)(nil).IncrementTrxCount), arg0)
 }
 
 // SetNumberOfAccounts mocks base method.

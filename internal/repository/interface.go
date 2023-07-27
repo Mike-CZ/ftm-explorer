@@ -37,4 +37,10 @@ type IRepository interface {
 
 	// SetNumberOfAccounts sets the number of accounts in the blockchain.
 	SetNumberOfAccounts(uint64)
+
+	// GetTrxCount returns the number of transactions in the blockchain.
+	GetTrxCount() (uint64, error)
+
+	// IncrementTrxCount increments the number of transactions in the blockchain.
+	IncrementTrxCount(uint) error
 }

@@ -67,4 +67,10 @@ func (bs *blockObserver) processBlock(block *types.Block) {
 		bs.log.Errorf("error updating latest observed block: %v", err)
 		return
 	}
+
+	// increment transaction count
+	if err := bs.repo.IncrementTrxCount(uint(len(block.Transactions))); err != nil {
+		bs.log.Errorf("error incrementing transaction count: %v", err)
+		return
+	}
 }

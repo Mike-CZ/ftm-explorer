@@ -49,6 +49,7 @@ func TestApiServer_Run(t *testing.T) {
 		getBlockTimestampTxsCountAggregationsTestCase(t),
 		getBlockTimestampGasUsedAggregationsTestCase(t),
 		getNumberOfAccountsTestCase(t),
+		getNumberOfTransactionsTestCase(t),
 	}
 
 	for _, tc := range testCases {
@@ -107,7 +108,7 @@ func getTransactionTestCase(t *testing.T) apiTestCase {
 func getBlockTestCase(t *testing.T) apiTestCase {
 	block := getTestBlock(t)
 	return apiTestCase{
-		testName:    "Block",
+		testName:    "GetBlock",
 		requestBody: fmt.Sprintf(`{"query": "query { block(number: \"%s\") { number, epoch, hash, parentHash, timestamp, gasLimit, gasUsed, transactions, transactionsCount }}"}`, block.Number.String()),
 		buildStubs: func(mockRepository *repository.MockRepository) {
 			mockRepository.EXPECT().GetBlockByNumber(gomock.Eq(uint64(block.Number))).Return(&block, nil)
@@ -132,7 +133,7 @@ func getBlockTestCase(t *testing.T) apiTestCase {
 			validateBlock(t, block, blockRes.Block.Block)
 			// validate transactions count
 			if blockRes.Block.TransactionsCount != int32(len(block.Transactions)) {
-				t.Errorf("expected transactions count %v, got %v", len(block.Transactions), blockRes.Block.TransactionsCount)
+				t.Errorf("expected transactions count %d, got %d", len(block.Transactions), blockRes.Block.TransactionsCount)
 			}
 		},
 	}
@@ -164,7 +165,7 @@ func getRecentBlocksTestCase(_ *testing.T) apiTestCase {
 			}
 			// validate blocks
 			if len(blockRes.Blocks) != len(blocks) {
-				t.Errorf("expected blocks count %v, got %v", len(blocks), len(blockRes.Blocks))
+				t.Errorf("expected blocks count %d, got %d", len(blocks), len(blockRes.Blocks))
 			}
 			for i, block := range blocks {
 				validateBlock(t, *block, *blockRes.Blocks[i])
@@ -196,7 +197,7 @@ func getCurrentBlockHeightTestCase(_ *testing.T) apiTestCase {
 			}
 			// validate height
 			if uint64(heightRes.BlockHeight) != blockHeight {
-				t.Errorf("expected block height %v, got %v", blockHeight, heightRes.BlockHeight)
+				t.Errorf("expected block height %d, got %d", blockHeight, uint64(heightRes.BlockHeight))
 			}
 		},
 	}
@@ -212,7 +213,7 @@ func getBlockTimestampTxsCountAggregationsTestCase(_ *testing.T) apiTestCase {
 		{Value: hexutil.Uint64(180), Time: 1_690_099_743},
 	}
 	return apiTestCase{
-		testName:    "GetBlockTimestampAggregations",
+		testName:    "GetBlockTimestampTrxCountAggregations",
 		requestBody: `{"query": "query { blockTimestampAggregations(subject: TXS_COUNT, resolution: MINUTE, ticks: 5) { timestamp, value }}"}`,
 		buildStubs: func(mockRepository *repository.MockRepository) {
 			mockRepository.EXPECT().GetTrxCountAggByTimestamp(gomock.Eq(types.AggResolutionMinute), gomock.Eq(uint(5)), gomock.Nil()).Return(agg, nil)
@@ -238,10 +239,10 @@ func getBlockTimestampTxsCountAggregationsTestCase(_ *testing.T) apiTestCase {
 			}
 			for i, tick := range agg {
 				if response.Aggregations[i].Timestamp != int32(tick.Time) {
-					t.Errorf("expected timestamp %v, got %v", tick.Time, response.Aggregations[i].Timestamp)
+					t.Errorf("expected timestamp %d, got %d", tick.Time, response.Aggregations[i].Timestamp)
 				}
 				if response.Aggregations[i].Value != tick.Value {
-					t.Errorf("expected value %v, got %v", tick.Value, response.Aggregations[i].Value)
+					t.Errorf("expected value %d, got %d", uint64(tick.Value), uint64(response.Aggregations[i].Value))
 				}
 			}
 		},
@@ -259,7 +260,7 @@ func getBlockTimestampGasUsedAggregationsTestCase(_ *testing.T) apiTestCase {
 	}
 	endTime := uint64(1_690_100_448)
 	return apiTestCase{
-		testName:    "GetBlockTimestampAggregations",
+		testName:    "GetBlockTimestampGasUsedAggregations",
 		requestBody: `{"query": "query { blockTimestampAggregations(subject: GAS_USED, resolution: HOUR, ticks: 5, endTime: 1690100448) { timestamp, value }}"}`,
 		buildStubs: func(mockRepository *repository.MockRepository) {
 			mockRepository.EXPECT().GetGasUsedAggByTimestamp(gomock.Eq(types.AggResolutionHour), gomock.Eq(uint(5)), gomock.Eq(&endTime)).Return(agg, nil)
@@ -281,14 +282,14 @@ func getBlockTimestampGasUsedAggregationsTestCase(_ *testing.T) apiTestCase {
 			}
 			// validate aggregations
 			if len(response.Aggregations) != len(agg) {
-				t.Errorf("expected aggregations count %v, got %v", len(agg), len(response.Aggregations))
+				t.Errorf("expected aggregations count %d, got %d", len(agg), len(response.Aggregations))
 			}
 			for i, tick := range agg {
 				if response.Aggregations[i].Timestamp != int32(tick.Time) {
-					t.Errorf("expected timestamp %v, got %v", tick.Time, response.Aggregations[i].Timestamp)
+					t.Errorf("expected timestamp %d, got %d", tick.Time, response.Aggregations[i].Timestamp)
 				}
 				if response.Aggregations[i].Value != tick.Value {
-					t.Errorf("expected value %v, got %v", tick.Value, response.Aggregations[i].Value)
+					t.Errorf("expected value %d, got %d", tick.Value, uint64(response.Aggregations[i].Value))
 				}
 			}
 		},
@@ -318,7 +319,36 @@ func getNumberOfAccountsTestCase(_ *testing.T) apiTestCase {
 			}
 			// validate number of accounts
 			if numberRes.NumberOfAccounts != int32(number) {
-				t.Errorf("expected number of accounts %v, got %v", number, numberRes.NumberOfAccounts)
+				t.Errorf("expected number of accounts %d, got %d", number, numberRes.NumberOfAccounts)
+			}
+		},
+	}
+}
+
+// getNumberOfTransactionsTestCase returns a test case for a number of transactions query.
+func getNumberOfTransactionsTestCase(_ *testing.T) apiTestCase {
+	var number uint64 = 12_852_456
+	return apiTestCase{
+		testName:    "GetNumberOfTransactions",
+		requestBody: `{"query": "query { numberOfTransactions}"}`,
+		buildStubs: func(mockRepository *repository.MockRepository) {
+			mockRepository.EXPECT().GetTrxCount().Return(number, nil)
+		},
+		checkResponse: func(t *testing.T, resp *http.Response) {
+			apiRes := decodeResponse(t, resp)
+			if len(apiRes.Errors) != 0 {
+				t.Errorf("expected no errors, got: %s", apiRes.Errors[0].Message)
+			}
+			// decode raw data into response
+			numberRes := struct {
+				NumberOfTransactions hexutil.Uint64 `json:"numberOfTransactions"`
+			}{}
+			if err := json.Unmarshal(apiRes.Data, &numberRes); err != nil {
+				t.Errorf("failed to unmarshall data: %v", err)
+			}
+			// validate number of transactions
+			if uint64(numberRes.NumberOfTransactions) != number {
+				t.Errorf("expected number of transactions %d, got %d", number, uint64(numberRes.NumberOfTransactions))
 			}
 		},
 	}

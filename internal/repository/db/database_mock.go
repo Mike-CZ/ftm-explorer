@@ -91,6 +91,35 @@ func (mr *MockDatabaseMockRecorder) GasUsedAggByTimestamp(arg0, arg1, arg2, arg3
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GasUsedAggByTimestamp", reflect.TypeOf((*MockDatabase)(nil).GasUsedAggByTimestamp), arg0, arg1, arg2, arg3)
 }
 
+// IncrementTrxCount mocks base method.
+func (m *MockDatabase) IncrementTrxCount(arg0 context.Context, arg1 uint) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IncrementTrxCount", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// IncrementTrxCount indicates an expected call of IncrementTrxCount.
+func (mr *MockDatabaseMockRecorder) IncrementTrxCount(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IncrementTrxCount", reflect.TypeOf((*MockDatabase)(nil).IncrementTrxCount), arg0, arg1)
+}
+
+// TrxCount mocks base method.
+func (m *MockDatabase) TrxCount(arg0 context.Context) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "TrxCount", arg0)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// TrxCount indicates an expected call of TrxCount.
+func (mr *MockDatabaseMockRecorder) TrxCount(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TrxCount", reflect.TypeOf((*MockDatabase)(nil).TrxCount), arg0)
+}
+
 // TrxCountAggByTimestamp mocks base method.
 func (m *MockDatabase) TrxCountAggByTimestamp(arg0 context.Context, arg1 uint64, arg2, arg3 uint) ([]types.HexUintTick, error) {
 	m.ctrl.T.Helper()

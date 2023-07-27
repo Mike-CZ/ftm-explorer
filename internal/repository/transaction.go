@@ -14,3 +14,24 @@ func (r *Repository) GetTransactionByHash(hash common.Hash) (*types.Transaction,
 	defer cancel()
 	return r.rpc.TransactionByHash(ctx, hash)
 }
+
+// GetTrxCount returns the number of transactions in the blockchain.
+func (r *Repository) GetTrxCount() (uint64, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), kDbTimeout)
+	defer cancel()
+
+	count, err := r.db.TrxCount(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+// IncrementTrxCount increments the number of transactions in the blockchain.
+func (r *Repository) IncrementTrxCount(incrementBy uint) error {
+	ctx, cancel := context.WithTimeout(context.Background(), kDbTimeout)
+	defer cancel()
+
+	return r.db.IncrementTrxCount(ctx, incrementBy)
+}

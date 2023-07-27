@@ -20,6 +20,12 @@ type IDatabase interface {
 	// Block returns a block from the database.
 	Block(context.Context, uint64) (*db_types.Block, error)
 
+	// TrxCount returns the number of transactions in the blockchain.
+	TrxCount(context.Context) (uint64, error)
+
+	// IncrementTrxCount increments the number of transactions in the blockchain.
+	IncrementTrxCount(context.Context, uint) error
+
 	// Close terminates the database connection.
 	Close()
 }
