@@ -50,6 +50,7 @@ func TestApiServer_Run(t *testing.T) {
 		getBlockTimestampGasUsedAggregationsTestCase(t),
 		getNumberOfAccountsTestCase(t),
 		getNumberOfTransactionsTestCase(t),
+		getCurrentStateTestCase(t),
 	}
 
 	for _, tc := range testCases {
@@ -349,6 +350,49 @@ func getNumberOfTransactionsTestCase(_ *testing.T) apiTestCase {
 			// validate number of transactions
 			if uint64(numberRes.NumberOfTransactions) != number {
 				t.Errorf("expected number of transactions %d, got %d", number, uint64(numberRes.NumberOfTransactions))
+			}
+		},
+	}
+}
+
+// getCurrentStateTestCase returns a test case for a current state query.
+func getCurrentStateTestCase(_ *testing.T) apiTestCase {
+	var blockHeight uint64 = 200_000
+	var numberOfAccounts uint64 = 589
+	var numberOfTransactions uint64 = 23_852_456
+	return apiTestCase{
+		testName:    "GetCurrentState",
+		requestBody: `{"query": "query { state { currentBlockHeight, numberOfAccounts, numberOfTransactions } }"}`,
+		buildStubs: func(mockRepository *repository.MockRepository) {
+			mockRepository.EXPECT().GetLatestObservedBlock().Return(&types.Block{Number: hexutil.Uint64(blockHeight)})
+			mockRepository.EXPECT().GetNumberOfAccounts().Return(numberOfAccounts)
+			mockRepository.EXPECT().GetTrxCount().Return(numberOfTransactions, nil)
+		},
+		checkResponse: func(t *testing.T, resp *http.Response) {
+			apiRes := decodeResponse(t, resp)
+			if len(apiRes.Errors) != 0 {
+				t.Errorf("expected no errors, got: %s", apiRes.Errors[0].Message)
+			}
+			// decode raw data into response
+			stateRes := struct {
+				State struct {
+					CurrentBlockHeight   hexutil.Uint64 `json:"currentBlockHeight"`
+					NumberOfAccounts     int32          `json:"numberOfAccounts"`
+					NumberOfTransactions hexutil.Uint64 `json:"numberOfTransactions"`
+				}
+			}{}
+			if err := json.Unmarshal(apiRes.Data, &stateRes); err != nil {
+				t.Errorf("failed to unmarshall data: %v", err)
+			}
+			// validate current state
+			if uint64(stateRes.State.CurrentBlockHeight) != blockHeight {
+				t.Errorf("expected current block height %d, got %d", blockHeight, uint64(stateRes.State.CurrentBlockHeight))
+			}
+			if uint64(stateRes.State.NumberOfAccounts) != numberOfAccounts {
+				t.Errorf("expected number of accounts %d, got %d", numberOfAccounts, uint64(stateRes.State.NumberOfAccounts))
+			}
+			if uint64(stateRes.State.NumberOfTransactions) != numberOfTransactions {
+				t.Errorf("expected number of transactions %d, got %d", numberOfTransactions, uint64(stateRes.State.NumberOfTransactions))
 			}
 		},
 	}

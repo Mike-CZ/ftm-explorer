@@ -111,6 +111,16 @@ enum AggSubject {
     TXS_COUNT,
     GAS_USED
 }
+type CurrentState {
+    # Get current block height
+    currentBlockHeight:Long
+
+    # Get total number of accounts
+    numberOfAccounts:Int!
+
+    # Get total number of transactions
+    numberOfTransactions:Long!
+}
 # Bytes32 is a 32 byte binary string, represented by 0x prefixed hexadecimal hash.
 scalar Bytes32
 
@@ -140,6 +150,9 @@ schema {
 
 # Entry points for querying the API
 type Query {
+    # State represents the current state of the blockchain and network.
+    state: CurrentState!
+
     # Get transaction information for given transaction hash.
     transaction(hash:Bytes32!):Transaction
 
@@ -152,6 +165,12 @@ type Query {
     # Get current block height
     currentBlockHeight:Long
 
+    # Get total number of accounts
+    numberOfAccounts:Int!
+
+    # Get total number of transactions
+    numberOfTransactions:Long!
+
     # Get block aggregated data by timestamp
     # parameters:
     #   subject: the subject of the aggregation - value of AggSubject enum
@@ -159,11 +178,5 @@ type Query {
     #   ticks: the number of ticks to return
     #   endTime: the end timestamp of the aggregation, if not specified, last block's timestamp is used
     blockTimestampAggregations(subject: AggSubject!, resolution: AggResolution!, ticks:Int!, endTime:Int):[Tick!]!
-
-    # Get total number of accounts
-    numberOfAccounts:Int!
-
-    # Get total number of transactions
-    numberOfTransactions:Long!
 }
 `

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"ftm-explorer/internal/types"
 
 	eth "github.com/ethereum/go-ethereum/core/types"
@@ -66,7 +65,7 @@ func (r *Repository) GetNewHeadersChannel() <-chan *eth.Header {
 func (r *Repository) GetTrxCountAggByTimestamp(resolution types.AggResolution, ticks uint, endTime *uint64) ([]types.HexUintTick, error) {
 	last := r.getLastBlockTimestamp(endTime)
 	if last == nil {
-		return nil, fmt.Errorf("could not get last block timestamp")
+		return nil, nil
 	}
 	// get aggregation from db
 	ctx, cancel := context.WithTimeout(context.Background(), kDbTimeout)
@@ -79,7 +78,7 @@ func (r *Repository) GetTrxCountAggByTimestamp(resolution types.AggResolution, t
 func (r *Repository) GetGasUsedAggByTimestamp(resolution types.AggResolution, ticks uint, endTime *uint64) ([]types.HexUintTick, error) {
 	last := r.getLastBlockTimestamp(endTime)
 	if last == nil {
-		return nil, fmt.Errorf("could not get last block timestamp")
+		return nil, nil
 	}
 	// get aggregation from db
 	ctx, cancel := context.WithTimeout(context.Background(), kDbTimeout)

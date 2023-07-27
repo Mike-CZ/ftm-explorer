@@ -1,0 +1,10 @@
+type CurrentState {
+    # Get current block height
+    currentBlockHeight:Long
+
+    # Get total number of accounts
+    numberOfAccounts:Int!
+
+    # Get total number of transactions
+    numberOfTransactions:Long!
+}
