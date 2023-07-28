@@ -47,4 +47,11 @@ func TestTrx_ParseTrxType(t *testing.T) {
 	if ParseTrxType(&trx) != kTrxErc20ApproveType {
 		t.Errorf("expected type '%s', got %s", kTrxErc20ApproveType, ParseTrxType(&trx))
 	}
+
+	// test swap trade
+	trx.Input = []byte{0xdd, 0xba, 0x27, 0xa7}
+	if ParseTrxType(&trx) != kTrxSwapTradeType {
+		t.Errorf("expected type '%s', got %s", kTrxSwapTradeType, ParseTrxType(&trx))
+	}
+
 }

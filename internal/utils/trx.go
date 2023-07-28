@@ -12,6 +12,7 @@ const (
 	kTrxErc20TransferFromType = "ERC20 TransferFrom"
 	kTrxErc20MintType         = "ERC20 Mint"
 	kTrxErc20ApproveType      = "ERC20 Approve"
+	kTrxSwapTradeType         = "Swap Trade"
 	kTrxOtherTxType           = "Other Tx"
 )
 
@@ -45,6 +46,11 @@ func ParseTrxType(trx *types.Transaction) string {
 	// if first 4 bytes of data is "0x095ea7b3", it is an erc20 approve
 	if len(trx.Input) >= 4 && bytes.Equal(trx.Input[:4], []byte{0x09, 0x5e, 0xa7, 0xb3}) {
 		return kTrxErc20ApproveType
+	}
+
+	// if first 4 bytes of data is "0xddba27a7", it is a swap trade
+	if len(trx.Input) >= 4 && bytes.Equal(trx.Input[:4], []byte{0xdd, 0xba, 0x27, 0xa7}) {
+		return kTrxSwapTradeType
 	}
 
 	return kTrxOtherTxType
