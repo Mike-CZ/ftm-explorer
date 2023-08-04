@@ -7,4 +7,10 @@ type CurrentState {
 
     # Get total number of transactions
     numberOfTransactions:Long!
+
+    # Get total number of validators
+    numberOfValidators:Int!
+
+    # Get disk size per 100M transactions in bytes
+    diskSizePer100MTxs:Long!
 }

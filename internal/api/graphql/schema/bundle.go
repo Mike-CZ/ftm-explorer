@@ -127,6 +127,12 @@ type CurrentState {
 
     # Get total number of transactions
     numberOfTransactions:Long!
+
+    # Get total number of validators
+    numberOfValidators:Int!
+
+    # Get disk size per 100M transactions in bytes
+    diskSizePer100MTxs:Long!
 }
 # Bytes32 is a 32 byte binary string, represented by 0x prefixed hexadecimal hash.
 scalar Bytes32
@@ -177,6 +183,12 @@ type Query {
 
     # Get total number of transactions
     numberOfTransactions:Long!
+
+    # Get total number of validators
+    numberOfValidators:Int!
+
+    # Get disk size per 100M transactions in bytes
+    diskSizePer100MTxs:Long!
 
     # Get block aggregated data by timestamp
     # parameters:

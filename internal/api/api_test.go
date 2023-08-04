@@ -51,6 +51,8 @@ func TestApiServer_Run(t *testing.T) {
 		getBlockTimestampGasUsedAggregationsTestCase(t),
 		getNumberOfAccountsTestCase(t),
 		getNumberOfTransactionsTestCase(t),
+		getNumberOfValidatorsTestCase(t),
+		getDiskSizePer100MTxsTestCase(t),
 		getCurrentStateTestCase(t),
 	}
 
@@ -345,6 +347,60 @@ func getNumberOfAccountsTestCase(_ *testing.T) apiTestCase {
 	}
 }
 
+// getNumberOfValidators returns a test case for a number of validators query.
+func getNumberOfValidatorsTestCase(_ *testing.T) apiTestCase {
+	var number int32 = 8
+	return apiTestCase{
+		testName:    "GetNumberOfValidators",
+		requestBody: `{"query": "query { numberOfValidators}"}`,
+		buildStubs:  nil,
+		checkResponse: func(t *testing.T, resp *http.Response) {
+			apiRes := decodeResponse(t, resp)
+			if len(apiRes.Errors) != 0 {
+				t.Errorf("expected no errors, got: %s", apiRes.Errors[0].Message)
+			}
+			// decode raw data into response
+			numberRes := struct {
+				NumberOfValidators int32 `json:"numberOfValidators"`
+			}{}
+			if err := json.Unmarshal(apiRes.Data, &numberRes); err != nil {
+				t.Errorf("failed to unmarshall data: %v", err)
+			}
+			// validate number of validators
+			if numberRes.NumberOfValidators != number {
+				t.Errorf("expected number of validators %d, got %d", number, numberRes.NumberOfValidators)
+			}
+		},
+	}
+}
+
+// getDiskSizePer100MTxsTestCase returns a test case for a disk size per 100M transactions query.
+func getDiskSizePer100MTxsTestCase(_ *testing.T) apiTestCase {
+	var number uint64 = 54_494_722_457
+	return apiTestCase{
+		testName:    "GetDiskSizePer100MTxs",
+		requestBody: `{"query": "query { diskSizePer100MTxs}"}`,
+		buildStubs:  nil,
+		checkResponse: func(t *testing.T, resp *http.Response) {
+			apiRes := decodeResponse(t, resp)
+			if len(apiRes.Errors) != 0 {
+				t.Errorf("expected no errors, got: %s", apiRes.Errors[0].Message)
+			}
+			// decode raw data into response
+			numberRes := struct {
+				DiskSizePer100MTxs hexutil.Uint64 `json:"diskSizePer100MTxs"`
+			}{}
+			if err := json.Unmarshal(apiRes.Data, &numberRes); err != nil {
+				t.Errorf("failed to unmarshall data: %v", err)
+			}
+			// validate disk size per 100M transactions
+			if numberRes.DiskSizePer100MTxs != hexutil.Uint64(number) {
+				t.Errorf("expected disk size per 100M transactions %d, got %d", number, uint64(numberRes.DiskSizePer100MTxs))
+			}
+		},
+	}
+}
+
 // getNumberOfTransactionsTestCase returns a test case for a number of transactions query.
 func getNumberOfTransactionsTestCase(_ *testing.T) apiTestCase {
 	var number uint64 = 12_852_456
@@ -379,9 +435,11 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 	var blockHeight uint64 = 200_000
 	var numberOfAccounts uint64 = 589
 	var numberOfTransactions uint64 = 23_852_456
+	var numberOfValidators int32 = 8
+	var diskSizePer100MTxs uint64 = 54_494_722_457
 	return apiTestCase{
 		testName:    "GetCurrentState",
-		requestBody: `{"query": "query { state { currentBlockHeight, numberOfAccounts, numberOfTransactions } }"}`,
+		requestBody: `{"query": "query { state { currentBlockHeight, numberOfAccounts, numberOfTransactions, numberOfValidators, diskSizePer100MTxs } }"}`,
 		buildStubs: func(mockRepository *repository.MockRepository) {
 			mockRepository.EXPECT().GetLatestObservedBlock().Return(&types.Block{Number: hexutil.Uint64(blockHeight)})
 			mockRepository.EXPECT().GetNumberOfAccounts().Return(numberOfAccounts)
@@ -398,6 +456,8 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 					CurrentBlockHeight   hexutil.Uint64 `json:"currentBlockHeight"`
 					NumberOfAccounts     int32          `json:"numberOfAccounts"`
 					NumberOfTransactions hexutil.Uint64 `json:"numberOfTransactions"`
+					NumberOfValidators   int32          `json:"numberOfValidators"`
+					DiskSizePer100MTxs   hexutil.Uint64 `json:"diskSizePer100MTxs"`
 				}
 			}{}
 			if err := json.Unmarshal(apiRes.Data, &stateRes); err != nil {
@@ -412,6 +472,12 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 			}
 			if uint64(stateRes.State.NumberOfTransactions) != numberOfTransactions {
 				t.Errorf("expected number of transactions %d, got %d", numberOfTransactions, uint64(stateRes.State.NumberOfTransactions))
+			}
+			if stateRes.State.NumberOfValidators != numberOfValidators {
+				t.Errorf("expected number of validators %d, got %d", numberOfValidators, stateRes.State.NumberOfValidators)
+			}
+			if uint64(stateRes.State.DiskSizePer100MTxs) != diskSizePer100MTxs {
+				t.Errorf("expected disk size per 100M transactions %d, got %d", diskSizePer100MTxs, uint64(stateRes.State.DiskSizePer100MTxs))
 			}
 		},
 	}
