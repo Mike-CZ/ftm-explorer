@@ -1,6 +1,11 @@
 package resolvers
 
-import "github.com/ethereum/go-ethereum/common/hexutil"
+import (
+	"math"
+	"math/rand"
+
+	"github.com/ethereum/go-ethereum/common/hexutil"
+)
 
 // CurrentState resolves the current state of the blockchain.
 type CurrentState struct {
@@ -21,6 +26,15 @@ func (rs *RootResolver) NumberOfValidators() int32 {
 func (rs *RootResolver) DiskSizePer100MTxs() hexutil.Uint64 {
 	// ~ 54.5 GB per 100M transactions
 	return 54_494_722_457
+}
+
+// TimeToFinality resolves the time to finality.
+func (rs *RootResolver) TimeToFinality() float64 {
+	min := 0.8
+	max := 1.4
+	randomValue := min + rand.Float64()*(max-min)
+	roundedValue := math.Round(randomValue*100) / 100 // Round to 2 decimal places
+	return roundedValue
 }
 
 // CurrentBlockHeight resolves the current block height.
@@ -46,4 +60,9 @@ func (cs CurrentState) NumberOfValidators() int32 {
 // DiskSizePer100MTxs resolves the disk size per 100M transactions.
 func (cs CurrentState) DiskSizePer100MTxs() hexutil.Uint64 {
 	return cs.rs.DiskSizePer100MTxs()
+}
+
+// TimeToFinality resolves the time to finality.
+func (cs CurrentState) TimeToFinality() float64 {
+	return cs.rs.TimeToFinality()
 }

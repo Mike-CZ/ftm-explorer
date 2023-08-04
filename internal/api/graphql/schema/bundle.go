@@ -133,6 +133,9 @@ type CurrentState {
 
     # Get disk size per 100M transactions in bytes
     diskSizePer100MTxs:Long!
+
+    # Get time to finality in seconds (rounded to 2 decimal places)
+    timeToFinality:Float!
 }
 # Bytes32 is a 32 byte binary string, represented by 0x prefixed hexadecimal hash.
 scalar Bytes32
@@ -189,6 +192,9 @@ type Query {
 
     # Get disk size per 100M transactions in bytes
     diskSizePer100MTxs:Long!
+
+    # Get time to finality in seconds (rounded to 2 decimal places)
+    timeToFinality:Float!
 
     # Get block aggregated data by timestamp
     # parameters:

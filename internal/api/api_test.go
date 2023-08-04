@@ -53,6 +53,7 @@ func TestApiServer_Run(t *testing.T) {
 		getNumberOfTransactionsTestCase(t),
 		getNumberOfValidatorsTestCase(t),
 		getDiskSizePer100MTxsTestCase(t),
+		getTimeToFinalityTestCase(t),
 		getCurrentStateTestCase(t),
 	}
 
@@ -323,7 +324,7 @@ func getNumberOfAccountsTestCase(_ *testing.T) apiTestCase {
 	var number uint64 = 4_250
 	return apiTestCase{
 		testName:    "GetNumberOfAccounts",
-		requestBody: `{"query": "query { numberOfAccounts}"}`,
+		requestBody: `{"query": "query { numberOfAccounts }"}`,
 		buildStubs: func(mockRepository *repository.MockRepository) {
 			mockRepository.EXPECT().GetNumberOfAccounts().Return(number)
 		},
@@ -352,7 +353,7 @@ func getNumberOfValidatorsTestCase(_ *testing.T) apiTestCase {
 	var number int32 = 8
 	return apiTestCase{
 		testName:    "GetNumberOfValidators",
-		requestBody: `{"query": "query { numberOfValidators}"}`,
+		requestBody: `{"query": "query { numberOfValidators }"}`,
 		buildStubs:  nil,
 		checkResponse: func(t *testing.T, resp *http.Response) {
 			apiRes := decodeResponse(t, resp)
@@ -379,7 +380,7 @@ func getDiskSizePer100MTxsTestCase(_ *testing.T) apiTestCase {
 	var number uint64 = 54_494_722_457
 	return apiTestCase{
 		testName:    "GetDiskSizePer100MTxs",
-		requestBody: `{"query": "query { diskSizePer100MTxs}"}`,
+		requestBody: `{"query": "query { diskSizePer100MTxs }"}`,
 		buildStubs:  nil,
 		checkResponse: func(t *testing.T, resp *http.Response) {
 			apiRes := decodeResponse(t, resp)
@@ -396,6 +397,32 @@ func getDiskSizePer100MTxsTestCase(_ *testing.T) apiTestCase {
 			// validate disk size per 100M transactions
 			if numberRes.DiskSizePer100MTxs != hexutil.Uint64(number) {
 				t.Errorf("expected disk size per 100M transactions %d, got %d", number, uint64(numberRes.DiskSizePer100MTxs))
+			}
+		},
+	}
+}
+
+// getTimeToFinalityTestCase returns a test case for a time to finality query.
+func getTimeToFinalityTestCase(_ *testing.T) apiTestCase {
+	return apiTestCase{
+		testName:    "GetTimeToFinality",
+		requestBody: `{"query": "query { timeToFinality }"}`,
+		buildStubs:  nil,
+		checkResponse: func(t *testing.T, resp *http.Response) {
+			apiRes := decodeResponse(t, resp)
+			if len(apiRes.Errors) != 0 {
+				t.Errorf("expected no errors, got: %s", apiRes.Errors[0].Message)
+			}
+			// decode raw data into response
+			numberRes := struct {
+				TimeToFinality float64 `json:"timeToFinality"`
+			}{}
+			if err := json.Unmarshal(apiRes.Data, &numberRes); err != nil {
+				t.Errorf("failed to unmarshall data: %v", err)
+			}
+			// validate time to finality is in range <0.8, 1.4>
+			if numberRes.TimeToFinality < 0.8 || numberRes.TimeToFinality > 1.4 {
+				t.Errorf("expected time to finality in range <0.8, 1.4>, got %f", numberRes.TimeToFinality)
 			}
 		},
 	}
@@ -439,7 +466,7 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 	var diskSizePer100MTxs uint64 = 54_494_722_457
 	return apiTestCase{
 		testName:    "GetCurrentState",
-		requestBody: `{"query": "query { state { currentBlockHeight, numberOfAccounts, numberOfTransactions, numberOfValidators, diskSizePer100MTxs } }"}`,
+		requestBody: `{"query": "query { state { currentBlockHeight, numberOfAccounts, numberOfTransactions, numberOfValidators, diskSizePer100MTxs, timeToFinality } }"}`,
 		buildStubs: func(mockRepository *repository.MockRepository) {
 			mockRepository.EXPECT().GetLatestObservedBlock().Return(&types.Block{Number: hexutil.Uint64(blockHeight)})
 			mockRepository.EXPECT().GetNumberOfAccounts().Return(numberOfAccounts)
@@ -458,6 +485,7 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 					NumberOfTransactions hexutil.Uint64 `json:"numberOfTransactions"`
 					NumberOfValidators   int32          `json:"numberOfValidators"`
 					DiskSizePer100MTxs   hexutil.Uint64 `json:"diskSizePer100MTxs"`
+					TimeToFinality       float64        `json:"timeToFinality"`
 				}
 			}{}
 			if err := json.Unmarshal(apiRes.Data, &stateRes); err != nil {
@@ -478,6 +506,9 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 			}
 			if uint64(stateRes.State.DiskSizePer100MTxs) != diskSizePer100MTxs {
 				t.Errorf("expected disk size per 100M transactions %d, got %d", diskSizePer100MTxs, uint64(stateRes.State.DiskSizePer100MTxs))
+			}
+			if stateRes.State.TimeToFinality < 0.8 || stateRes.State.TimeToFinality > 1.4 {
+				t.Errorf("expected time to finality in range <0.8, 1.4>, got %f", stateRes.State.TimeToFinality)
 			}
 		},
 	}
