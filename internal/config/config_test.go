@@ -12,7 +12,8 @@ func TestConfig_Load(t *testing.T) {
 		"blockBufferSize": 128964
 	  },
 	  "metaFetcher": {
-		"url": "metafetcher-test-url"
+		"numberOfAccountsUrl": "number-of-accounts-test-url",
+		"timeToFinalityUrl": "time-to-finality-test-url"
 	  },
 	  "rpc": {
 		"operaRpcUrl": "opera-rpc",
@@ -63,8 +64,11 @@ func TestConfig_Load(t *testing.T) {
 	if cfg.Explorer.BlockBufferSize != 128964 {
 		t.Errorf("expected Explorer.BlockBufferSize to be 128964, got %d", cfg.Explorer.BlockBufferSize)
 	}
-	if cfg.MetaFetcher.Url != "metafetcher-test-url" {
-		t.Errorf("expected MetaFetcher.Url to be metafetcher-test-url, got %s", cfg.MetaFetcher.Url)
+	if cfg.MetaFetcher.NumberOfAccountsUrl != "number-of-accounts-test-url" {
+		t.Errorf("expected MetaFetcher.NumberOfAccountsUrl to be number-of-accounts-test-url, got %s", cfg.MetaFetcher.NumberOfAccountsUrl)
+	}
+	if cfg.MetaFetcher.TimeToFinalityUrl != "time-to-finality-test-url" {
+		t.Errorf("expected MetaFetcher.TimeToFinalityUrl to be time-to-finality-test-url, got %s", cfg.MetaFetcher.TimeToFinalityUrl)
 	}
 	if cfg.Rpc.OperaRpcUrl != "opera-rpc" {
 		t.Errorf("expected RPC.OperaRpcUrl to be opera-rpc, got %s", cfg.Rpc.OperaRpcUrl)

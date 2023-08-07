@@ -3,6 +3,7 @@ package repository
 import (
 	"ftm-explorer/internal/buffer"
 	"ftm-explorer/internal/repository/db"
+	"ftm-explorer/internal/repository/meta_fetcher"
 	"ftm-explorer/internal/repository/rpc"
 	"time"
 )
@@ -17,19 +18,21 @@ const kDbTimeout = 5 * time.Second
 // It contains the RPC client and a buffer for blocks.
 // The buffer is used to store the latest observed blocks.
 type Repository struct {
-	rpc       rpc.IRpc
-	db        db.IDatabase
-	blkBuffer *buffer.BlocksBuffer
+	rpc         rpc.IRpc
+	db          db.IDatabase
+	metaFetcher meta_fetcher.IMetaFetcher
+	blkBuffer   *buffer.BlocksBuffer
 
 	// numberOfAccounts is the number of accounts in the blockchain.
 	numberOfAccounts uint64
 }
 
 // NewRepository creates a new repository.
-func NewRepository(blkBufferSize uint, rpc rpc.IRpc, db db.IDatabase) *Repository {
+func NewRepository(blkBufferSize uint, rpc rpc.IRpc, db db.IDatabase, mf meta_fetcher.IMetaFetcher) *Repository {
 	return &Repository{
 		rpc:              rpc,
 		db:               db,
+		metaFetcher:      mf,
 		blkBuffer:        buffer.NewBlocksBuffer(blkBufferSize),
 		numberOfAccounts: 0,
 	}

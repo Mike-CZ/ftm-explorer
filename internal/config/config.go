@@ -23,7 +23,8 @@ type Explorer struct {
 
 // MetaFetcher is the configuration structure for meta fetcher obtaining blockchain metadata.
 type MetaFetcher struct {
-	Url string
+	NumberOfAccountsUrl string
+	TimeToFinalityUrl   string
 }
 
 // Rpc is the configuration structure for RPC.

@@ -7,6 +7,7 @@ import (
 	"ftm-explorer/internal/logger"
 	"ftm-explorer/internal/repository"
 	"ftm-explorer/internal/repository/db"
+	"ftm-explorer/internal/repository/meta_fetcher"
 	"ftm-explorer/internal/repository/rpc"
 	"ftm-explorer/internal/svc"
 
@@ -64,6 +65,9 @@ func createRepository(cfg *config.Config, log logger.ILogger) (*repository.Repos
 		return nil, err
 	}
 
+	// create meta fetcher
+	metaFetcher := meta_fetcher.NewMetaFetcher(&cfg.MetaFetcher, log)
+
 	// create repository
-	return repository.NewRepository(cfg.Explorer.BlockBufferSize, operaRpc, database), nil
+	return repository.NewRepository(cfg.Explorer.BlockBufferSize, operaRpc, database, metaFetcher), nil
 }

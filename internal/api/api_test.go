@@ -406,10 +406,13 @@ func getDiskSizePer100MTxsTestCase(_ *testing.T) apiTestCase {
 
 // getTimeToFinalityTestCase returns a test case for a time to finality query.
 func getTimeToFinalityTestCase(_ *testing.T) apiTestCase {
+	var timeToFinality = 0.5
 	return apiTestCase{
 		testName:    "GetTimeToFinality",
 		requestBody: `{"query": "query { timeToFinality }"}`,
-		buildStubs:  nil,
+		buildStubs: func(mockRepository *repository.MockRepository) {
+			mockRepository.EXPECT().FetchTimeToFinality().Return(timeToFinality, nil)
+		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
 			apiRes := decodeResponse(t, resp)
 			if len(apiRes.Errors) != 0 {
@@ -422,9 +425,9 @@ func getTimeToFinalityTestCase(_ *testing.T) apiTestCase {
 			if err := json.Unmarshal(apiRes.Data, &numberRes); err != nil {
 				t.Errorf("failed to unmarshall data: %v", err)
 			}
-			// validate time to finality is in range <0.8, 1.4>
-			if numberRes.TimeToFinality < 0.8 || numberRes.TimeToFinality > 1.4 {
-				t.Errorf("expected time to finality in range <0.8, 1.4>, got %f", numberRes.TimeToFinality)
+			// validate time to finality
+			if numberRes.TimeToFinality != timeToFinality {
+				t.Errorf("expected time to finality %f, got %f", timeToFinality, numberRes.TimeToFinality)
 			}
 		},
 	}
@@ -466,6 +469,7 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 	var numberOfTransactions uint64 = 23_852_456
 	var numberOfValidators uint64 = 8
 	var diskSizePer100MTxs uint64 = 54_494_722_457
+	var timeToFinality = 1.2
 	return apiTestCase{
 		testName:    "GetCurrentState",
 		requestBody: `{"query": "query { state { currentBlockHeight, numberOfAccounts, numberOfTransactions, numberOfValidators, diskSizePer100MTxs, timeToFinality } }"}`,
@@ -474,6 +478,7 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 			mockRepository.EXPECT().GetNumberOfAccounts().Return(numberOfAccounts)
 			mockRepository.EXPECT().GetTrxCount().Return(numberOfTransactions, nil)
 			mockRepository.EXPECT().GetNumberOfValidators().Return(numberOfValidators, nil)
+			mockRepository.EXPECT().FetchTimeToFinality().Return(timeToFinality, nil)
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
 			apiRes := decodeResponse(t, resp)
@@ -510,8 +515,8 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 			if uint64(stateRes.State.DiskSizePer100MTxs) != diskSizePer100MTxs {
 				t.Errorf("expected disk size per 100M transactions %d, got %d", diskSizePer100MTxs, uint64(stateRes.State.DiskSizePer100MTxs))
 			}
-			if stateRes.State.TimeToFinality < 0.8 || stateRes.State.TimeToFinality > 1.4 {
-				t.Errorf("expected time to finality in range <0.8, 1.4>, got %f", stateRes.State.TimeToFinality)
+			if stateRes.State.TimeToFinality != timeToFinality {
+				t.Errorf("expected time to finality %f, got %f", timeToFinality, stateRes.State.TimeToFinality)
 			}
 		},
 	}

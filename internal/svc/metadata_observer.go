@@ -1,7 +1,6 @@
 package svc
 
 import (
-	"ftm-explorer/internal/repository/meta_fetcher"
 	"time"
 )
 
@@ -11,20 +10,18 @@ const kMetadataTickDuration = 5 * time.Second
 // metadataObserver represents the blockchain metadata observer.
 type metadataObserver struct {
 	service
-	mf           meta_fetcher.IMetaFetcher
 	sigClose     chan struct{}
 	tickDuration time.Duration
 }
 
 // newMetadataObserver returns a new metadata observer.
-func newMetadataObserver(mgr *Manager, mf meta_fetcher.IMetaFetcher) *metadataObserver {
+func newMetadataObserver(mgr *Manager) *metadataObserver {
 	return &metadataObserver{
 		service: service{
 			mgr:  mgr,
 			repo: mgr.repo,
 			log:  mgr.log.ModuleLogger("metadata_observer"),
 		},
-		mf:           mf,
 		sigClose:     make(chan struct{}, 1),
 		tickDuration: kMetadataTickDuration,
 	}
@@ -58,7 +55,7 @@ func (mo *metadataObserver) execute() {
 		case <-mo.sigClose:
 			return
 		case <-ticker.C:
-			numberOfAccounts, err := mo.mf.NumberOfAccounts()
+			numberOfAccounts, err := mo.repo.FetchNumberOfAccounts()
 			if err != nil {
 				mo.log.Errorf("failed to get number of accounts: %v", err)
 				continue

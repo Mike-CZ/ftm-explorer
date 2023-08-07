@@ -1,6 +1,7 @@
 package meta_fetcher
 
 import (
+	"encoding/json"
 	"ftm-explorer/internal/config"
 	"ftm-explorer/internal/logger"
 	"io"
@@ -11,21 +12,23 @@ import (
 
 // MetaFetcher represents a meta fetcher. It is responsible for fetching the blockchain metadata.
 type MetaFetcher struct {
-	log logger.ILogger
-	url string
+	log                 logger.ILogger
+	numberOfAccountsUrl string
+	timeToFinalityUrl   string
 }
 
 // NewMetaFetcher returns a new meta fetcher.
 func NewMetaFetcher(cfg *config.MetaFetcher, log logger.ILogger) *MetaFetcher {
 	return &MetaFetcher{
-		log: log.ModuleLogger("meta_fetcher"),
-		url: cfg.Url,
+		log:                 log.ModuleLogger("meta_fetcher"),
+		numberOfAccountsUrl: cfg.NumberOfAccountsUrl,
+		timeToFinalityUrl:   cfg.TimeToFinalityUrl,
 	}
 }
 
 // NumberOfAccounts returns the number of accounts in the blockchain.
 func (mf *MetaFetcher) NumberOfAccounts() (uint64, error) {
-	resp, err := http.Get(mf.url)
+	resp, err := http.Get(mf.numberOfAccountsUrl)
 	if err != nil {
 		mf.log.Errorf("failed to get number of accounts: %v", err)
 		return 0, err
@@ -50,4 +53,35 @@ func (mf *MetaFetcher) NumberOfAccounts() (uint64, error) {
 	}
 
 	return uint64(num), nil
+}
+
+// TimeToFinality returns the time to finality in the blockchain.
+func (mf *MetaFetcher) TimeToFinality() (float64, error) {
+	resp, err := http.Get(mf.timeToFinalityUrl)
+	if err != nil {
+		mf.log.Errorf("failed to get time to finality: %v", err)
+		return 0, err
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			mf.log.Errorf("failed to close response body: %v", err)
+		}
+	}()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		mf.log.Errorf("failed to read response body: %v", err)
+		return 0, err
+	}
+
+	res := struct {
+		TimeToFinality float64 `json:"ttf"`
+	}{}
+
+	if err := json.Unmarshal(body, &res); err != nil {
+		mf.log.Errorf("failed to unmarshal response body: %v", err)
+		return 0, err
+	}
+
+	return res.TimeToFinality, nil
 }

@@ -2,7 +2,6 @@ package resolvers
 
 import (
 	"math"
-	"math/rand"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
@@ -35,10 +34,12 @@ func (rs *RootResolver) DiskSizePer100MTxs() hexutil.Uint64 {
 
 // TimeToFinality resolves the time to finality.
 func (rs *RootResolver) TimeToFinality() float64 {
-	min := 0.8
-	max := 1.4
-	randomValue := min + rand.Float64()*(max-min)
-	roundedValue := math.Round(randomValue*100) / 100 // Round to 2 decimal places
+	ttf, err := rs.repository.FetchTimeToFinality()
+	if err != nil {
+		rs.log.Errorf("failed to fetch time to finality: %v", err)
+		return 0
+	}
+	roundedValue := math.Round(ttf*100) / 100 // Round to 2 decimal places
 	return roundedValue
 }
 

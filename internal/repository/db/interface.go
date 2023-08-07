@@ -1,5 +1,7 @@
 package db
 
+//go:generate mockgen -source=interface.go -destination=database_mock.go -package=db -mock_names=IDatabase=MockDatabase
+
 import (
 	"context"
 	"ftm-explorer/internal/repository/db/types"

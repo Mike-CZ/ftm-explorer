@@ -47,7 +47,8 @@ build/demonet-explorer
     "blockBufferSize": 10000
   },
   "metaFetcher": {
-    "url": "metafetcher-url"
+    "numberOfAccountsUrl": "number-of-accounts-url",
+    "timeToFinalityUrl": "time-to-finality-url"
   },
   "rpc": {
     "operaRpcUrl": "https://rpcapi.fantom.network",

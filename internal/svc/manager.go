@@ -4,7 +4,6 @@ import (
 	"ftm-explorer/internal/config"
 	"ftm-explorer/internal/logger"
 	"ftm-explorer/internal/repository"
-	"ftm-explorer/internal/repository/meta_fetcher"
 	"sync"
 )
 
@@ -66,7 +65,7 @@ func (mgr *Manager) init() {
 	mgr.blkObserver = newBlockObserver(mgr, mgr.blkScanner.scannedBlocks())
 	mgr.svc = append(mgr.svc, mgr.blkObserver)
 
-	mgr.metaObserver = newMetadataObserver(mgr, meta_fetcher.NewMetaFetcher(&mgr.cfg.MetaFetcher, mgr.log))
+	mgr.metaObserver = newMetadataObserver(mgr)
 	mgr.svc = append(mgr.svc, mgr.metaObserver)
 }
 

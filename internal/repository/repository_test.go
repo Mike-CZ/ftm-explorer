@@ -2,6 +2,7 @@ package repository
 
 import (
 	"ftm-explorer/internal/repository/db"
+	"ftm-explorer/internal/repository/meta_fetcher"
 	"ftm-explorer/internal/repository/rpc"
 	"ftm-explorer/internal/types"
 	"math/big"
@@ -14,7 +15,7 @@ import (
 
 // Test that repository contains no blocks after initialization.
 func TestRepository_NoObservedBlocks(t *testing.T) {
-	repository, _, _ := createRepository(t)
+	repository, _, _, _ := createRepository(t)
 
 	// test latest block is nil
 	latestBlock := repository.GetLatestObservedBlock()
@@ -31,7 +32,7 @@ func TestRepository_NoObservedBlocks(t *testing.T) {
 
 // Test that repository returns block by number.
 func TestRepository_GetAndUpdateBlockByNumber(t *testing.T) {
-	repository, mockRpc, mockDb := createRepository(t)
+	repository, mockRpc, mockDb, _ := createRepository(t)
 
 	// block should be returned from rpc because it is not in the buffer
 	block := types.Block{Number: 100}
@@ -66,7 +67,7 @@ func TestRepository_GetAndUpdateBlockByNumber(t *testing.T) {
 
 // Test that repository returns transaction by hash.
 func TestRepository_GetTransactionByHash(t *testing.T) {
-	repository, mockRpc, _ := createRepository(t)
+	repository, mockRpc, _, _ := createRepository(t)
 
 	// transaction should be returned from rpc
 	trx := types.Transaction{Hash: common.HexToHash("0x123")}
@@ -82,7 +83,7 @@ func TestRepository_GetTransactionByHash(t *testing.T) {
 
 // Test that repository returns transaction by hash.
 func TestRepository_GetNewHeadersChannel(t *testing.T) {
-	repository, mockRpc, _ := createRepository(t)
+	repository, mockRpc, _, _ := createRepository(t)
 
 	// transaction should be returned from rpc
 	ch := make(chan *eth.Header, 10)
@@ -111,7 +112,7 @@ func TestRepository_GetNewHeadersChannel(t *testing.T) {
 
 // Test that number of accounts is set and returned correctly.
 func TestRepository_GetAndSetNumberOfAccounts(t *testing.T) {
-	repository, _, _ := createRepository(t)
+	repository, _, _, _ := createRepository(t)
 
 	// test that number of accounts is 0 after initialization
 	if repository.GetNumberOfAccounts() != 0 {
@@ -127,7 +128,7 @@ func TestRepository_GetAndSetNumberOfAccounts(t *testing.T) {
 
 // Test that repository transaction count is returned correctly.
 func TestRepository_GetTrxCount(t *testing.T) {
-	repository, _, mockDb := createRepository(t)
+	repository, _, mockDb, _ := createRepository(t)
 
 	// transaction should be returned from rpc
 	count := uint64(100)
@@ -143,7 +144,7 @@ func TestRepository_GetTrxCount(t *testing.T) {
 
 // Test that repository transaction count is called correctly.
 func TestRepository_IncrementTrxCount(t *testing.T) {
-	repository, _, mockDb := createRepository(t)
+	repository, _, mockDb, _ := createRepository(t)
 
 	// check that trx increment is called on database
 	mockDb.EXPECT().IncrementTrxCount(gomock.Any(), gomock.Eq(uint(10))).Return(nil)
@@ -155,7 +156,7 @@ func TestRepository_IncrementTrxCount(t *testing.T) {
 
 // Test that repository returns number of validators.
 func TestRepository_GetNumberOfValidators(t *testing.T) {
-	repository, mockRpc, _ := createRepository(t)
+	repository, mockRpc, _, _ := createRepository(t)
 
 	// check that number of validators method is called on rpc
 	mockRpc.EXPECT().NumberOfValidators(gomock.Any()).Return(uint64(50), nil)
@@ -168,11 +169,42 @@ func TestRepository_GetNumberOfValidators(t *testing.T) {
 	}
 }
 
+// Test that repository fetches number of accounts.
+func TestRepository_FetchNumberOfAccounts(t *testing.T) {
+	repository, _, _, mockFetcher := createRepository(t)
+
+	// check that number of accounts method is called on meta fetcher
+	mockFetcher.EXPECT().NumberOfAccounts().Return(uint64(11), nil)
+	count, err := repository.FetchNumberOfAccounts()
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if count != 11 {
+		t.Errorf("expected 11, got %v", count)
+	}
+}
+
+// Test that repository fetches time to finality.
+func TestRepository_FetchTimeToFinality(t *testing.T) {
+	repository, _, _, mockFetcher := createRepository(t)
+
+	// check that time to finality method is called on meta fetcher
+	mockFetcher.EXPECT().TimeToFinality().Return(11.5, nil)
+	time, err := repository.FetchTimeToFinality()
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if time != 11.5 {
+		t.Errorf("expected 11.5, got %v", time)
+	}
+}
+
 // createRepository creates a new repository instance with mocked dependencies.
-func createRepository(t *testing.T) (*Repository, *rpc.MockRpc, *db.MockDatabase) {
+func createRepository(t *testing.T) (*Repository, *rpc.MockRpc, *db.MockDatabase, *meta_fetcher.MockMetaFetcher) {
 	ctrl := gomock.NewController(t)
 	mockRpc := rpc.NewMockRpc(ctrl)
 	mockDb := db.NewMockDatabase(ctrl)
-	repository := NewRepository(10_000, mockRpc, mockDb)
-	return repository, mockRpc, mockDb
+	mockFetcher := meta_fetcher.NewMockMetaFetcher(ctrl)
+	repository := NewRepository(10_000, mockRpc, mockDb, mockFetcher)
+	return repository, mockRpc, mockDb, mockFetcher
 }

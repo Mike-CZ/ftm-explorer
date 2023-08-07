@@ -48,4 +48,12 @@ type IRepository interface {
 
 	// IncrementTrxCount increments the number of transactions in the blockchain.
 	IncrementTrxCount(uint) error
+
+	// FetchNumberOfAccounts returns the number of accounts in the blockchain.
+	// This method will fetch data from remote host.
+	FetchNumberOfAccounts() (uint64, error)
+
+	// FetchTimeToFinality returns the time to finality in the blockchain.
+	// This method will fetch data from remote host.
+	FetchTimeToFinality() (float64, error)
 }

@@ -36,6 +36,36 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
+// FetchNumberOfAccounts mocks base method.
+func (m *MockRepository) FetchNumberOfAccounts() (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FetchNumberOfAccounts")
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FetchNumberOfAccounts indicates an expected call of FetchNumberOfAccounts.
+func (mr *MockRepositoryMockRecorder) FetchNumberOfAccounts() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchNumberOfAccounts", reflect.TypeOf((*MockRepository)(nil).FetchNumberOfAccounts))
+}
+
+// FetchTimeToFinality mocks base method.
+func (m *MockRepository) FetchTimeToFinality() (float64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FetchTimeToFinality")
+	ret0, _ := ret[0].(float64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FetchTimeToFinality indicates an expected call of FetchTimeToFinality.
+func (mr *MockRepositoryMockRecorder) FetchTimeToFinality() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchTimeToFinality", reflect.TypeOf((*MockRepository)(nil).FetchTimeToFinality))
+}
+
 // GetBlockByNumber mocks base method.
 func (m *MockRepository) GetBlockByNumber(arg0 uint64) (*types.Block, error) {
 	m.ctrl.T.Helper()
