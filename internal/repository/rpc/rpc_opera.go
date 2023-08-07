@@ -4,6 +4,7 @@ import (
 	"ftm-explorer/internal/config"
 	"sync"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	client "github.com/ethereum/go-ethereum/rpc"
 )
@@ -12,9 +13,11 @@ import (
 type OperaRpc struct {
 	ftm *client.Client
 	// received blocks proxy
-	wg       *sync.WaitGroup
+	wg       sync.WaitGroup
 	sigClose chan struct{}
 	headers  chan *types.Header
+	// sfc contract address
+	sfcAddress common.Address
 	// closed flag
 	closed bool
 }
@@ -26,9 +29,8 @@ func NewOperaRpc(cfg *config.Rpc) (*OperaRpc, error) {
 		return nil, err
 	}
 	return &OperaRpc{
-		ftm:    ftm,
-		wg:     new(sync.WaitGroup),
-		closed: false,
+		ftm:        ftm,
+		sfcAddress: common.HexToAddress(cfg.SfcAddress),
 	}, nil
 }
 

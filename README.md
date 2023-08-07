@@ -50,7 +50,8 @@ build/demonet-explorer
     "url": "metafetcher-url"
   },
   "rpc": {
-    "operaRpcUrl": "https://rpcapi.fantom.network"
+    "operaRpcUrl": "https://rpcapi.fantom.network",
+    "sfcAddress": "0xFC00FACE00000000000000000000000000000000"
   },
   "api": {
     "readTimeout": 2,

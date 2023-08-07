@@ -1,5 +1,7 @@
 package repository
 
+//go:generate mockgen -source=interface.go -destination=repository_mock.go -package=repository -mock_names=IRepository=MockRepository
+
 import (
 	"ftm-explorer/internal/types"
 
@@ -25,6 +27,9 @@ type IRepository interface {
 
 	// GetTransactionByHash returns the transaction identified by hash.
 	GetTransactionByHash(common.Hash) (*types.Transaction, error)
+
+	// GetNumberOfValidators returns the number of validators.
+	GetNumberOfValidators() (uint64, error)
 
 	// GetTrxCountAggByTimestamp returns aggregation of transactions in given time range.
 	GetTrxCountAggByTimestamp(types.AggResolution, uint, *uint64) ([]types.HexUintTick, error)

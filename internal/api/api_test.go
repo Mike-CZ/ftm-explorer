@@ -350,11 +350,13 @@ func getNumberOfAccountsTestCase(_ *testing.T) apiTestCase {
 
 // getNumberOfValidators returns a test case for a number of validators query.
 func getNumberOfValidatorsTestCase(_ *testing.T) apiTestCase {
-	var number int32 = 8
+	var number uint64 = 66
 	return apiTestCase{
 		testName:    "GetNumberOfValidators",
 		requestBody: `{"query": "query { numberOfValidators }"}`,
-		buildStubs:  nil,
+		buildStubs: func(mockRepository *repository.MockRepository) {
+			mockRepository.EXPECT().GetNumberOfValidators().Return(number, nil)
+		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
 			apiRes := decodeResponse(t, resp)
 			if len(apiRes.Errors) != 0 {
@@ -368,7 +370,7 @@ func getNumberOfValidatorsTestCase(_ *testing.T) apiTestCase {
 				t.Errorf("failed to unmarshall data: %v", err)
 			}
 			// validate number of validators
-			if numberRes.NumberOfValidators != number {
+			if numberRes.NumberOfValidators != int32(number) {
 				t.Errorf("expected number of validators %d, got %d", number, numberRes.NumberOfValidators)
 			}
 		},
@@ -462,7 +464,7 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 	var blockHeight uint64 = 200_000
 	var numberOfAccounts uint64 = 589
 	var numberOfTransactions uint64 = 23_852_456
-	var numberOfValidators int32 = 8
+	var numberOfValidators uint64 = 8
 	var diskSizePer100MTxs uint64 = 54_494_722_457
 	return apiTestCase{
 		testName:    "GetCurrentState",
@@ -471,6 +473,7 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 			mockRepository.EXPECT().GetLatestObservedBlock().Return(&types.Block{Number: hexutil.Uint64(blockHeight)})
 			mockRepository.EXPECT().GetNumberOfAccounts().Return(numberOfAccounts)
 			mockRepository.EXPECT().GetTrxCount().Return(numberOfTransactions, nil)
+			mockRepository.EXPECT().GetNumberOfValidators().Return(numberOfValidators, nil)
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
 			apiRes := decodeResponse(t, resp)
@@ -501,8 +504,8 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 			if uint64(stateRes.State.NumberOfTransactions) != numberOfTransactions {
 				t.Errorf("expected number of transactions %d, got %d", numberOfTransactions, uint64(stateRes.State.NumberOfTransactions))
 			}
-			if stateRes.State.NumberOfValidators != numberOfValidators {
-				t.Errorf("expected number of validators %d, got %d", numberOfValidators, stateRes.State.NumberOfValidators)
+			if uint64(stateRes.State.NumberOfValidators) != numberOfValidators {
+				t.Errorf("expected number of validators %d, got %d", numberOfValidators, uint64(stateRes.State.NumberOfValidators))
 			}
 			if uint64(stateRes.State.DiskSizePer100MTxs) != diskSizePer100MTxs {
 				t.Errorf("expected disk size per 100M transactions %d, got %d", diskSizePer100MTxs, uint64(stateRes.State.DiskSizePer100MTxs))

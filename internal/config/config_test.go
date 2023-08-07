@@ -15,7 +15,8 @@ func TestConfig_Load(t *testing.T) {
 		"url": "metafetcher-test-url"
 	  },
 	  "rpc": {
-		"operaRpcUrl": "opera-rpc"
+		"operaRpcUrl": "opera-rpc",
+		"sfcAddress": "0x1234567890123456789012345678901234567890"
 	  },
 	  "api": {
 		"readTimeout": 200,
@@ -67,6 +68,9 @@ func TestConfig_Load(t *testing.T) {
 	}
 	if cfg.Rpc.OperaRpcUrl != "opera-rpc" {
 		t.Errorf("expected RPC.OperaRpcUrl to be opera-rpc, got %s", cfg.Rpc.OperaRpcUrl)
+	}
+	if cfg.Rpc.SfcAddress != "0x1234567890123456789012345678901234567890" {
+		t.Errorf("expected RPC.SfcAddress to be 0x1234567890123456789012345678901234567890, got %s", cfg.Rpc.SfcAddress)
 	}
 	if cfg.Api.ReadTimeout != 200 {
 		t.Errorf("expected Api.ReadTimeout to be 200, got %d", cfg.Api.ReadTimeout)

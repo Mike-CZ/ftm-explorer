@@ -153,6 +153,21 @@ func TestRepository_IncrementTrxCount(t *testing.T) {
 	}
 }
 
+// Test that repository returns number of validators.
+func TestRepository_GetNumberOfValidators(t *testing.T) {
+	repository, mockRpc, _ := createRepository(t)
+
+	// check that number of validators method is called on rpc
+	mockRpc.EXPECT().NumberOfValidators(gomock.Any()).Return(uint64(50), nil)
+	count, err := repository.GetNumberOfValidators()
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if count != 50 {
+		t.Errorf("expected 50, got %v", count)
+	}
+}
+
 // createRepository creates a new repository instance with mocked dependencies.
 func createRepository(t *testing.T) (*Repository, *rpc.MockRpc, *db.MockDatabase) {
 	ctrl := gomock.NewController(t)

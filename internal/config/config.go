@@ -1,6 +1,8 @@
 package config
 
-import "github.com/op/go-logging"
+import (
+	"github.com/op/go-logging"
+)
 
 // Config is the base configuration structure.
 type Config struct {
@@ -27,6 +29,7 @@ type MetaFetcher struct {
 // Rpc is the configuration structure for RPC.
 type Rpc struct {
 	OperaRpcUrl string
+	SfcAddress  string
 }
 
 // ApiServer is the configuration structure for API server.

@@ -125,8 +125,23 @@ func TestOperaRpc_ObservedHeadProxy(t *testing.T) {
 	}
 }
 
+// Test that the number of validators is returned correctly.
+func TestOperaRpc_NumberOfValidators(t *testing.T) {
+	rpc := createOperaRpc(t)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := rpc.NumberOfValidators(ctx)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
 func createOperaRpc(t *testing.T) *OperaRpc {
-	rpc, err := NewOperaRpc(&config.Rpc{OperaRpcUrl: "https://rpcapi.fantom.network"})
+	rpc, err := NewOperaRpc(&config.Rpc{
+		OperaRpcUrl: "https://rpcapi.fantom.network", SfcAddress: "0xFC00FACE00000000000000000000000000000000"},
+	)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}

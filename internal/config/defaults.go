@@ -12,6 +12,7 @@ func applyDefaults(cfg *viper.Viper) {
 
 	// rpc
 	cfg.SetDefault("rpc.operaRpcUrl", "https://rpcapi.fantom.network")
+	cfg.SetDefault("rpc.sfcAddress", "0xFC00FACE00000000000000000000000000000000")
 
 	// apiserver server
 	cfg.SetDefault("api.readTimeout", 2)

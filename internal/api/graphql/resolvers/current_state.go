@@ -19,7 +19,12 @@ func (rs *RootResolver) State() CurrentState {
 
 // NumberOfValidators resolves the number of validators in the blockchain.
 func (rs *RootResolver) NumberOfValidators() int32 {
-	return 8
+	number, err := rs.repository.GetNumberOfValidators()
+	if err != nil {
+		rs.log.Errorf("failed to get number of validators: %v", err)
+		return 0
+	}
+	return int32(number)
 }
 
 // DiskSizePer100MTxs resolves the disk size per 100M transactions.
