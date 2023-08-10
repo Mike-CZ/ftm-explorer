@@ -29,7 +29,7 @@ func TestConfig_Load(t *testing.T) {
 		"bindAddress": "bindAddress",
 		"domainAddress": "domainAddress",
 		"corsOrigin": ["cors1", "cors2"],
-    	"jwt": {
+		"jwt": {
 			"enabled": true,
       		"secret": "jwt-test-secret",
       		"version": "0.1"

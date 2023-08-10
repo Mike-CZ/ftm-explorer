@@ -66,7 +66,7 @@ build/demonet-explorer
     "corsOrigin": ["*"],
     "jwt": {
       "enabled": false,
-      "secret": "jwt-secret",
+      "secret": "secret",
       "version": "1.0"
     }
   },
