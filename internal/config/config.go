@@ -44,6 +44,11 @@ type ApiServer struct {
 	HeaderTimeout   int
 	ResolverTimeout int
 	CorsOrigin      []string
+	Jwt             struct {
+		Enabled bool
+		Secret  string
+		Version string
+	}
 }
 
 // Logger is the configuration structure for logging.

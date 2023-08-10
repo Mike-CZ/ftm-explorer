@@ -23,6 +23,9 @@ func applyDefaults(cfg *viper.Viper) {
 	cfg.SetDefault("api.bindAddress", "localhost:16761")
 	cfg.SetDefault("api.domainAddress", "localhost:16761")
 	cfg.SetDefault("api.corsOrigin", []string{"*"})
+	cfg.SetDefault("api.jwt.enabled", false)
+	cfg.SetDefault("api.jwt.secret", "secret")
+	cfg.SetDefault("api.jwt.version", "1.0")
 
 	// logger
 	cfg.SetDefault("logger.loggingLevel", logging.INFO)

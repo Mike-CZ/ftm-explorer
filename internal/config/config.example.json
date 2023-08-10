@@ -19,7 +19,12 @@
     "resolverTimeout": 30,
     "bindAddress": "localhost:16761",
     "domainAddress": "localhost:16761",
-    "corsOrigin": ["*"]
+    "corsOrigin": ["*"],
+    "jwt": {
+      "enabled": false,
+      "secret": "jwt-secret",
+      "version": "1.0"
+    }
   },
   "logger": {
     "loggingLevel": 4,

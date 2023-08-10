@@ -16,6 +16,7 @@ func initApp() *cli.App {
 		Commands: []*cli.Command{
 			&ftm_explorer.CmdRun,
 			&ftm_explorer.CmdConfig,
+			&ftm_explorer.CmdGenerateJwt,
 		},
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"ftm-explorer/internal/api/graphql/resolvers"
 	"ftm-explorer/internal/api/handlers"
+	"ftm-explorer/internal/api/middlewares"
 	"ftm-explorer/internal/logger"
 	"ftm-explorer/internal/repository"
 	"ftm-explorer/internal/types"
@@ -15,9 +16,11 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/golang/mock/gomock"
 )
 
@@ -27,6 +30,119 @@ type apiTestCase struct {
 	requestBody   string
 	buildStubs    func(*repository.MockRepository)
 	checkResponse func(*testing.T, *http.Response)
+}
+
+// Test jwt middleware
+func TestApiServer_JwtMiddleware(t *testing.T) {
+	secret := "test-secret"
+	version := "1.0.0"
+	mockLogger := logger.NewMockLogger()
+
+	// initialize test server
+	handler := handlers.ApiHandler([]string{"*"}, resolvers.NewResolver(nil, mockLogger), mockLogger)
+	server := httptest.NewServer(middlewares.JwtMiddleware(handler, mockLogger, secret, version))
+	defer server.Close()
+
+	// test sending request with no authorization header
+	resp, err := server.Client().Post(server.URL, "application/json", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("expected status code %d, got %d", http.StatusUnauthorized, resp.StatusCode)
+	}
+
+	// test sending request with invalid authorization header
+	req, err := http.NewRequest("POST", server.URL, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer IvalidToken")
+	resp, err = server.Client().Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("expected status code %d, got %d", http.StatusUnauthorized, resp.StatusCode)
+	}
+
+	// create a new token object with a signing method
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp":     time.Now().Add(time.Hour * 72).Unix(), // Token expiration time
+		"version": version,
+	})
+
+	// sign and get the complete encoded token as a string using a secret
+	tokenString, err := token.SignedString([]byte(secret))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// send request with valid authorization header
+	req, err = http.NewRequest("POST", server.URL, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", tokenString))
+	resp, err = server.Client().Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.StatusCode == http.StatusUnauthorized {
+		t.Fatalf("expected status code not to be %d, got %d", resp.StatusCode, http.StatusUnauthorized)
+	}
+
+	// create a new token with expired expiration time
+	token = jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp":     time.Now().Add(time.Hour * -72).Unix(), // Token expiration time
+		"version": version,
+	})
+
+	// sign and get the complete encoded token as a string using a secret
+	tokenString, err = token.SignedString([]byte(secret))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// send request with valid authorization header and expired token
+	req, err = http.NewRequest("POST", server.URL, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", tokenString))
+	resp, err = server.Client().Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("expected status code %d, got %d", http.StatusUnauthorized, resp.StatusCode)
+	}
+
+	// create a new token with invalid version
+	token = jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp":     time.Now().Add(time.Hour * 72).Unix(), // Token expiration time
+		"version": "invalid-version",
+	})
+
+	// sign and get the complete encoded token as a string using a secret
+	tokenString, err = token.SignedString([]byte(secret))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// send request with valid authorization header and invalid version
+	req, err = http.NewRequest("POST", server.URL, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", tokenString))
+	resp, err = server.Client().Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("expected status code %d, got %d", http.StatusUnauthorized, resp.StatusCode)
+	}
 }
 
 // Test cases for the API server.

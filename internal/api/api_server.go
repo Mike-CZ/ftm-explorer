@@ -3,6 +3,7 @@ package api
 import (
 	"ftm-explorer/internal/api/graphql/resolvers"
 	"ftm-explorer/internal/api/handlers"
+	"ftm-explorer/internal/api/middlewares"
 	"ftm-explorer/internal/config"
 	"ftm-explorer/internal/logger"
 	"ftm-explorer/internal/repository"
@@ -45,11 +46,21 @@ func (api *ApiServer) makeHttpServer() {
 	// create request MUXer
 	srvMux := http.NewServeMux()
 
-	h := http.TimeoutHandler(
-		handlers.ApiHandler(api.cfg.CorsOrigin, api.resolver, api.log),
-		time.Second*time.Duration(api.cfg.ResolverTimeout),
-		"Service timeout.",
-	)
+	// create handler for api requests
+	h := handlers.ApiHandler(api.cfg.CorsOrigin, api.resolver, api.log)
+
+	// if jwt authorization is enabled, wrap the handler with the middleware
+	if api.cfg.Jwt.Enabled {
+		h = middlewares.JwtMiddleware(
+			h,
+			api.log,
+			api.cfg.Jwt.Secret,
+			api.cfg.Jwt.Version,
+		)
+	}
+
+	// add timeout handler
+	h = http.TimeoutHandler(h, time.Second*time.Duration(api.cfg.ResolverTimeout), "Service timeout.")
 
 	srvMux.Handle("/api", h)
 	srvMux.Handle("/graphql", h)

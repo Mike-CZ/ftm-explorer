@@ -63,7 +63,12 @@ build/demonet-explorer
     "resolverTimeout": 30,
     "bindAddress": "localhost:16761",
     "domainAddress": "localhost:16761",
-    "corsOrigin": ["*"]
+    "corsOrigin": ["*"],
+    "jwt": {
+      "enabled": false,
+      "secret": "jwt-secret",
+      "version": "1.0"
+    }
   },
   "logger": {
     "loggingLevel": 4,
@@ -77,6 +82,19 @@ build/demonet-explorer
     "password": null
   }
 }
+```
+
+## Jwt Authorization
+To authorize requests, you need to provide a valid jwt token in the Authorization header. The token is generated
+using the following command:
+```
+build/demonet-explorer generate-jwt [expiration]
+```
+The expiration is mandatory and it is in minutes. The JWT authorization is disabled by default.
+You can enable it by setting the `enabled` property to `true` in the config file.
+For testing purposes and default configuration, you can use following token, which will expire in 100 years.
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjQ4NDczNzEyMzQsInZlcnNpb24iOiIxLjAifQ.x-u8b8HHnJQ0yE2otf7JsVhWulq47GMT4RGTPq70rYs
 ```
 
 ## Local development

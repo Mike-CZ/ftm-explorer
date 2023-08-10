@@ -28,7 +28,12 @@ func TestConfig_Load(t *testing.T) {
 		"resolverTimeout": 12,
 		"bindAddress": "bindAddress",
 		"domainAddress": "domainAddress",
-		"corsOrigin": ["cors1", "cors2"]
+		"corsOrigin": ["cors1", "cors2"],
+    	"jwt": {
+			"enabled": true,
+      		"secret": "jwt-test-secret",
+      		"version": "0.1"
+    	}
 	  },
 	  "logger": {
 		"loggingLevel": 1,
@@ -103,6 +108,15 @@ func TestConfig_Load(t *testing.T) {
 	}
 	if len(cfg.Api.CorsOrigin) != 2 || cfg.Api.CorsOrigin[0] != "cors1" || cfg.Api.CorsOrigin[1] != "cors2" {
 		t.Errorf("expected Api.CorsOrigin to be [cors1, cors2], got %v", cfg.Api.CorsOrigin)
+	}
+	if !cfg.Api.Jwt.Enabled {
+		t.Errorf("expected Api.Jwt.Enabled to be true, got false")
+	}
+	if cfg.Api.Jwt.Secret != "jwt-test-secret" {
+		t.Errorf("expected Api.Jwt.Secret to be jwt-test-secret, got %s", cfg.Api.Jwt.Secret)
+	}
+	if cfg.Api.Jwt.Version != "0.1" {
+		t.Errorf("expected Api.Jwt.Version to be 0.1, got %s", cfg.Api.Jwt.Version)
 	}
 	if cfg.Logger.LoggingLevel != 1 {
 		t.Errorf("expected Logger.LoggingLevel to be 1, got %d", cfg.Logger.LoggingLevel)
