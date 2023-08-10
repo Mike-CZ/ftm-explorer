@@ -25,6 +25,8 @@ type Repository struct {
 
 	// numberOfAccounts is the number of accounts in the blockchain.
 	numberOfAccounts uint64
+	// diskSizePer100MTxs is the disk size per 100M transactions.
+	diskSizePer100MTxs uint64
 }
 
 // NewRepository creates a new repository.

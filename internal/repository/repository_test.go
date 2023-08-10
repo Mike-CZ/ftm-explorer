@@ -126,6 +126,22 @@ func TestRepository_GetAndSetNumberOfAccounts(t *testing.T) {
 	}
 }
 
+// Test that the disk size per 100M transactions is set and returned correctly.
+func TestRepository_GetAndSetDiskSizePer100MTxs(t *testing.T) {
+	repository, _, _, _ := createRepository(t)
+
+	// test that disk size per 100M transactions is 0 after initialization
+	if repository.GetDiskSizePer100MTxs() != 0 {
+		t.Errorf("expected 0, got %v", repository.GetDiskSizePer100MTxs())
+	}
+
+	// test that disk size per 100M transactions is set correctly
+	repository.SetDiskSizePer100MTxs(289)
+	if repository.GetDiskSizePer100MTxs() != 289 {
+		t.Errorf("expected 289, got %v", repository.GetDiskSizePer100MTxs())
+	}
+}
+
 // Test that repository transaction count is returned correctly.
 func TestRepository_GetTrxCount(t *testing.T) {
 	repository, _, mockDb, _ := createRepository(t)
@@ -181,6 +197,21 @@ func TestRepository_FetchNumberOfAccounts(t *testing.T) {
 	}
 	if count != 11 {
 		t.Errorf("expected 11, got %v", count)
+	}
+}
+
+// Test that repository fetches disk size per 100M transactions.
+func TestRepository_FetchDiskSizePer100MTxs(t *testing.T) {
+	repository, _, _, mockFetcher := createRepository(t)
+
+	// check that number of accounts method is called on meta fetcher
+	mockFetcher.EXPECT().DiskSizePer100MTxs().Return(uint64(72799695667), nil)
+	size, err := repository.FetchDiskSizePer100MTxs()
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if size != 72799695667 {
+		t.Errorf("expected 72799695667, got %v", size)
 	}
 }
 

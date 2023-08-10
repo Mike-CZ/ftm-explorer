@@ -383,7 +383,9 @@ func getDiskSizePer100MTxsTestCase(_ *testing.T) apiTestCase {
 	return apiTestCase{
 		testName:    "GetDiskSizePer100MTxs",
 		requestBody: `{"query": "query { diskSizePer100MTxs }"}`,
-		buildStubs:  nil,
+		buildStubs: func(mockRepository *repository.MockRepository) {
+			mockRepository.EXPECT().GetDiskSizePer100MTxs().Return(number)
+		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
 			apiRes := decodeResponse(t, resp)
 			if len(apiRes.Errors) != 0 {
@@ -479,6 +481,7 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 			mockRepository.EXPECT().GetTrxCount().Return(numberOfTransactions, nil)
 			mockRepository.EXPECT().GetNumberOfValidators().Return(numberOfValidators, nil)
 			mockRepository.EXPECT().FetchTimeToFinality().Return(timeToFinality, nil)
+			mockRepository.EXPECT().GetDiskSizePer100MTxs().Return(diskSizePer100MTxs)
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
 			apiRes := decodeResponse(t, resp)

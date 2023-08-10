@@ -33,6 +33,21 @@ func (m *MockMetaFetcher) EXPECT() *MockMetaFetcherMockRecorder {
 	return m.recorder
 }
 
+// DiskSizePer100MTxs mocks base method.
+func (m *MockMetaFetcher) DiskSizePer100MTxs() (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DiskSizePer100MTxs")
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DiskSizePer100MTxs indicates an expected call of DiskSizePer100MTxs.
+func (mr *MockMetaFetcherMockRecorder) DiskSizePer100MTxs() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DiskSizePer100MTxs", reflect.TypeOf((*MockMetaFetcher)(nil).DiskSizePer100MTxs))
+}
+
 // NumberOfAccounts mocks base method.
 func (m *MockMetaFetcher) NumberOfAccounts() (uint64, error) {
 	m.ctrl.T.Helper()

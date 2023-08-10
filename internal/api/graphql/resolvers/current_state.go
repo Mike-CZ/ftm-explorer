@@ -16,6 +16,16 @@ func (rs *RootResolver) State() CurrentState {
 	return CurrentState{rs: rs}
 }
 
+// NumberOfAccounts returns the number of accounts.
+func (rs *RootResolver) NumberOfAccounts() int32 {
+	return int32(rs.repository.GetNumberOfAccounts())
+}
+
+// DiskSizePer100MTxs resolves the disk size per 100M transactions.
+func (rs *RootResolver) DiskSizePer100MTxs() hexutil.Uint64 {
+	return hexutil.Uint64(rs.repository.GetDiskSizePer100MTxs())
+}
+
 // NumberOfValidators resolves the number of validators in the blockchain.
 func (rs *RootResolver) NumberOfValidators() int32 {
 	number, err := rs.repository.GetNumberOfValidators()
@@ -24,12 +34,6 @@ func (rs *RootResolver) NumberOfValidators() int32 {
 		return 0
 	}
 	return int32(number)
-}
-
-// DiskSizePer100MTxs resolves the disk size per 100M transactions.
-func (rs *RootResolver) DiskSizePer100MTxs() hexutil.Uint64 {
-	// ~ 54.5 GB per 100M transactions
-	return 54_494_722_457
 }
 
 // TimeToFinality resolves the time to finality.

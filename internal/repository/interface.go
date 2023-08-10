@@ -43,6 +43,12 @@ type IRepository interface {
 	// SetNumberOfAccounts sets the number of accounts in the blockchain.
 	SetNumberOfAccounts(uint64)
 
+	// GetDiskSizePer100MTxs returns the disk size per 100M transactions.
+	GetDiskSizePer100MTxs() uint64
+
+	// SetDiskSizePer100MTxs sets the disk size per 100M transactions.
+	SetDiskSizePer100MTxs(uint64)
+
 	// GetTrxCount returns the number of transactions in the blockchain.
 	GetTrxCount() (uint64, error)
 
@@ -52,6 +58,10 @@ type IRepository interface {
 	// FetchNumberOfAccounts returns the number of accounts in the blockchain.
 	// This method will fetch data from remote host.
 	FetchNumberOfAccounts() (uint64, error)
+
+	// FetchDiskSizePer100MTxs returns the disk size per 100M transactions.
+	// This method will fetch data from remote host.
+	FetchDiskSizePer100MTxs() (uint64, error)
 
 	// FetchTimeToFinality returns the time to finality in the blockchain.
 	// This method will fetch data from remote host.

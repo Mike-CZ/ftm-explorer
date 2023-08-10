@@ -24,6 +24,22 @@ func TestMetaFetcher_NumberOfAccounts(t *testing.T) {
 	}
 }
 
+// Test meta fetcher disk size per 100M transactions
+func TestMetaFetcher_DiskSizePer100MTxs(t *testing.T) {
+	server := startServer(t)
+
+	mf := NewMetaFetcher(
+		&config.MetaFetcher{DiskSizePer100MTxsUrl: server.URL + "/disk_size_per_100m_txs"}, logger.NewMockLogger())
+
+	num, err := mf.DiskSizePer100MTxs()
+	if err != nil {
+		t.Errorf("failed to get disk size per 100M transactions: %v", err)
+	}
+	if num != 72799695667 {
+		t.Errorf("expected disk size per 100M transactions to be 72799695667, got %d", num)
+	}
+}
+
 // Test meta fetcher time to finality
 func TestMetaFetcher_TimeToFinality(t *testing.T) {
 	server := startServer(t)
@@ -45,6 +61,12 @@ func startServer(t *testing.T) *httptest.Server {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/number_of_accounts" {
 			if _, err := w.Write([]byte("68")); err != nil {
+				t.Fatalf("failed to write response: %v", err)
+			}
+			return
+		}
+		if r.URL.Path == "/disk_size_per_100m_txs" {
+			if _, err := w.Write([]byte("72799695667")); err != nil {
 				t.Fatalf("failed to write response: %v", err)
 			}
 			return
