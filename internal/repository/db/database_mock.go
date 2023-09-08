@@ -50,6 +50,20 @@ func (mr *MockDatabaseMockRecorder) AddBlock(arg0, arg1 interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddBlock", reflect.TypeOf((*MockDatabase)(nil).AddBlock), arg0, arg1)
 }
 
+// AddTokensRequest mocks base method.
+func (m *MockDatabase) AddTokensRequest(arg0 context.Context, arg1 *types.TokensRequest) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddTokensRequest", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddTokensRequest indicates an expected call of AddTokensRequest.
+func (mr *MockDatabaseMockRecorder) AddTokensRequest(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTokensRequest", reflect.TypeOf((*MockDatabase)(nil).AddTokensRequest), arg0, arg1)
+}
+
 // Block mocks base method.
 func (m *MockDatabase) Block(arg0 context.Context, arg1 uint64) (*db_types.Block, error) {
 	m.ctrl.T.Helper()
@@ -106,6 +120,21 @@ func (mr *MockDatabaseMockRecorder) IncrementTrxCount(arg0, arg1 interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IncrementTrxCount", reflect.TypeOf((*MockDatabase)(nil).IncrementTrxCount), arg0, arg1)
 }
 
+// LatestTokensRequest mocks base method.
+func (m *MockDatabase) LatestTokensRequest(arg0 context.Context, arg1 string) (*types.TokensRequest, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "LatestTokensRequest", arg0, arg1)
+	ret0, _ := ret[0].(*types.TokensRequest)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// LatestTokensRequest indicates an expected call of LatestTokensRequest.
+func (mr *MockDatabaseMockRecorder) LatestTokensRequest(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LatestTokensRequest", reflect.TypeOf((*MockDatabase)(nil).LatestTokensRequest), arg0, arg1)
+}
+
 // TrxCount mocks base method.
 func (m *MockDatabase) TrxCount(arg0 context.Context) (uint64, error) {
 	m.ctrl.T.Helper()
@@ -134,4 +163,18 @@ func (m *MockDatabase) TrxCountAggByTimestamp(arg0 context.Context, arg1 uint64,
 func (mr *MockDatabaseMockRecorder) TrxCountAggByTimestamp(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TrxCountAggByTimestamp", reflect.TypeOf((*MockDatabase)(nil).TrxCountAggByTimestamp), arg0, arg1, arg2, arg3)
+}
+
+// UpdateTokensRequest mocks base method.
+func (m *MockDatabase) UpdateTokensRequest(arg0 context.Context, arg1 *types.TokensRequest) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateTokensRequest", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateTokensRequest indicates an expected call of UpdateTokensRequest.
+func (mr *MockDatabaseMockRecorder) UpdateTokensRequest(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTokensRequest", reflect.TypeOf((*MockDatabase)(nil).UpdateTokensRequest), arg0, arg1)
 }

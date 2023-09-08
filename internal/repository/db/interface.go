@@ -28,6 +28,15 @@ type IDatabase interface {
 	// IncrementTrxCount increments the number of transactions in the blockchain.
 	IncrementTrxCount(context.Context, uint) error
 
+	// AddTokensRequest adds a new tokens request to the database.
+	AddTokensRequest(context.Context, *types.TokensRequest) error
+
+	// UpdateTokensRequest updates the given tokens request.
+	UpdateTokensRequest(context.Context, *types.TokensRequest) error
+
+	// LatestTokensRequest returns the latest tokens request for the given ip address.
+	LatestTokensRequest(context.Context, string) (*types.TokensRequest, error)
+
 	// Close terminates the database connection.
 	Close()
 }

@@ -2,93 +2,6 @@ package schema
 
 // Auto generated GraphQL schema bundle
 const schema = `
-# Root schema definition
-schema {
-    query: Query
-}
-
-# Entry points for querying the API
-type Query {
-    # State represents the current state of the blockchain and network.
-    state: CurrentState!
-
-    # Get transaction information for given transaction hash.
-    transaction(hash:Bytes32!):Transaction
-
-    # Get block information by number.
-    block(number:Long!):Block
-
-    # Get recent observed blocks
-    recentBlocks(limit:Int!):[Block!]!
-
-    # Get current block height
-    currentBlockHeight:Long
-
-    # Get total number of accounts
-    numberOfAccounts:Int!
-
-    # Get total number of transactions
-    numberOfTransactions:Long!
-
-    # Get total number of validators
-    numberOfValidators:Int!
-
-    # Get disk size per 100M transactions in bytes
-    diskSizePer100MTxs:Long!
-
-    # Get time to finality in seconds (rounded to 2 decimal places)
-    timeToFinality:Float!
-
-    # Get block aggregated data by timestamp
-    # parameters:
-    #   subject: the subject of the aggregation - value of AggSubject enum
-    #   resolution: the resolution of the aggregation - value of AggResolution enum
-    #   ticks: the number of ticks to return
-    #   endTime: the end timestamp of the aggregation, if not specified, last block's timestamp is used
-    blockTimestampAggregations(subject: AggSubject!, resolution: AggResolution!, ticks:Int!, endTime:Int):[Tick!]!
-}
-type Tick {
-    # The timestamp of the tick
-    timestamp: Int!
-
-    # The value of the tick
-    value: Long!
-}
-# Bytes32 is a 32 byte binary string, represented by 0x prefixed hexadecimal hash.
-scalar Bytes32
-
-# Address is a 20 byte Opera address, represented as 0x prefixed hexadecimal number.
-scalar Address
-
-# BigInt is a large integer value. Input is accepted as either a JSON number,
-# or a hexadecimal string alternatively prefixed with 0x. Output is 0x prefixed hexadecimal.
-scalar BigInt
-
-# Long is a 64 bit unsigned integer value.
-scalar Long
-
-# Bytes is an arbitrary length binary string, represented as 0x-prefixed hexadecimal.
-# An empty byte string is represented as '0x'.
-scalar Bytes
-
-# Cursor is a string representing position in a sequential list of edges.
-scalar Cursor
-
-# Time represents date and time including time zone information in RFC3339 format.
-scalar Time
-# AggResolution is the resolution of the aggregation
-enum AggResolution {
-    SECONDS,
-    MINUTE,
-    HOUR,
-    DAY
-}
-
-# AggSubject is the subject of the aggregation
-enum AggSubject {
-    TXS_COUNT,
-    GAS_USED
-}
 type Block {
     # Number is the number of this block.
     number: Long!
@@ -121,25 +34,6 @@ type Block {
 
     # TransactionCount is the number of transactions in this block.
     transactionsCount: Int!
-}
-type CurrentState {
-    # Get current block height
-    currentBlockHeight:Long
-
-    # Get total number of accounts
-    numberOfAccounts:Int!
-
-    # Get total number of transactions
-    numberOfTransactions:Long!
-
-    # Get total number of validators
-    numberOfValidators:Int!
-
-    # Get disk size per 100M transactions in bytes
-    diskSizePer100MTxs:Long!
-
-    # Get time to finality in seconds (rounded to 2 decimal places)
-    timeToFinality:Float!
 }
 type Transaction {
     # Hash of the transaction
@@ -203,5 +97,111 @@ type Transaction {
 
     # Type is the type of the transaction.
     type: String!
+}
+type Tick {
+    # The timestamp of the tick
+    timestamp: Int!
+
+    # The value of the tick
+    value: Long!
+}
+# AggResolution is the resolution of the aggregation
+enum AggResolution {
+    SECONDS,
+    MINUTE,
+    HOUR,
+    DAY
+}
+
+# AggSubject is the subject of the aggregation
+enum AggSubject {
+    TXS_COUNT,
+    GAS_USED
+}
+type CurrentState {
+    # Get current block height
+    currentBlockHeight:Long
+
+    # Get total number of accounts
+    numberOfAccounts:Int!
+
+    # Get total number of transactions
+    numberOfTransactions:Long!
+
+    # Get total number of validators
+    numberOfValidators:Int!
+
+    # Get disk size per 100M transactions in bytes
+    diskSizePer100MTxs:Long!
+
+    # Get time to finality in seconds (rounded to 2 decimal places)
+    timeToFinality:Float!
+}
+# Bytes32 is a 32 byte binary string, represented by 0x prefixed hexadecimal hash.
+scalar Bytes32
+
+# Address is a 20 byte Opera address, represented as 0x prefixed hexadecimal number.
+scalar Address
+
+# BigInt is a large integer value. Input is accepted as either a JSON number,
+# or a hexadecimal string alternatively prefixed with 0x. Output is 0x prefixed hexadecimal.
+scalar BigInt
+
+# Long is a 64 bit unsigned integer value.
+scalar Long
+
+# Bytes is an arbitrary length binary string, represented as 0x-prefixed hexadecimal.
+# An empty byte string is represented as '0x'.
+scalar Bytes
+
+# Cursor is a string representing position in a sequential list of edges.
+scalar Cursor
+
+# Time represents date and time including time zone information in RFC3339 format.
+scalar Time
+# Root schema definition
+schema {
+    query: Query
+}
+
+# Entry points for querying the API
+type Query {
+    # State represents the current state of the blockchain and network.
+    state: CurrentState!
+
+    # Get transaction information for given transaction hash.
+    transaction(hash:Bytes32!):Transaction
+
+    # Get block information by number.
+    block(number:Long!):Block
+
+    # Get recent observed blocks
+    recentBlocks(limit:Int!):[Block!]!
+
+    # Get current block height
+    currentBlockHeight:Long
+
+    # Get total number of accounts
+    numberOfAccounts:Int!
+
+    # Get total number of transactions
+    numberOfTransactions:Long!
+
+    # Get total number of validators
+    numberOfValidators:Int!
+
+    # Get disk size per 100M transactions in bytes
+    diskSizePer100MTxs:Long!
+
+    # Get time to finality in seconds (rounded to 2 decimal places)
+    timeToFinality:Float!
+
+    # Get block aggregated data by timestamp
+    # parameters:
+    #   subject: the subject of the aggregation - value of AggSubject enum
+    #   resolution: the resolution of the aggregation - value of AggResolution enum
+    #   ticks: the number of ticks to return
+    #   endTime: the end timestamp of the aggregation, if not specified, last block's timestamp is used
+    blockTimestampAggregations(subject: AggSubject!, resolution: AggResolution!, ticks:Int!, endTime:Int):[Tick!]!
 }
 `

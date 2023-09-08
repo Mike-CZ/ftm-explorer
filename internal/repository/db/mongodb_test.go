@@ -248,6 +248,104 @@ func TestMongoDb_IncrementAndGetTrxCount(t *testing.T) {
 	}
 }
 
+// Test adding tokens request.
+func TestMongoDb_AddAndGetLatestTokensRequest(t *testing.T) {
+	db := startMongoDb(t)
+
+	// define tokens request to add
+	tr := types.TokensRequest{
+		IpAddress: "192.168.0.1",
+		Phrase:    "test phrase",
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
+	defer cancel()
+
+	// add tokens request
+	if err := db.AddTokensRequest(ctx, &tr); err != nil {
+		t.Fatalf("failed to add tokens request: %v", err)
+	}
+
+	// get latest tokens request
+	latestTr, err := db.LatestTokensRequest(ctx, tr.IpAddress)
+	if err != nil {
+		t.Fatalf("failed to get latest tokens request: %v", err)
+	}
+	if latestTr.Phrase != tr.Phrase {
+		t.Fatalf("expected phrase %s, got %s", tr.Phrase, latestTr.Phrase)
+	}
+
+	// try adding another tokens request
+	tr.Phrase = "test phrase 2"
+	if err := db.AddTokensRequest(ctx, &tr); err != nil {
+		t.Fatalf("failed to add tokens request: %v", err)
+	}
+
+	// get latest tokens request
+	latestTr, err = db.LatestTokensRequest(ctx, tr.IpAddress)
+	if err != nil {
+		t.Fatalf("failed to get latest tokens request: %v", err)
+	}
+	if latestTr.Phrase != tr.Phrase {
+		t.Fatalf("expected phrase %s, got %s", tr.Phrase, latestTr.Phrase)
+	}
+}
+
+// Test updating tokens request.
+func TestMongoDb_UpdateTokensRequest(t *testing.T) {
+	db := startMongoDb(t)
+
+	// define tokens request to add
+	tr := types.TokensRequest{
+		IpAddress: "192.168.0.1",
+		Phrase:    "test phrase",
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
+	defer cancel()
+
+	// add tokens request
+	if err := db.AddTokensRequest(ctx, &tr); err != nil {
+		t.Fatalf("failed to add tokens request: %v", err)
+	}
+
+	// get latest tokens request
+	latestTr, err := db.LatestTokensRequest(ctx, tr.IpAddress)
+	if err != nil {
+		t.Fatalf("failed to get latest tokens request: %v", err)
+	}
+	if latestTr.Phrase != tr.Phrase {
+		t.Fatalf("expected phrase %s, got %s", tr.Phrase, latestTr.Phrase)
+	}
+
+	if latestTr.ClaimedAt != nil {
+		t.Fatalf("expected nil, got %v", latestTr.ClaimedAt)
+	}
+
+	// set claimed at
+	claimedAt := time.Now().Unix()
+	latestTr.ClaimedAt = &claimedAt
+
+	// update tokens request
+	if err := db.UpdateTokensRequest(ctx, latestTr); err != nil {
+		t.Fatalf("failed to update tokens request: %v", err)
+	}
+
+	// get latest tokens request
+	latestTr, err = db.LatestTokensRequest(ctx, tr.IpAddress)
+	if err != nil {
+		t.Fatalf("failed to get latest tokens request: %v", err)
+	}
+
+	if latestTr.ClaimedAt == nil {
+		t.Fatalf("expected %d, got nil", claimedAt)
+	}
+
+	if *latestTr.ClaimedAt != claimedAt {
+		t.Fatalf("expected %d, got %d", claimedAt, latestTr.ClaimedAt)
+	}
+}
+
 // startMongoDb starts MongoDB in a Docker container and returns the MongoDb instance.
 func startMongoDb(t *testing.T) *MongoDb {
 	t.Helper()
