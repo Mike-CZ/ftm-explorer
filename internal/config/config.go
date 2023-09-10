@@ -7,6 +7,7 @@ import (
 // Config is the base configuration structure.
 type Config struct {
 	Explorer    Explorer
+	Faucet      Faucet
 	MetaFetcher MetaFetcher
 	Rpc         Rpc
 	Api         ApiServer
@@ -19,6 +20,15 @@ type Explorer struct {
 	// BlockBufferSize is the size of the block buffer. The buffer is used to
 	// store blocks in memory, so that they can be accessed quickly.
 	BlockBufferSize uint
+}
+
+type Faucet struct {
+	// ClaimLimitSeconds is the time limit between two claims.
+	ClaimLimitSeconds uint
+	// ClaimTokensAmount is the amount of tokens to be claimed.
+	ClaimTokensAmount float32
+	// WalletPrivateKey is the private key of the faucet wallet.
+	WalletPrivateKey string
 }
 
 // MetaFetcher is the configuration structure for meta fetcher obtaining blockchain metadata.

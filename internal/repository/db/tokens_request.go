@@ -24,6 +24,9 @@ const (
 	// kFiTokensRequestPhrase is the name of the phrase field.
 	kFiTokensRequestPhrase = "phrase"
 
+	// kFiTokensRequestReceiver is the name of the receiver field.
+	kFiTokensRequestReceiver = "receiver"
+
 	// kFiTokensRequestClaimedAt is the name of the claimed at field.
 	kFiTokensRequestClaimedAt = "claimed_at"
 )
@@ -61,6 +64,7 @@ func (db *MongoDb) UpdateTokensRequest(ctx context.Context, tr *types.TokensRequ
 		"$set": bson.M{
 			kFiTokensRequestIp:        tr.IpAddress,
 			kFiTokensRequestPhrase:    tr.Phrase,
+			kFiTokensRequestReceiver:  tr.Receiver,
 			kFiTokensRequestClaimedAt: tr.ClaimedAt,
 		},
 	}

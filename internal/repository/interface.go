@@ -66,4 +66,13 @@ type IRepository interface {
 	// FetchTimeToFinality returns the time to finality in the blockchain.
 	// This method will fetch data from remote host.
 	FetchTimeToFinality() (float64, error)
+
+	// AddTokensRequest adds a new tokens request to the database.
+	AddTokensRequest(*types.TokensRequest) error
+
+	// UpdateTokensRequest updates the given tokens request.
+	UpdateTokensRequest(*types.TokensRequest) error
+
+	// GetLatestTokensRequest returns the latest tokens request for the given ip address.
+	GetLatestTokensRequest(string) (*types.TokensRequest, error)
 }

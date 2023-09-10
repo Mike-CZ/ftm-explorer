@@ -232,6 +232,7 @@ func TestRepository_FetchTimeToFinality(t *testing.T) {
 
 // createRepository creates a new repository instance with mocked dependencies.
 func createRepository(t *testing.T) (*Repository, *rpc.MockRpc, *db.MockDatabase, *meta_fetcher.MockMetaFetcher) {
+	t.Helper()
 	ctrl := gomock.NewController(t)
 	mockRpc := rpc.NewMockRpc(ctrl)
 	mockDb := db.NewMockDatabase(ctrl)

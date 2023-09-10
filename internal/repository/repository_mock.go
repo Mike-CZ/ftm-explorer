@@ -36,6 +36,20 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
+// AddTokensRequest mocks base method.
+func (m *MockRepository) AddTokensRequest(arg0 *types.TokensRequest) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddTokensRequest", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddTokensRequest indicates an expected call of AddTokensRequest.
+func (mr *MockRepositoryMockRecorder) AddTokensRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTokensRequest", reflect.TypeOf((*MockRepository)(nil).AddTokensRequest), arg0)
+}
+
 // FetchDiskSizePer100MTxs mocks base method.
 func (m *MockRepository) FetchDiskSizePer100MTxs() (uint64, error) {
 	m.ctrl.T.Helper()
@@ -151,6 +165,21 @@ func (m *MockRepository) GetLatestObservedBlocks(arg0 uint) []*types.Block {
 func (mr *MockRepositoryMockRecorder) GetLatestObservedBlocks(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLatestObservedBlocks", reflect.TypeOf((*MockRepository)(nil).GetLatestObservedBlocks), arg0)
+}
+
+// GetLatestTokensRequest mocks base method.
+func (m *MockRepository) GetLatestTokensRequest(arg0 string) (*types.TokensRequest, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetLatestTokensRequest", arg0)
+	ret0, _ := ret[0].(*types.TokensRequest)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetLatestTokensRequest indicates an expected call of GetLatestTokensRequest.
+func (mr *MockRepositoryMockRecorder) GetLatestTokensRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLatestTokensRequest", reflect.TypeOf((*MockRepository)(nil).GetLatestTokensRequest), arg0)
 }
 
 // GetNewHeadersChannel mocks base method.
@@ -291,4 +320,18 @@ func (m *MockRepository) UpdateLatestObservedBlock(arg0 *types.Block) error {
 func (mr *MockRepositoryMockRecorder) UpdateLatestObservedBlock(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLatestObservedBlock", reflect.TypeOf((*MockRepository)(nil).UpdateLatestObservedBlock), arg0)
+}
+
+// UpdateTokensRequest mocks base method.
+func (m *MockRepository) UpdateTokensRequest(arg0 *types.TokensRequest) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateTokensRequest", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateTokensRequest indicates an expected call of UpdateTokensRequest.
+func (mr *MockRepositoryMockRecorder) UpdateTokensRequest(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTokensRequest", reflect.TypeOf((*MockRepository)(nil).UpdateTokensRequest), arg0)
 }

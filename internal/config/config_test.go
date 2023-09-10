@@ -11,6 +11,11 @@ func TestConfig_Load(t *testing.T) {
 	  "explorer": {
 		"blockBufferSize": 128964
 	  },
+      "faucet": {
+        "claimLimitSeconds": 1000,
+        "claimTokensAmount": 0.5,
+        "walletPrivateKey": "9s4d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58a6285"
+      },
 	  "metaFetcher": {
 		"numberOfAccountsUrl": "number-of-accounts-test-url",
 		"diskSizePer100MTxsUrl": "disk-size-test-url",
@@ -64,6 +69,15 @@ func TestConfig_Load(t *testing.T) {
 	// Check the configuration values
 	if cfg.Explorer.BlockBufferSize != 128964 {
 		t.Errorf("expected Explorer.BlockBufferSize to be 128964, got %d", cfg.Explorer.BlockBufferSize)
+	}
+	if cfg.Faucet.ClaimLimitSeconds != 1000 {
+		t.Errorf("expected Faucet.ClaimLimitSeconds to be 1000, got %d", cfg.Faucet.ClaimLimitSeconds)
+	}
+	if cfg.Faucet.ClaimTokensAmount != 0.5 {
+		t.Errorf("expected Faucet.ClaimTokensAmount to be 0.5, got %f", cfg.Faucet.ClaimTokensAmount)
+	}
+	if cfg.Faucet.WalletPrivateKey != "9s4d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58a6285" {
+		t.Errorf("expected Faucet.WalletPrivateKey to be 9s4d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58a6285, got %s", cfg.Faucet.WalletPrivateKey)
 	}
 	if cfg.MetaFetcher.NumberOfAccountsUrl != "number-of-accounts-test-url" {
 		t.Errorf("expected MetaFetcher.NumberOfAccountsUrl to be number-of-accounts-test-url, got %s", cfg.MetaFetcher.NumberOfAccountsUrl)
