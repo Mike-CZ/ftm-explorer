@@ -3,7 +3,9 @@ package api
 import (
 	"ftm-explorer/internal/api/graphql/resolvers"
 	"ftm-explorer/internal/api/handlers"
+	"ftm-explorer/internal/api/middlewares"
 	"ftm-explorer/internal/config"
+	"ftm-explorer/internal/faucet"
 	"ftm-explorer/internal/logger"
 	"ftm-explorer/internal/repository"
 	"net/http"
@@ -20,10 +22,10 @@ type ApiServer struct {
 }
 
 // NewApiServer creates a new GraphQL API server.
-func NewApiServer(cfg *config.ApiServer, repo repository.IRepository, log logger.ILogger) *ApiServer {
+func NewApiServer(cfg *config.ApiServer, repo repository.IRepository, faucet faucet.IFaucet, log logger.ILogger) *ApiServer {
 	apiLogger := log.ModuleLogger("api")
 	server := &ApiServer{
-		resolver: resolvers.NewResolver(repo, apiLogger),
+		resolver: resolvers.NewResolver(repo, apiLogger, faucet),
 		cfg:      cfg,
 		log:      apiLogger.ModuleLogger("api"),
 	}
@@ -46,7 +48,9 @@ func (api *ApiServer) makeHttpServer() {
 	srvMux := http.NewServeMux()
 
 	h := http.TimeoutHandler(
-		handlers.ApiHandler(api.cfg.CorsOrigin, api.resolver, api.log),
+		middlewares.AuthMiddleware(
+			handlers.ApiHandler(api.cfg.CorsOrigin, api.resolver, api.log),
+		),
 		time.Second*time.Duration(api.cfg.ResolverTimeout),
 		"Service timeout.",
 	)

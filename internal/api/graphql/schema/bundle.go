@@ -162,6 +162,7 @@ scalar Time
 # Root schema definition
 schema {
     query: Query
+    mutation: Mutation
 }
 
 # Entry points for querying the API
@@ -204,4 +205,10 @@ type Query {
     #   endTime: the end timestamp of the aggregation, if not specified, last block's timestamp is used
     blockTimestampAggregations(subject: AggSubject!, resolution: AggResolution!, ticks:Int!, endTime:Int):[Tick!]!
 }
+
+type Mutation {
+    # Send request to obtain tokens from faucet. Returns phrase that should be signed by the user.
+    requestTokens: String!
+}
+
 `

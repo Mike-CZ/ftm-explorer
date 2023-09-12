@@ -4,6 +4,7 @@ import (
 	"ftm-explorer/cmd/ftm-explorer-cli/flags"
 	"ftm-explorer/internal/api"
 	"ftm-explorer/internal/config"
+	"ftm-explorer/internal/faucet"
 	"ftm-explorer/internal/logger"
 	"ftm-explorer/internal/repository"
 	"ftm-explorer/internal/repository/db"
@@ -43,7 +44,7 @@ func run(ctx *cli.Context) error {
 	mgr.Start()
 
 	// create api server
-	apiServer := api.NewApiServer(&cfg.Api, repo, log)
+	apiServer := api.NewApiServer(&cfg.Api, repo, faucet.NewFaucet(repo, &cfg.Faucet), log)
 
 	// run api server
 	apiServer.Start()

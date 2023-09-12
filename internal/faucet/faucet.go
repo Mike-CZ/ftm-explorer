@@ -3,7 +3,6 @@ package faucet
 import (
 	"fmt"
 	"ftm-explorer/internal/config"
-	"ftm-explorer/internal/logger"
 	"ftm-explorer/internal/repository"
 	"ftm-explorer/internal/types"
 	"time"
@@ -16,19 +15,17 @@ import (
 type Faucet struct {
 	repo repository.IRepository
 	cfg  *config.Faucet
-	log  logger.ILogger
 }
 
 // NewFaucet creates a new faucet instance.
-func NewFaucet(repo repository.IRepository, cfg *config.Faucet, log logger.ILogger) *Faucet {
+func NewFaucet(repo repository.IRepository, cfg *config.Faucet) *Faucet {
 	return &Faucet{
 		repo: repo,
 		cfg:  cfg,
-		log:  log,
 	}
 }
 
-// RequestTokens requests tokens for the given ip address.
+// RequestTokens requests tokens for the given ip address and phrase.
 func (f Faucet) RequestTokens(ipAddress string) (*types.TokensRequest, error) {
 	// check if the ip address is already in the database
 	tr, err := f.repo.GetLatestTokensRequest(ipAddress)
@@ -54,8 +51,6 @@ func (f Faucet) RequestTokens(ipAddress string) (*types.TokensRequest, error) {
 	tr = &types.TokensRequest{
 		IpAddress: ipAddress,
 		Phrase:    "some phrase",
-		Receiver:  nil,
-		ClaimedAt: nil,
 	}
 	err = f.repo.AddTokensRequest(tr)
 	if err != nil {
