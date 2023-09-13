@@ -44,7 +44,7 @@ func run(ctx *cli.Context) error {
 	mgr.Start()
 
 	// create api server
-	apiServer := api.NewApiServer(&cfg.Api, repo, faucet.NewFaucet(repo, &cfg.Faucet), log)
+	apiServer := api.NewApiServer(&cfg.Api, repo, faucet.NewFaucet(faucet.NewPhraseGenerator(), repo, &cfg.Faucet), log)
 
 	// run api server
 	apiServer.Start()

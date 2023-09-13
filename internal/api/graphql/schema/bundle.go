@@ -209,6 +209,9 @@ type Query {
 type Mutation {
     # Send request to obtain tokens from faucet. Returns phrase that should be signed by the user.
     requestTokens: String!
+
+    # Send signed phrase to faucet to obtain tokens.
+    claimTokens(address: Address!, challenge: String!, signature: String!): Boolean!
 }
 
 `
