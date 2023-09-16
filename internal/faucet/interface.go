@@ -1,8 +1,10 @@
 package faucet
 
-//go:generate mockgen -source=interface.go -destination=faucet_mock.go -package=faucet -mock_names=IFaucet=MockFaucet,IFaucetPhraseGenerator=MockFaucetPhraseGenerator
+//go:generate mockgen -source=interface.go -destination=faucet_mock.go -package=faucet -mock_names=IFaucet=MockFaucet,IFaucetPhraseGenerator=MockFaucetPhraseGenerator,IFaucetWallet=MockFaucetWallet
 
 import (
+	"math/big"
+
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -21,4 +23,11 @@ type IFaucet interface {
 type IFaucetPhraseGenerator interface {
 	// GeneratePhrase generates a phrase for the faucet.
 	GeneratePhrase() string
+}
+
+// IFaucetWallet represents a faucet wallet interface.
+// It is used to send wei to the given address.
+type IFaucetWallet interface {
+	// SendWeiToAddress sends wei to the given address.
+	SendWeiToAddress(amount *big.Int, receiver common.Address) error
 }

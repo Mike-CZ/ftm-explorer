@@ -8,6 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	eth "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 // TransactionByHash returns the transaction identified by hash.
@@ -45,4 +46,12 @@ func (rpc *OperaRpc) TransactionByHash(ctx context.Context, hash common.Hash) (*
 	}
 
 	return &trx, nil
+}
+
+// SendSignedTransaction sends the signed transaction.
+func (rpc *OperaRpc) SendSignedTransaction(ctx context.Context, tx *eth.Transaction) error {
+	if err := ethclient.NewClient(rpc.ftm).SendTransaction(ctx, tx); err != nil {
+		return err
+	}
+	return nil
 }

@@ -6,6 +6,7 @@ package repository
 
 import (
 	types "ftm-explorer/internal/types"
+	big "math/big"
 	reflect "reflect"
 
 	common "github.com/ethereum/go-ethereum/common"
@@ -284,6 +285,50 @@ func (mr *MockRepositoryMockRecorder) IncrementTrxCount(arg0 interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IncrementTrxCount", reflect.TypeOf((*MockRepository)(nil).IncrementTrxCount), arg0)
 }
 
+// NetworkID mocks base method.
+func (m *MockRepository) NetworkID() (*big.Int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NetworkID")
+	ret0, _ := ret[0].(*big.Int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// NetworkID indicates an expected call of NetworkID.
+func (mr *MockRepositoryMockRecorder) NetworkID() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NetworkID", reflect.TypeOf((*MockRepository)(nil).NetworkID))
+}
+
+// PendingNonceAt mocks base method.
+func (m *MockRepository) PendingNonceAt(arg0 common.Address) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PendingNonceAt", arg0)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PendingNonceAt indicates an expected call of PendingNonceAt.
+func (mr *MockRepositoryMockRecorder) PendingNonceAt(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PendingNonceAt", reflect.TypeOf((*MockRepository)(nil).PendingNonceAt), arg0)
+}
+
+// SendSignedTransaction mocks base method.
+func (m *MockRepository) SendSignedTransaction(arg0 *types0.Transaction) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SendSignedTransaction", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SendSignedTransaction indicates an expected call of SendSignedTransaction.
+func (mr *MockRepositoryMockRecorder) SendSignedTransaction(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendSignedTransaction", reflect.TypeOf((*MockRepository)(nil).SendSignedTransaction), arg0)
+}
+
 // SetDiskSizePer100MTxs mocks base method.
 func (m *MockRepository) SetDiskSizePer100MTxs(arg0 uint64) {
 	m.ctrl.T.Helper()
@@ -306,6 +351,21 @@ func (m *MockRepository) SetNumberOfAccounts(arg0 uint64) {
 func (mr *MockRepositoryMockRecorder) SetNumberOfAccounts(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetNumberOfAccounts", reflect.TypeOf((*MockRepository)(nil).SetNumberOfAccounts), arg0)
+}
+
+// SuggestGasPrice mocks base method.
+func (m *MockRepository) SuggestGasPrice() (*big.Int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SuggestGasPrice")
+	ret0, _ := ret[0].(*big.Int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SuggestGasPrice indicates an expected call of SuggestGasPrice.
+func (mr *MockRepositoryMockRecorder) SuggestGasPrice() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SuggestGasPrice", reflect.TypeOf((*MockRepository)(nil).SuggestGasPrice))
 }
 
 // UpdateLatestObservedBlock mocks base method.

@@ -5,6 +5,7 @@
 package faucet
 
 import (
+	big "math/big"
 	reflect "reflect"
 
 	common "github.com/ethereum/go-ethereum/common"
@@ -98,4 +99,41 @@ func (m *MockFaucetPhraseGenerator) GeneratePhrase() string {
 func (mr *MockFaucetPhraseGeneratorMockRecorder) GeneratePhrase() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GeneratePhrase", reflect.TypeOf((*MockFaucetPhraseGenerator)(nil).GeneratePhrase))
+}
+
+// MockFaucetWallet is a mock of IFaucetWallet interface.
+type MockFaucetWallet struct {
+	ctrl     *gomock.Controller
+	recorder *MockFaucetWalletMockRecorder
+}
+
+// MockFaucetWalletMockRecorder is the mock recorder for MockFaucetWallet.
+type MockFaucetWalletMockRecorder struct {
+	mock *MockFaucetWallet
+}
+
+// NewMockFaucetWallet creates a new mock instance.
+func NewMockFaucetWallet(ctrl *gomock.Controller) *MockFaucetWallet {
+	mock := &MockFaucetWallet{ctrl: ctrl}
+	mock.recorder = &MockFaucetWalletMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockFaucetWallet) EXPECT() *MockFaucetWalletMockRecorder {
+	return m.recorder
+}
+
+// SendWeiToAddress mocks base method.
+func (m *MockFaucetWallet) SendWeiToAddress(amount *big.Int, receiver common.Address) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SendWeiToAddress", amount, receiver)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SendWeiToAddress indicates an expected call of SendWeiToAddress.
+func (mr *MockFaucetWalletMockRecorder) SendWeiToAddress(amount, receiver interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendWeiToAddress", reflect.TypeOf((*MockFaucetWallet)(nil).SendWeiToAddress), amount, receiver)
 }

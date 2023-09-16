@@ -5,6 +5,7 @@ package rpc
 import (
 	"context"
 	"ftm-explorer/internal/types"
+	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
 	eth "github.com/ethereum/go-ethereum/core/types"
@@ -20,6 +21,14 @@ type IRpc interface {
 	ObservedHeadProxy() <-chan *eth.Header
 	// NumberOfValidators returns the number of validators.
 	NumberOfValidators(context.Context) (uint64, error)
+	// SendSignedTransaction sends the signed transaction.
+	SendSignedTransaction(context.Context, *eth.Transaction) error
+	// PendingNonceAt returns the nonce of the account at the given block.
+	PendingNonceAt(context.Context, common.Address) (uint64, error)
+	// SuggestGasPrice suggests a gas price.
+	SuggestGasPrice(context.Context) (*big.Int, error)
+	// NetworkID returns the network ID.
+	NetworkID(context.Context) (*big.Int, error)
 	// Close closes the RPC client.
 	Close()
 }

@@ -230,6 +230,63 @@ func TestRepository_FetchTimeToFinality(t *testing.T) {
 	}
 }
 
+// Test that signed transaction is sent.
+func TestRepository_SendSignedTransaction(t *testing.T) {
+	repository, mockRpc, _, _ := createRepository(t)
+
+	// check that signed transaction is sent
+	mockRpc.EXPECT().SendSignedTransaction(gomock.Any(), gomock.Any()).Return(nil)
+	err := repository.SendSignedTransaction(&eth.Transaction{})
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+// Test that pending nonce is returned.
+func TestRepository_PendingNonceAt(t *testing.T) {
+	repository, mockRpc, _, _ := createRepository(t)
+
+	// check that pending nonce is returned
+	mockRpc.EXPECT().PendingNonceAt(gomock.Any(), gomock.Any()).Return(uint64(10), nil)
+	nonce, err := repository.PendingNonceAt(common.Address{})
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if nonce != 10 {
+		t.Errorf("expected 10, got %v", nonce)
+	}
+}
+
+// Test that suggested gas price is returned.
+func TestRepository_SuggestGasPrice(t *testing.T) {
+	repository, mockRpc, _, _ := createRepository(t)
+
+	// check that pending nonce is returned
+	mockRpc.EXPECT().SuggestGasPrice(gomock.Any()).Return(big.NewInt(10), nil)
+	gasPrice, err := repository.SuggestGasPrice()
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if gasPrice.Cmp(big.NewInt(10)) != 0 {
+		t.Errorf("expected 10, got %v", gasPrice)
+	}
+}
+
+// Test that network id is returned.
+func TestRepository_NetworkID(t *testing.T) {
+	repository, mockRpc, _, _ := createRepository(t)
+
+	// check that network id is returned
+	mockRpc.EXPECT().NetworkID(gomock.Any()).Return(big.NewInt(10), nil)
+	networkID, err := repository.NetworkID()
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if networkID.Cmp(big.NewInt(10)) != 0 {
+		t.Errorf("expected 10, got %v", networkID)
+	}
+}
+
 // createRepository creates a new repository instance with mocked dependencies.
 func createRepository(t *testing.T) (*Repository, *rpc.MockRpc, *db.MockDatabase, *meta_fetcher.MockMetaFetcher) {
 	t.Helper()

@@ -7,6 +7,7 @@ package rpc
 import (
 	context "context"
 	types "ftm-explorer/internal/types"
+	big "math/big"
 	reflect "reflect"
 
 	common "github.com/ethereum/go-ethereum/common"
@@ -64,6 +65,21 @@ func (mr *MockRpcMockRecorder) Close() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockRpc)(nil).Close))
 }
 
+// NetworkID mocks base method.
+func (m *MockRpc) NetworkID(arg0 context.Context) (*big.Int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NetworkID", arg0)
+	ret0, _ := ret[0].(*big.Int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// NetworkID indicates an expected call of NetworkID.
+func (mr *MockRpcMockRecorder) NetworkID(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NetworkID", reflect.TypeOf((*MockRpc)(nil).NetworkID), arg0)
+}
+
 // NumberOfValidators mocks base method.
 func (m *MockRpc) NumberOfValidators(arg0 context.Context) (uint64, error) {
 	m.ctrl.T.Helper()
@@ -91,6 +107,50 @@ func (m *MockRpc) ObservedHeadProxy() <-chan *types0.Header {
 func (mr *MockRpcMockRecorder) ObservedHeadProxy() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ObservedHeadProxy", reflect.TypeOf((*MockRpc)(nil).ObservedHeadProxy))
+}
+
+// PendingNonceAt mocks base method.
+func (m *MockRpc) PendingNonceAt(arg0 context.Context, arg1 common.Address) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PendingNonceAt", arg0, arg1)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PendingNonceAt indicates an expected call of PendingNonceAt.
+func (mr *MockRpcMockRecorder) PendingNonceAt(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PendingNonceAt", reflect.TypeOf((*MockRpc)(nil).PendingNonceAt), arg0, arg1)
+}
+
+// SendSignedTransaction mocks base method.
+func (m *MockRpc) SendSignedTransaction(arg0 context.Context, arg1 *types0.Transaction) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SendSignedTransaction", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SendSignedTransaction indicates an expected call of SendSignedTransaction.
+func (mr *MockRpcMockRecorder) SendSignedTransaction(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendSignedTransaction", reflect.TypeOf((*MockRpc)(nil).SendSignedTransaction), arg0, arg1)
+}
+
+// SuggestGasPrice mocks base method.
+func (m *MockRpc) SuggestGasPrice(arg0 context.Context) (*big.Int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SuggestGasPrice", arg0)
+	ret0, _ := ret[0].(*big.Int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SuggestGasPrice indicates an expected call of SuggestGasPrice.
+func (mr *MockRpcMockRecorder) SuggestGasPrice(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SuggestGasPrice", reflect.TypeOf((*MockRpc)(nil).SuggestGasPrice), arg0)
 }
 
 // TransactionByHash mocks base method.

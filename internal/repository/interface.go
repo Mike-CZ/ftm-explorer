@@ -4,6 +4,7 @@ package repository
 
 import (
 	"ftm-explorer/internal/types"
+	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
 	eth "github.com/ethereum/go-ethereum/core/types"
@@ -75,4 +76,16 @@ type IRepository interface {
 
 	// GetLatestTokensRequest returns the latest tokens request for the given ip address.
 	GetLatestTokensRequest(string) (*types.TokensRequest, error)
+
+	// SendSignedTransaction sends the signed transaction.
+	SendSignedTransaction(*eth.Transaction) error
+
+	// PendingNonceAt returns the nonce of the account at the given block.
+	PendingNonceAt(common.Address) (uint64, error)
+
+	// SuggestGasPrice suggests a gas price.
+	SuggestGasPrice() (*big.Int, error)
+
+	// NetworkID returns the network ID.
+	NetworkID() (*big.Int, error)
 }

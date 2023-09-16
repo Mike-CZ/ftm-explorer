@@ -5,10 +5,12 @@ import (
 	"ftm-explorer/internal/config"
 	"ftm-explorer/internal/repository"
 	"ftm-explorer/internal/types"
+	"math/big"
 	"strings"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/params"
 )
 
 const (
@@ -21,17 +23,19 @@ const (
 // Faucet represents a faucet instance. It provides access to the
 // faucet functionality. It is used to request and claim tokens.
 type Faucet struct {
-	pg   IFaucetPhraseGenerator
-	repo repository.IRepository
-	cfg  *config.Faucet
+	pg     IFaucetPhraseGenerator
+	wallet IFaucetWallet
+	repo   repository.IRepository
+	cfg    *config.Faucet
 }
 
 // NewFaucet creates a new faucet instance.
-func NewFaucet(pg IFaucetPhraseGenerator, repo repository.IRepository, cfg *config.Faucet) *Faucet {
+func NewFaucet(pg IFaucetPhraseGenerator, w IFaucetWallet, repo repository.IRepository, cfg *config.Faucet) *Faucet {
 	return &Faucet{
-		pg:   pg,
-		repo: repo,
-		cfg:  cfg,
+		pg:     pg,
+		wallet: w,
+		repo:   repo,
+		cfg:    cfg,
 	}
 }
 
@@ -108,7 +112,23 @@ func (f *Faucet) ClaimTokens(ip string, phrase string, receiver common.Address) 
 		return err
 	}
 
-	// TODO: send the tokens
+	// send wei to the receiver
+	if err = f.wallet.SendWeiToAddress(getTokensAmountInWei(float64(f.cfg.ClaimTokensAmount)), receiver); err != nil {
+		// if we got error, we need to set back the request to the previous state
+		tr.Receiver = nil
+		tr.ClaimedAt = nil
+		_ = f.repo.UpdateTokensRequest(tr)
+		return err
+	}
 
 	return nil
+}
+
+// getTokensAmountInWei converts the given amount of tokens to wei.
+func getTokensAmountInWei(amount float64) *big.Int {
+	a := new(big.Rat).SetFloat64(amount)
+	e := new(big.Rat).SetFloat64(params.Ether)
+	product := new(big.Rat).Mul(a, e)
+	result := new(big.Int).Div(product.Num(), product.Denom())
+	return result
 }

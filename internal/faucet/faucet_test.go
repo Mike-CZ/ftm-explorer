@@ -4,6 +4,7 @@ import (
 	"ftm-explorer/internal/config"
 	"ftm-explorer/internal/repository"
 	"ftm-explorer/internal/types"
+	"math/big"
 	"strings"
 	"testing"
 	"time"
@@ -19,7 +20,7 @@ const (
 
 // Test that the new tokens request can be created.
 func TestFaucet_RequestTokens(t *testing.T) {
-	faucet, pg, repo := createFaucet(t)
+	faucet, pg, _, repo := createFaucet(t)
 	ipAddress := "192.168.0.1"
 
 	// expect a call to the repository to get the latest tokens request
@@ -46,7 +47,7 @@ func TestFaucet_RequestTokens(t *testing.T) {
 
 // Test that the existing tokens request is returned.
 func TestFaucet_RequestTokensAlreadyPending(t *testing.T) {
-	faucet, _, repo := createFaucet(t)
+	faucet, _, _, repo := createFaucet(t)
 	ipAddress := "192.168.0.1"
 
 	tr := &types.TokensRequest{
@@ -67,7 +68,7 @@ func TestFaucet_RequestTokensAlreadyPending(t *testing.T) {
 
 // Test that error is returned when claim limit is not reached
 func TestFaucet_RequestTokensClaimLimitNotReached(t *testing.T) {
-	faucet, _, repo := createFaucet(t)
+	faucet, _, _, repo := createFaucet(t)
 	ipAddress := "192.168.0.1"
 	receiver := common.Address{0x01}
 
@@ -91,7 +92,7 @@ func TestFaucet_RequestTokensClaimLimitNotReached(t *testing.T) {
 
 // Test that request can be made when claim limit is reached
 func TestFaucet_RequestTokensClaimLimitReached(t *testing.T) {
-	faucet, pg, repo := createFaucet(t)
+	faucet, pg, _, repo := createFaucet(t)
 	ipAddress := "192.168.0.1"
 
 	lastClaim := time.Now().Add(-time.Duration(kClaimLimitSeconds) * time.Second).Unix()
@@ -123,7 +124,7 @@ func TestFaucet_RequestTokensClaimLimitReached(t *testing.T) {
 
 // Test that the tokens can be claimed.
 func TestFaucet_ClaimTokens(t *testing.T) {
-	faucet, _, repo := createFaucet(t)
+	faucet, _, wallet, repo := createFaucet(t)
 	ipAddress := "192.168.0.1"
 	phrase := "test-phrase"
 	receiver := common.Address{0x01}
@@ -143,7 +144,8 @@ func TestFaucet_ClaimTokens(t *testing.T) {
 		ClaimedAt: &now,
 	})).Return(nil)
 
-	// TODO: Expect call to tokens transfer
+	// expect a call to wallet to send tokens
+	wallet.EXPECT().SendWeiToAddress(gomock.Eq(getTokensAmountInWei(kClaimTokensAmount)), gomock.Eq(receiver)).Return(nil)
 
 	// claim tokens
 	err := faucet.ClaimTokens(ipAddress, challengePrefix+phrase, receiver)
@@ -154,7 +156,7 @@ func TestFaucet_ClaimTokens(t *testing.T) {
 
 // Test that error is returned when tokens request is not found.
 func TestFaucet_ClaimTokensNoPendingRequest(t *testing.T) {
-	faucet, _, repo := createFaucet(t)
+	faucet, _, _, repo := createFaucet(t)
 	ipAddress := "192.168.0.1"
 	phrase := "test-phrase"
 	receiver := common.Address{0x01}
@@ -171,7 +173,7 @@ func TestFaucet_ClaimTokensNoPendingRequest(t *testing.T) {
 
 // Test that error is returned when phrase does not match.
 func TestFaucet_ClaimTokensPhraseMismatch(t *testing.T) {
-	faucet, _, repo := createFaucet(t)
+	faucet, _, _, repo := createFaucet(t)
 	ipAddress := "192.168.0.1"
 	phrase := "test-phrase"
 	receiver := common.Address{0x01}
@@ -191,7 +193,7 @@ func TestFaucet_ClaimTokensPhraseMismatch(t *testing.T) {
 
 // Test that error is returned when tokens are already claimed.
 func TestFaucet_ClaimTokensAlreadyClaimed(t *testing.T) {
-	faucet, _, repo := createFaucet(t)
+	faucet, _, _, repo := createFaucet(t)
 	ipAddress := "192.168.0.1"
 	phrase := "test-phrase"
 	claimed := time.Now().Unix()
@@ -214,7 +216,7 @@ func TestFaucet_ClaimTokensAlreadyClaimed(t *testing.T) {
 
 // Test that error is returned when prefix is not present.
 func TestFaucet_ClaimTokensNoPrefix(t *testing.T) {
-	faucet, _, _ := createFaucet(t)
+	faucet, _, _, _ := createFaucet(t)
 	ipAddress := "192.168.0.1"
 	phrase := "test-phrase"
 	receiver := common.Address{0x01}
@@ -226,15 +228,29 @@ func TestFaucet_ClaimTokensNoPrefix(t *testing.T) {
 	}
 }
 
+// test that the amount of tokens is converted to wei correctly.
+func TestFaucet_GetTokensAmountInWei(t *testing.T) {
+	wei := getTokensAmountInWei(0.5)
+	if wei.Cmp(big.NewInt(500_000_000_000_000_000)) != 0 {
+		t.Fatal("Invalid wei amount")
+	}
+
+	wei = getTokensAmountInWei(.000_000_000_000_000_001)
+	if wei.Cmp(big.NewInt(1)) != 0 {
+		t.Fatal("Invalid wei amount")
+	}
+}
+
 // createFaucet creates a new faucet instance for testing.
-func createFaucet(t *testing.T) (*Faucet, *MockFaucetPhraseGenerator, *repository.MockRepository) {
+func createFaucet(t *testing.T) (*Faucet, *MockFaucetPhraseGenerator, *MockFaucetWallet, *repository.MockRepository) {
 	t.Helper()
 	ctrl := gomock.NewController(t)
 	mockRepository := repository.NewMockRepository(ctrl)
 	mockPhraseGenerator := NewMockFaucetPhraseGenerator(ctrl)
+	mockWallet := NewMockFaucetWallet(ctrl)
 	cfg := &config.Faucet{
 		ClaimLimitSeconds: kClaimLimitSeconds,
 		ClaimTokensAmount: kClaimTokensAmount,
 	}
-	return NewFaucet(mockPhraseGenerator, mockRepository, cfg), mockPhraseGenerator, mockRepository
+	return NewFaucet(mockPhraseGenerator, mockWallet, mockRepository, cfg), mockPhraseGenerator, mockWallet, mockRepository
 }

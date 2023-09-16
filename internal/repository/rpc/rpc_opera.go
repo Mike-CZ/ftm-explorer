@@ -1,11 +1,14 @@
 package rpc
 
 import (
+	"context"
 	"ftm-explorer/internal/config"
+	"math/big"
 	"sync"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/ethclient"
 	client "github.com/ethereum/go-ethereum/rpc"
 )
 
@@ -32,6 +35,21 @@ func NewOperaRpc(cfg *config.Rpc) (*OperaRpc, error) {
 		ftm:        ftm,
 		sfcAddress: common.HexToAddress(cfg.SfcAddress),
 	}, nil
+}
+
+// PendingNonceAt returns the nonce of the account at the given block.
+func (rpc *OperaRpc) PendingNonceAt(ctx context.Context, address common.Address) (uint64, error) {
+	return ethclient.NewClient(rpc.ftm).PendingNonceAt(ctx, address)
+}
+
+// SuggestGasPrice suggests a gas price.
+func (rpc *OperaRpc) SuggestGasPrice(ctx context.Context) (*big.Int, error) {
+	return ethclient.NewClient(rpc.ftm).SuggestGasPrice(ctx)
+}
+
+// NetworkID returns the network ID.
+func (rpc *OperaRpc) NetworkID(ctx context.Context) (*big.Int, error) {
+	return ethclient.NewClient(rpc.ftm).NetworkID(ctx)
 }
 
 // Close closes the RPC client.

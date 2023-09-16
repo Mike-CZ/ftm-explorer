@@ -5,6 +5,7 @@ import (
 	"ftm-explorer/internal/types"
 
 	"github.com/ethereum/go-ethereum/common"
+	eth "github.com/ethereum/go-ethereum/core/types"
 )
 
 // GetTransactionByHash returns the transaction identified by hash.
@@ -34,4 +35,12 @@ func (r *Repository) IncrementTrxCount(incrementBy uint) error {
 	defer cancel()
 
 	return r.db.IncrementTrxCount(ctx, incrementBy)
+}
+
+// SendSignedTransaction sends the signed transaction.
+func (r *Repository) SendSignedTransaction(tx *eth.Transaction) error {
+	ctx, cancel := context.WithTimeout(context.Background(), kRpcTimeout)
+	defer cancel()
+
+	return r.rpc.SendSignedTransaction(ctx, tx)
 }
