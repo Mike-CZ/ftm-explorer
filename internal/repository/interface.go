@@ -49,6 +49,18 @@ type IRepository interface {
 	// SetDiskSizePer100MTxs sets the disk size per 100M transactions.
 	SetDiskSizePer100MTxs(uint64)
 
+	// GetTxCountPer10Secs returns transactions per 10 seconds.
+	GetTxCountPer10Secs() []types.HexUintTick
+
+	// SetTxCountPer10Secs sets transactions per 10 seconds.
+	SetTxCountPer10Secs([]types.HexUintTick)
+
+	// GetGasUsedPer10Secs returns gas used per 10 seconds.
+	GetGasUsedPer10Secs() []types.HexUintTick
+
+	// SetGasUsedPer10Secs sets gas used per 10 seconds.
+	SetGasUsedPer10Secs([]types.HexUintTick)
+
 	// GetTrxCount returns the number of transactions in the blockchain.
 	GetTrxCount() (uint64, error)
 
