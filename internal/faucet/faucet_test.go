@@ -252,5 +252,5 @@ func createFaucet(t *testing.T) (*Faucet, *MockFaucetPhraseGenerator, *MockFauce
 		ClaimLimitSeconds: kClaimLimitSeconds,
 		ClaimTokensAmount: kClaimTokensAmount,
 	}
-	return NewFaucet(mockPhraseGenerator, mockWallet, mockRepository, cfg), mockPhraseGenerator, mockWallet, mockRepository
+	return NewFaucet(cfg, mockPhraseGenerator, mockWallet, mockRepository), mockPhraseGenerator, mockWallet, mockRepository
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"ftm-explorer/internal/api/graphql/resolvers"
 	"ftm-explorer/internal/api/handlers"
+	"ftm-explorer/internal/faucet"
 	"ftm-explorer/internal/logger"
 	"ftm-explorer/internal/repository"
 	"ftm-explorer/internal/types"
@@ -25,7 +26,7 @@ import (
 type apiTestCase struct {
 	testName      string
 	requestBody   string
-	buildStubs    func(*repository.MockRepository)
+	buildStubs    func(*repository.MockRepository, *faucet.MockFaucet)
 	checkResponse func(*testing.T, *http.Response)
 }
 
@@ -34,10 +35,11 @@ func TestApiServer_Run(t *testing.T) {
 	// initialize stubs
 	ctrl := gomock.NewController(t)
 	mockRepository := repository.NewMockRepository(ctrl)
+	mockFaucet := faucet.NewMockFaucet(ctrl)
 	mockLogger := logger.NewMockLogger()
 
 	// initialize test server
-	handler := handlers.ApiHandler([]string{"*"}, resolvers.NewResolver(mockRepository, mockLogger), mockLogger)
+	handler := handlers.ApiHandler([]string{"*"}, resolvers.NewResolver(mockRepository, mockLogger, mockFaucet), mockLogger)
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
@@ -61,7 +63,7 @@ func TestApiServer_Run(t *testing.T) {
 		t.Run(tc.testName, func(t *testing.T) {
 			// build stubs
 			if tc.buildStubs != nil {
-				tc.buildStubs(mockRepository)
+				tc.buildStubs(mockRepository, mockFaucet)
 			}
 			// make request
 			resp, err := server.Client().Post(server.URL, "application/json", strings.NewReader(tc.requestBody))
@@ -88,7 +90,7 @@ func getTransactionTestCase(t *testing.T) apiTestCase {
 	return apiTestCase{
 		testName:    "GetTransaction",
 		requestBody: fmt.Sprintf(`{"query": "query { transaction(hash: \"%s\") { hash, blockHash, blockNumber, from, to, contractAddress, nonce, gas, gasUsed, cumulativeGasUsed, gasPrice, value, input, transactionIndex, status, type }}"}`, trx.Hash.Hex()),
-		buildStubs: func(mockRepository *repository.MockRepository) {
+		buildStubs: func(mockRepository *repository.MockRepository, _ *faucet.MockFaucet) {
 			mockRepository.EXPECT().GetTransactionByHash(gomock.Eq(trx.Hash)).Return(&trx, nil)
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
@@ -124,7 +126,7 @@ func getBlockTestCase(t *testing.T) apiTestCase {
 	return apiTestCase{
 		testName:    "GetBlock",
 		requestBody: fmt.Sprintf(`{"query": "query { block(number: \"%s\") { number, epoch, hash, parentHash, timestamp, gasLimit, gasUsed, transactions, transactionsCount, fullTransactions { hash } }}"}`, block.Number.String()),
-		buildStubs: func(mockRepository *repository.MockRepository) {
+		buildStubs: func(mockRepository *repository.MockRepository, _ *faucet.MockFaucet) {
 			mockRepository.EXPECT().GetBlockByNumber(gomock.Eq(uint64(block.Number))).Return(&block, nil)
 			// always return the same transaction for any hash for this test
 			mockRepository.EXPECT().GetTransactionByHash(gomock.Any()).Return(&trx, nil).AnyTimes()
@@ -171,7 +173,7 @@ func getRecentBlocksTestCase(_ *testing.T) apiTestCase {
 	return apiTestCase{
 		testName:    "GetRecentBlocks",
 		requestBody: `{"query": "query { recentBlocks(limit: 5) { number }}"}`,
-		buildStubs: func(mockRepository *repository.MockRepository) {
+		buildStubs: func(mockRepository *repository.MockRepository, _ *faucet.MockFaucet) {
 			mockRepository.EXPECT().GetLatestObservedBlocks(gomock.Eq(uint(5))).Return(blocks)
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
@@ -203,7 +205,7 @@ func getCurrentBlockHeightTestCase(_ *testing.T) apiTestCase {
 	return apiTestCase{
 		testName:    "GetCurrentBlockHeight",
 		requestBody: `{"query": "query { currentBlockHeight}"}`,
-		buildStubs: func(mockRepository *repository.MockRepository) {
+		buildStubs: func(mockRepository *repository.MockRepository, _ *faucet.MockFaucet) {
 			mockRepository.EXPECT().GetLatestObservedBlock().Return(&types.Block{Number: hexutil.Uint64(blockHeight)})
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
@@ -238,7 +240,7 @@ func getBlockTimestampTxsCountAggregationsTestCase(_ *testing.T) apiTestCase {
 	return apiTestCase{
 		testName:    "GetBlockTimestampTrxCountAggregations",
 		requestBody: `{"query": "query { blockTimestampAggregations(subject: TXS_COUNT, resolution: MINUTE, ticks: 5) { timestamp, value }}"}`,
-		buildStubs: func(mockRepository *repository.MockRepository) {
+		buildStubs: func(mockRepository *repository.MockRepository, _ *faucet.MockFaucet) {
 			mockRepository.EXPECT().GetTrxCountAggByTimestamp(gomock.Eq(types.AggResolutionMinute), gomock.Eq(uint(5)), gomock.Nil()).Return(agg, nil)
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
@@ -285,7 +287,7 @@ func getBlockTimestampGasUsedAggregationsTestCase(_ *testing.T) apiTestCase {
 	return apiTestCase{
 		testName:    "GetBlockTimestampGasUsedAggregations",
 		requestBody: `{"query": "query { blockTimestampAggregations(subject: GAS_USED, resolution: HOUR, ticks: 5, endTime: 1690100448) { timestamp, value }}"}`,
-		buildStubs: func(mockRepository *repository.MockRepository) {
+		buildStubs: func(mockRepository *repository.MockRepository, _ *faucet.MockFaucet) {
 			mockRepository.EXPECT().GetGasUsedAggByTimestamp(gomock.Eq(types.AggResolutionHour), gomock.Eq(uint(5)), gomock.Eq(&endTime)).Return(agg, nil)
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
@@ -325,7 +327,7 @@ func getNumberOfAccountsTestCase(_ *testing.T) apiTestCase {
 	return apiTestCase{
 		testName:    "GetNumberOfAccounts",
 		requestBody: `{"query": "query { numberOfAccounts }"}`,
-		buildStubs: func(mockRepository *repository.MockRepository) {
+		buildStubs: func(mockRepository *repository.MockRepository, _ *faucet.MockFaucet) {
 			mockRepository.EXPECT().GetNumberOfAccounts().Return(number)
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
@@ -354,7 +356,7 @@ func getNumberOfValidatorsTestCase(_ *testing.T) apiTestCase {
 	return apiTestCase{
 		testName:    "GetNumberOfValidators",
 		requestBody: `{"query": "query { numberOfValidators }"}`,
-		buildStubs: func(mockRepository *repository.MockRepository) {
+		buildStubs: func(mockRepository *repository.MockRepository, _ *faucet.MockFaucet) {
 			mockRepository.EXPECT().GetNumberOfValidators().Return(number, nil)
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
@@ -383,7 +385,7 @@ func getDiskSizePer100MTxsTestCase(_ *testing.T) apiTestCase {
 	return apiTestCase{
 		testName:    "GetDiskSizePer100MTxs",
 		requestBody: `{"query": "query { diskSizePer100MTxs }"}`,
-		buildStubs: func(mockRepository *repository.MockRepository) {
+		buildStubs: func(mockRepository *repository.MockRepository, _ *faucet.MockFaucet) {
 			mockRepository.EXPECT().GetDiskSizePer100MTxs().Return(number)
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
@@ -412,7 +414,7 @@ func getTimeToFinalityTestCase(_ *testing.T) apiTestCase {
 	return apiTestCase{
 		testName:    "GetTimeToFinality",
 		requestBody: `{"query": "query { timeToFinality }"}`,
-		buildStubs: func(mockRepository *repository.MockRepository) {
+		buildStubs: func(mockRepository *repository.MockRepository, _ *faucet.MockFaucet) {
 			mockRepository.EXPECT().FetchTimeToFinality().Return(timeToFinality, nil)
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
@@ -441,7 +443,7 @@ func getNumberOfTransactionsTestCase(_ *testing.T) apiTestCase {
 	return apiTestCase{
 		testName:    "GetNumberOfTransactions",
 		requestBody: `{"query": "query { numberOfTransactions}"}`,
-		buildStubs: func(mockRepository *repository.MockRepository) {
+		buildStubs: func(mockRepository *repository.MockRepository, _ *faucet.MockFaucet) {
 			mockRepository.EXPECT().GetTrxCount().Return(number, nil)
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
@@ -475,7 +477,7 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 	return apiTestCase{
 		testName:    "GetCurrentState",
 		requestBody: `{"query": "query { state { currentBlockHeight, numberOfAccounts, numberOfTransactions, numberOfValidators, diskSizePer100MTxs, timeToFinality } }"}`,
-		buildStubs: func(mockRepository *repository.MockRepository) {
+		buildStubs: func(mockRepository *repository.MockRepository, _ *faucet.MockFaucet) {
 			mockRepository.EXPECT().GetLatestObservedBlock().Return(&types.Block{Number: hexutil.Uint64(blockHeight)})
 			mockRepository.EXPECT().GetNumberOfAccounts().Return(numberOfAccounts)
 			mockRepository.EXPECT().GetTrxCount().Return(numberOfTransactions, nil)

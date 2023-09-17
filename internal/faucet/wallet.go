@@ -2,6 +2,7 @@ package faucet
 
 import (
 	"crypto/ecdsa"
+	"fmt"
 	"ftm-explorer/internal/logger"
 	"ftm-explorer/internal/repository"
 	"log"
@@ -21,21 +22,21 @@ type Wallet struct {
 }
 
 // NewWallet returns a new wallet.
-func NewWallet(repo repository.IRepository, log logger.ILogger, pk string) *Wallet {
+func NewWallet(repo repository.IRepository, log logger.ILogger, pk string) (*Wallet, error) {
 	// initialize logger
 	wl := log.ModuleLogger("faucet_wallet")
 
 	// initialize private key
 	privateKey, err := crypto.HexToECDSA(pk)
 	if err != nil {
-		wl.Fatalf("error parsing private key: %v", err)
+		return nil, err
 	}
 
 	// get from address from private key
 	publicKey := privateKey.Public()
 	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
 	if !ok {
-		wl.Fatalf("error casting public key to ECDSA: %v", err)
+		return nil, fmt.Errorf("error casting public key to ECDSA")
 	}
 	fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
 
@@ -44,7 +45,7 @@ func NewWallet(repo repository.IRepository, log logger.ILogger, pk string) *Wall
 		log:  wl,
 		pk:   privateKey,
 		from: fromAddress,
-	}
+	}, nil
 }
 
 // SendWeiToAddress sends wei to the given address.

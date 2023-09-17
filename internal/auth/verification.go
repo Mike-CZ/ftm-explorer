@@ -2,6 +2,7 @@ package auth
 
 import (
 	"bytes"
+	"crypto/ecdsa"
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/accounts"
@@ -18,6 +19,18 @@ func VerifySignature(message string, address common.Address, signature []byte) (
 		return false, err
 	}
 	return bytes.Equal(recoveredAddr.Bytes(), address.Bytes()), nil
+}
+
+// SignMessage signs the message using the provided private key
+// Primarily used for testing purposes
+func SignMessage(message string, privateKey *ecdsa.PrivateKey) ([]byte, error) {
+	signature, err := crypto.Sign(accounts.TextHash([]byte(message)), privateKey)
+	if err != nil {
+		return nil, err
+	}
+	signature[64] += 27 // Transform V from 0/1 to 27/28 according to the yellow paper
+
+	return signature, nil
 }
 
 // ecRecover returns the address for the account that was used to create the signature.

@@ -30,7 +30,7 @@ type Faucet struct {
 }
 
 // NewFaucet creates a new faucet instance.
-func NewFaucet(pg IFaucetPhraseGenerator, w IFaucetWallet, repo repository.IRepository, cfg *config.Faucet) *Faucet {
+func NewFaucet(cfg *config.Faucet, pg IFaucetPhraseGenerator, w IFaucetWallet, repo repository.IRepository) *Faucet {
 	return &Faucet{
 		pg:     pg,
 		wallet: w,

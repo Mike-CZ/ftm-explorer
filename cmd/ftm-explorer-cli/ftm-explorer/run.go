@@ -43,8 +43,14 @@ func run(ctx *cli.Context) error {
 	mgr := svc.NewServiceManager(cfg, repo, log)
 	mgr.Start()
 
+	// create faucet
+	fct, err := createFaucet(cfg, repo, log)
+	if err != nil {
+		return err
+	}
+
 	// create api server
-	apiServer := api.NewApiServer(&cfg.Api, repo, faucet.NewFaucet(faucet.NewPhraseGenerator(), repo, &cfg.Faucet), log)
+	apiServer := api.NewApiServer(&cfg.Api, repo, fct, log)
 
 	// run api server
 	apiServer.Start()
@@ -71,4 +77,13 @@ func createRepository(cfg *config.Config, log logger.ILogger) (*repository.Repos
 
 	// create repository
 	return repository.NewRepository(cfg.Explorer.BlockBufferSize, operaRpc, database, metaFetcher), nil
+}
+
+// createFaucet creates a new faucet instance.
+func createFaucet(cfg *config.Config, repo *repository.Repository, log logger.ILogger) (*faucet.Faucet, error) {
+	wallet, err := faucet.NewWallet(repo, log, cfg.Faucet.WalletPrivateKey)
+	if err != nil {
+		return nil, err
+	}
+	return faucet.NewFaucet(&cfg.Faucet, faucet.NewPhraseGenerator(), wallet, repo), nil
 }
