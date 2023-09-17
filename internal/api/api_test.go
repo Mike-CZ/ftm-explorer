@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"ftm-explorer/internal/api/graphql/resolvers"
 	"ftm-explorer/internal/api/handlers"
+	"ftm-explorer/internal/api/middlewares"
 	"ftm-explorer/internal/faucet"
 	"ftm-explorer/internal/logger"
 	"ftm-explorer/internal/repository"
@@ -39,7 +40,9 @@ func TestApiServer_Run(t *testing.T) {
 	mockLogger := logger.NewMockLogger()
 
 	// initialize test server
-	handler := handlers.ApiHandler([]string{"*"}, resolvers.NewResolver(mockRepository, mockLogger, mockFaucet), mockLogger)
+	handler := middlewares.AuthMiddleware(
+		handlers.ApiHandler([]string{"*"}, resolvers.NewResolver(mockRepository, mockLogger, mockFaucet), mockLogger),
+	)
 	server := httptest.NewServer(handler)
 	defer server.Close()
 
@@ -57,6 +60,7 @@ func TestApiServer_Run(t *testing.T) {
 		getDiskSizePer100MTxsTestCase(t),
 		getTimeToFinalityTestCase(t),
 		getCurrentStateTestCase(t),
+		getRequestTokensTestCase(t),
 	}
 
 	for _, tc := range testCases {
@@ -522,6 +526,35 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 			}
 			if stateRes.State.TimeToFinality != timeToFinality {
 				t.Errorf("expected time to finality %f, got %f", timeToFinality, stateRes.State.TimeToFinality)
+			}
+		},
+	}
+}
+
+// getRequestTokensTestCase returns a test case for a request tokens query.
+func getRequestTokensTestCase(_ *testing.T) apiTestCase {
+	phrase := "test phrase"
+	return apiTestCase{
+		testName:    "RequestTokens",
+		requestBody: `{"query": "mutation { requestTokens }"}`,
+		buildStubs: func(_ *repository.MockRepository, mockFaucet *faucet.MockFaucet) {
+			mockFaucet.EXPECT().RequestTokens(gomock.Any()).Return(phrase, nil)
+		},
+		checkResponse: func(t *testing.T, resp *http.Response) {
+			apiRes := decodeResponse(t, resp)
+			if len(apiRes.Errors) != 0 {
+				t.Errorf("expected no errors, got: %s", apiRes.Errors[0].Message)
+			}
+			// decode raw data into response
+			phraseRes := struct {
+				Phrase string `json:"requestTokens"`
+			}{}
+			if err := json.Unmarshal(apiRes.Data, &phraseRes); err != nil {
+				t.Errorf("failed to unmarshall data: %v", err)
+			}
+			// validate phrase
+			if phraseRes.Phrase != phrase {
+				t.Errorf("expected phrase %s, got %s", phrase, phraseRes.Phrase)
 			}
 		},
 	}
