@@ -1,6 +1,7 @@
 package ftm_explorer
 
 import (
+	"fmt"
 	"ftm-explorer/cmd/ftm-explorer-cli/flags"
 	"ftm-explorer/internal/api"
 	"ftm-explorer/internal/config"
@@ -36,7 +37,7 @@ func run(ctx *cli.Context) error {
 	// create repository
 	repo, err := createRepository(cfg, log)
 	if err != nil {
-		return err
+		return fmt.Errorf("can not create repository: %v", err)
 	}
 
 	// create services manager and run it
@@ -46,7 +47,7 @@ func run(ctx *cli.Context) error {
 	// create faucet
 	fct, err := createFaucet(cfg, repo, log)
 	if err != nil {
-		return err
+		return fmt.Errorf("can not create faucet: %v", err)
 	}
 
 	// create api server
@@ -63,13 +64,13 @@ func createRepository(cfg *config.Config, log logger.ILogger) (*repository.Repos
 	// create rpc connection
 	operaRpc, err := rpc.NewOperaRpc(&cfg.Rpc)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("can not create rpc connection: %v", err)
 	}
 
 	// create db connection
 	database, err := db.NewMongoDb(&cfg.MongoDb, log)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("can not create database connection: %v", err)
 	}
 
 	// create meta fetcher
@@ -83,7 +84,7 @@ func createRepository(cfg *config.Config, log logger.ILogger) (*repository.Repos
 func createFaucet(cfg *config.Config, repo *repository.Repository, log logger.ILogger) (*faucet.Faucet, error) {
 	wallet, err := faucet.NewWallet(repo, log, cfg.Faucet.WalletPrivateKey)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("can not create faucet wallet: %v", err)
 	}
 	return faucet.NewFaucet(&cfg.Faucet, faucet.NewPhraseGenerator(), wallet, repo), nil
 }

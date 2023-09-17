@@ -7,6 +7,7 @@ import (
 	"ftm-explorer/internal/api/graphql/resolvers"
 	"ftm-explorer/internal/api/handlers"
 	"ftm-explorer/internal/api/middlewares"
+	"ftm-explorer/internal/auth"
 	"ftm-explorer/internal/faucet"
 	"ftm-explorer/internal/logger"
 	"ftm-explorer/internal/repository"
@@ -20,6 +21,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/golang/mock/gomock"
 )
 
@@ -61,6 +63,7 @@ func TestApiServer_Run(t *testing.T) {
 		getTimeToFinalityTestCase(t),
 		getCurrentStateTestCase(t),
 		getRequestTokensTestCase(t),
+		getClaimTokensTestCase(t),
 	}
 
 	for _, tc := range testCases {
@@ -555,6 +558,41 @@ func getRequestTokensTestCase(_ *testing.T) apiTestCase {
 			// validate phrase
 			if phraseRes.Phrase != phrase {
 				t.Errorf("expected phrase %s, got %s", phrase, phraseRes.Phrase)
+			}
+		},
+	}
+}
+
+// getClaimTokensTestCase returns a test case for a claim tokens query.
+func getClaimTokensTestCase(t *testing.T) apiTestCase {
+	privateKey, err := crypto.HexToECDSA("bb39aa88008bc6260ff9ebc816178c47a01c44efe55810ea1f271c00f5878812")
+	if err != nil {
+		t.Fatal(err)
+	}
+	derivedAddress := crypto.PubkeyToAddress(privateKey.PublicKey)
+	message := "Some message"
+	signature, err := auth.SignMessage(message, privateKey)
+	return apiTestCase{
+		testName:    "ClaimTokens",
+		requestBody: fmt.Sprintf(`{"query": "mutation { claimTokens(address: \"%s\", challenge: \"%s\", signature: \"%s\") }"}`, derivedAddress.Hex(), message, hexutil.Encode(signature)),
+		buildStubs: func(_ *repository.MockRepository, mockFaucet *faucet.MockFaucet) {
+			mockFaucet.EXPECT().ClaimTokens(gomock.Any(), gomock.Eq(message), gomock.Eq(derivedAddress)).Return(nil)
+		},
+		checkResponse: func(t *testing.T, resp *http.Response) {
+			apiRes := decodeResponse(t, resp)
+			if len(apiRes.Errors) != 0 {
+				t.Errorf("expected no errors, got: %s", apiRes.Errors[0].Message)
+			}
+			// decode raw data into response
+			statusRes := struct {
+				Status bool `json:"claimTokens"`
+			}{}
+			if err := json.Unmarshal(apiRes.Data, &statusRes); err != nil {
+				t.Errorf("failed to unmarshall data: %v", err)
+			}
+			// validate status
+			if !statusRes.Status {
+				t.Errorf("expected status true, got %v", statusRes.Status)
 			}
 		},
 	}

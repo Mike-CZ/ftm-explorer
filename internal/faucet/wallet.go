@@ -29,7 +29,7 @@ func NewWallet(repo repository.IRepository, log logger.ILogger, pk string) (*Wal
 	// initialize private key
 	privateKey, err := crypto.HexToECDSA(pk)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error parsing private key: %v", err)
 	}
 
 	// get from address from private key
