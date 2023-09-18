@@ -17,43 +17,17 @@ type Block struct {
 type Tick types.HexUintTick
 
 // BlockTimestampAggregations resolves block timestamp aggregations.
-func (rs *RootResolver) BlockTimestampAggregations(args *struct {
-	Subject    types.AggSubject
-	Resolution types.AggResolution
-	Ticks      int32
-	EndTime    *int32
-}) ([]Tick, error) {
-	// validate arguments
-	if args.Ticks <= 0 {
-		return nil, fmt.Errorf("invalid ticks value")
-	}
-	if args.EndTime != nil && *args.EndTime <= 0 {
-		return nil, fmt.Errorf("invalid end time value")
-	}
-
-	// convert arguments
-	var endTime *uint64
-	if args.EndTime != nil {
-		e := uint64(*args.EndTime)
-		endTime = &e
-	}
-
+func (rs *RootResolver) BlockTimestampAggregations(args *struct{ Subject types.AggSubject }) ([]Tick, error) {
 	// get data based on subject
 	var result []types.HexUintTick
-	var err error
 
 	switch args.Subject {
 	case types.AggSubjectTxsCount:
-		result, err = rs.repository.GetTrxCountAggByTimestamp(args.Resolution, uint(args.Ticks), endTime)
+		result = rs.repository.GetTxCountPer10Secs()
 	case types.AggSubjectGasUsed:
-		result, err = rs.repository.GetGasUsedAggByTimestamp(args.Resolution, uint(args.Ticks), endTime)
+		result = rs.repository.GetGasUsedPer10Secs()
 	default:
 		return nil, fmt.Errorf("invalid subject value")
-	}
-
-	// check for errors
-	if err != nil {
-		return nil, err
 	}
 
 	// convert result

@@ -1,11 +1,3 @@
-# AggResolution is the resolution of the aggregation
-enum AggResolution {
-    SECONDS,
-    MINUTE,
-    HOUR,
-    DAY
-}
-
 # AggSubject is the subject of the aggregation
 enum AggSubject {
     TXS_COUNT,
