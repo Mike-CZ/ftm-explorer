@@ -45,7 +45,7 @@ func (f *Faucet) RequestTokens(ipAddress string) (string, error) {
 	// check if the ip address is already in the database
 	tr, err := f.repo.GetLatestTokensRequest(ipAddress)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error getting latest tokens request: %v", err)
 	}
 
 	// if claim already exists, check its status
@@ -62,10 +62,15 @@ func (f *Faucet) RequestTokens(ipAddress string) (string, error) {
 		}
 	}
 
+	phrase, err := f.pg.GeneratePhrase()
+	if err != nil {
+		return "", fmt.Errorf("error generating phrase: %v", err)
+	}
+
 	// create a new request
 	tr = &types.TokensRequest{
 		IpAddress: ipAddress,
-		Phrase:    f.pg.GeneratePhrase(),
+		Phrase:    phrase,
 	}
 	err = f.repo.AddTokensRequest(tr)
 	if err != nil {
@@ -109,7 +114,7 @@ func (f *Faucet) ClaimTokens(ip string, phrase string, receiver common.Address) 
 	tr.ClaimedAt = &now
 	err = f.repo.UpdateTokensRequest(tr)
 	if err != nil {
-		return err
+		return fmt.Errorf("error updating tokens request: %v", err)
 	}
 
 	// send wei to the receiver
@@ -118,7 +123,7 @@ func (f *Faucet) ClaimTokens(ip string, phrase string, receiver common.Address) 
 		tr.Receiver = nil
 		tr.ClaimedAt = nil
 		_ = f.repo.UpdateTokensRequest(tr)
-		return err
+		return fmt.Errorf("error sending wei to address: %v", err)
 	}
 
 	return nil

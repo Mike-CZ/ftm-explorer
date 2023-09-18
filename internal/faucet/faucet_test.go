@@ -1,6 +1,7 @@
 package faucet
 
 import (
+	"fmt"
 	"ftm-explorer/internal/config"
 	"ftm-explorer/internal/repository"
 	"ftm-explorer/internal/types"
@@ -27,7 +28,7 @@ func TestFaucet_RequestTokens(t *testing.T) {
 	repo.EXPECT().GetLatestTokensRequest(ipAddress).Return(nil, nil)
 
 	// expect a call to the phrase generator to generate a new phrase
-	pg.EXPECT().GeneratePhrase().Return("test-phrase")
+	pg.EXPECT().GeneratePhrase().Return("test-phrase", nil)
 
 	// expect a call to the repository to add a new tokens request
 	repo.EXPECT().AddTokensRequest(&types.TokensRequest{
@@ -106,7 +107,7 @@ func TestFaucet_RequestTokensClaimLimitReached(t *testing.T) {
 	repo.EXPECT().GetLatestTokensRequest(ipAddress).Return(tr, nil)
 
 	// expect a call to the phrase generator to generate a new phrase
-	pg.EXPECT().GeneratePhrase().Return("different-phrase")
+	pg.EXPECT().GeneratePhrase().Return("different-phrase", nil)
 
 	// expect a call to the repository to add a new tokens request
 	repo.EXPECT().AddTokensRequest(gomock.Any()).Return(nil)
@@ -225,6 +226,39 @@ func TestFaucet_ClaimTokensNoPrefix(t *testing.T) {
 	err := faucet.ClaimTokens(ipAddress, phrase, receiver)
 	if err == nil || err.Error() != "invalid phrase" {
 		t.Fatal("ClaimTokens did not return error")
+	}
+}
+
+// Test that error is returned when wallet returns error and claim is reset.
+func TestFaucet_ClaimTokensWalletError(t *testing.T) {
+	faucet, _, wallet, repo := createFaucet(t)
+	ipAddress := "192.168.0.1"
+	phrase := "test-phrase"
+	receiver := common.Address{0x01}
+
+	// expect a call to the repository to get the tokens request
+	repo.EXPECT().GetLatestTokensRequest(ipAddress).Return(&types.TokensRequest{
+		IpAddress: ipAddress,
+		Phrase:    phrase,
+	}, nil)
+
+	repo.EXPECT().UpdateTokensRequest(gomock.Any()).Return(nil)
+
+	// expect a call to wallet to send tokens
+	wallet.EXPECT().SendWeiToAddress(gomock.Eq(getTokensAmountInWei(kClaimTokensAmount)), gomock.Eq(receiver)).Return(fmt.Errorf("error sending wei"))
+
+	// expect call to reset the claim
+	repo.EXPECT().UpdateTokensRequest(gomock.Eq(&types.TokensRequest{
+		IpAddress: ipAddress,
+		Phrase:    phrase,
+		ClaimedAt: nil,
+		Receiver:  nil,
+	})).Return(nil)
+
+	// claim tokens
+	err := faucet.ClaimTokens(ipAddress, challengePrefix+phrase, receiver)
+	if err == nil {
+		t.Fatalf("ClaimTokens did not return error")
 	}
 }
 

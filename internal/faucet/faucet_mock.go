@@ -88,11 +88,12 @@ func (m *MockFaucetPhraseGenerator) EXPECT() *MockFaucetPhraseGeneratorMockRecor
 }
 
 // GeneratePhrase mocks base method.
-func (m *MockFaucetPhraseGenerator) GeneratePhrase() string {
+func (m *MockFaucetPhraseGenerator) GeneratePhrase() (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GeneratePhrase")
 	ret0, _ := ret[0].(string)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // GeneratePhrase indicates an expected call of GeneratePhrase.

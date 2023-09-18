@@ -11,8 +11,10 @@ require (
 	github.com/rs/cors v1.7.0
 	github.com/spf13/viper v1.3.2
 	github.com/testcontainers/testcontainers-go v0.21.0
+	github.com/tyler-smith/go-bip39 v1.1.0
 	github.com/urfave/cli/v2 v2.17.2-0.20221006022127-8f469abc00aa
 	go.mongodb.org/mongo-driver v1.12.0
+	golang.org/x/sync v0.1.0
 )
 
 require (
@@ -72,7 +74,6 @@ require (
 	golang.org/x/crypto v0.1.0 // indirect
 	golang.org/x/exp v0.0.0-20230510235704-dd950f8aeaea // indirect
 	golang.org/x/net v0.8.0 // indirect
-	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 	golang.org/x/text v0.8.0 // indirect
 	google.golang.org/genproto v0.0.0-20220617124728-180714bec0ad // indirect

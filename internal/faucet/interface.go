@@ -22,7 +22,7 @@ type IFaucet interface {
 // It is used to generate a phrase for the faucet.
 type IFaucetPhraseGenerator interface {
 	// GeneratePhrase generates a phrase for the faucet.
-	GeneratePhrase() string
+	GeneratePhrase() (string, error)
 }
 
 // IFaucetWallet represents a faucet wallet interface.
