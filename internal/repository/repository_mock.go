@@ -393,6 +393,18 @@ func (mr *MockRepositoryMockRecorder) SetNumberOfAccounts(arg0 interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetNumberOfAccounts", reflect.TypeOf((*MockRepository)(nil).SetNumberOfAccounts), arg0)
 }
 
+// SetTxCountPer10Secs mocks base method.
+func (m *MockRepository) SetTxCountPer10Secs(arg0 []types.HexUintTick) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetTxCountPer10Secs", arg0)
+}
+
+// SetTxCountPer10Secs indicates an expected call of SetTxCountPer10Secs.
+func (mr *MockRepositoryMockRecorder) SetTxCountPer10Secs(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetTxCountPer10Secs", reflect.TypeOf((*MockRepository)(nil).SetTxCountPer10Secs), arg0)
+}
+
 // SuggestGasPrice mocks base method.
 func (m *MockRepository) SuggestGasPrice() (*big.Int, error) {
 	m.ctrl.T.Helper()
@@ -406,18 +418,6 @@ func (m *MockRepository) SuggestGasPrice() (*big.Int, error) {
 func (mr *MockRepositoryMockRecorder) SuggestGasPrice() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SuggestGasPrice", reflect.TypeOf((*MockRepository)(nil).SuggestGasPrice))
-}
-
-// SetTxCountPer10Secs mocks base method.
-func (m *MockRepository) SetTxCountPer10Secs(arg0 []types.HexUintTick) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "SetTxCountPer10Secs", arg0)
-}
-
-// SetTxCountPer10Secs indicates an expected call of SetTxCountPer10Secs.
-func (mr *MockRepositoryMockRecorder) SetTxCountPer10Secs(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetTxCountPer10Secs", reflect.TypeOf((*MockRepository)(nil).SetTxCountPer10Secs), arg0)
 }
 
 // UpdateLatestObservedBlock mocks base method.

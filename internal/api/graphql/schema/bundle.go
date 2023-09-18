@@ -154,6 +154,7 @@ scalar Time
 # Root schema definition
 schema {
     query: Query
+    mutation: Mutation
 }
 
 # Entry points for querying the API
@@ -188,9 +189,19 @@ type Query {
     # Get time to finality in seconds (rounded to 2 decimal places)
     timeToFinality:Float!
 
-    # Get block aggregated data by timestamp
+    # Get block aggregated data by timestamp. It returns last 60 ticks aggregated
+    # by 10 seconds.
     # parameters:
     #   subject: the subject of the aggregation - value of AggSubject enum
     blockTimestampAggregations(subject: AggSubject!):[Tick!]!
 }
+
+type Mutation {
+    # Send request to obtain tokens from faucet. Returns phrase that should be signed by the user.
+    requestTokens: String!
+
+    # Send signed phrase to faucet to obtain tokens.
+    claimTokens(address: Address!, challenge: String!, signature: String!): Boolean!
+}
+
 `
