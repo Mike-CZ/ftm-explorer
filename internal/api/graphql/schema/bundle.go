@@ -105,14 +105,6 @@ type Tick {
     # The value of the tick
     value: Long!
 }
-# AggResolution is the resolution of the aggregation
-enum AggResolution {
-    SECONDS,
-    MINUTE,
-    HOUR,
-    DAY
-}
-
 # AggSubject is the subject of the aggregation
 enum AggSubject {
     TXS_COUNT,
@@ -162,7 +154,6 @@ scalar Time
 # Root schema definition
 schema {
     query: Query
-    mutation: Mutation
 }
 
 # Entry points for querying the API
@@ -200,18 +191,6 @@ type Query {
     # Get block aggregated data by timestamp
     # parameters:
     #   subject: the subject of the aggregation - value of AggSubject enum
-    #   resolution: the resolution of the aggregation - value of AggResolution enum
-    #   ticks: the number of ticks to return
-    #   endTime: the end timestamp of the aggregation, if not specified, last block's timestamp is used
-    blockTimestampAggregations(subject: AggSubject!, resolution: AggResolution!, ticks:Int!, endTime:Int):[Tick!]!
+    blockTimestampAggregations(subject: AggSubject!):[Tick!]!
 }
-
-type Mutation {
-    # Send request to obtain tokens from faucet. Returns phrase that should be signed by the user.
-    requestTokens: String!
-
-    # Send signed phrase to faucet to obtain tokens.
-    claimTokens(address: Address!, challenge: String!, signature: String!): Boolean!
-}
-
 `

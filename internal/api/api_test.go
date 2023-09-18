@@ -246,9 +246,9 @@ func getBlockTimestampTxsCountAggregationsTestCase(_ *testing.T) apiTestCase {
 	}
 	return apiTestCase{
 		testName:    "GetBlockTimestampTrxCountAggregations",
-		requestBody: `{"query": "query { blockTimestampAggregations(subject: TXS_COUNT, resolution: MINUTE, ticks: 5) { timestamp, value }}"}`,
+		requestBody: `{"query": "query { blockTimestampAggregations(subject: TXS_COUNT) { timestamp, value }}"}`,
 		buildStubs: func(mockRepository *repository.MockRepository, _ *faucet.MockFaucet) {
-			mockRepository.EXPECT().GetTrxCountAggByTimestamp(gomock.Eq(types.AggResolutionMinute), gomock.Eq(uint(5)), gomock.Nil()).Return(agg, nil)
+			mockRepository.EXPECT().GetTxCountPer10Secs().Return(agg)
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
 			apiRes := decodeResponse(t, resp)
@@ -290,12 +290,11 @@ func getBlockTimestampGasUsedAggregationsTestCase(_ *testing.T) apiTestCase {
 		{Value: hexutil.Uint64(115_388_923), Time: 1_690_099_683},
 		{Value: hexutil.Uint64(91_255_380), Time: 1_690_099_743},
 	}
-	endTime := uint64(1_690_100_448)
 	return apiTestCase{
 		testName:    "GetBlockTimestampGasUsedAggregations",
-		requestBody: `{"query": "query { blockTimestampAggregations(subject: GAS_USED, resolution: HOUR, ticks: 5, endTime: 1690100448) { timestamp, value }}"}`,
+		requestBody: `{"query": "query { blockTimestampAggregations(subject: GAS_USED) { timestamp, value }}"}`,
 		buildStubs: func(mockRepository *repository.MockRepository, _ *faucet.MockFaucet) {
-			mockRepository.EXPECT().GetGasUsedAggByTimestamp(gomock.Eq(types.AggResolutionHour), gomock.Eq(uint(5)), gomock.Eq(&endTime)).Return(agg, nil)
+			mockRepository.EXPECT().GetGasUsedPer10Secs().Return(agg)
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
 			apiRes := decodeResponse(t, resp)

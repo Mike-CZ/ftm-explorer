@@ -9,6 +9,9 @@ type blockObserver struct {
 	service
 	inBlocks <-chan *types.Block
 	sigClose chan struct{}
+
+	// lastAggTime is the last time the aggregator was run.
+	lastAggTime uint64
 }
 
 // newBlockObserver creates a new block observer.
@@ -72,5 +75,30 @@ func (bs *blockObserver) processBlock(block *types.Block) {
 	if err := bs.repo.IncrementTrxCount(uint(len(block.Transactions))); err != nil {
 		bs.log.Errorf("error incrementing transaction count: %v", err)
 		return
+	}
+
+	// get block time rounded to nearest seconds
+	// in case it is slowing down the whole process too much, we can move it to a separate goroutine
+	resolution := types.AggResolutionSeconds
+	seconds := uint64(resolution.ToDuration())
+	aggTime := (uint64(block.Timestamp) / seconds) * seconds
+
+	// if the time is different from the last time the aggregator was run, run the aggregations
+	// we also get last 60 ticks (10 seconds each) to be used by the chart
+	if aggTime != bs.lastAggTime {
+		bs.lastAggTime = aggTime
+		txAggs, err := bs.repo.GetTrxCountAggByTimestamp(resolution, 60, &aggTime)
+		if err != nil {
+			bs.log.Errorf("error getting transaction count aggregation by timestamp: %v", err)
+			return
+		}
+		gasUsedAggs, err := bs.repo.GetGasUsedAggByTimestamp(resolution, 60, &aggTime)
+		if err != nil {
+			bs.log.Errorf("error getting gas used aggregation by timestamp: %v", err)
+			return
+		}
+		bs.repo.SetTxCountPer10Secs(txAggs)
+		bs.repo.SetGasUsedPer10Secs(gasUsedAggs)
+		bs.log.Notice("aggregation data updated successfully")
 	}
 }

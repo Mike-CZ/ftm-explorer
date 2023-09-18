@@ -5,6 +5,7 @@ import (
 	"ftm-explorer/internal/repository/db"
 	"ftm-explorer/internal/repository/meta_fetcher"
 	"ftm-explorer/internal/repository/rpc"
+	"ftm-explorer/internal/types"
 	"time"
 )
 
@@ -27,6 +28,11 @@ type Repository struct {
 	numberOfAccounts uint64
 	// diskSizePer100MTxs is the disk size per 100M transactions.
 	diskSizePer100MTxs uint64
+
+	// txCountPer10Secs is the number of transactions per 10 seconds.
+	txCountPer10Secs []types.HexUintTick
+	// gasUsedPer10Secs is the gas used per 10 seconds.
+	gasUsedPer10Secs []types.HexUintTick
 }
 
 // NewRepository creates a new repository.

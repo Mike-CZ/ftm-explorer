@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"math/big"
+	"ftm-explorer/internal/types"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -49,4 +50,28 @@ func (r *Repository) NetworkID() (*big.Int, error) {
 	defer cancel()
 
 	return r.rpc.NetworkID(ctx)
+}
+
+// GetTxCountPer10Secs returns transactions per 10 seconds.
+func (r *Repository) GetTxCountPer10Secs() []types.HexUintTick {
+	return r.txCountPer10Secs
+}
+
+// SetTxCountPer10Secs sets transactions per 10 seconds.
+func (r *Repository) SetTxCountPer10Secs(data []types.HexUintTick) {
+	cpy := make([]types.HexUintTick, len(data))
+	copy(cpy, data)
+	r.txCountPer10Secs = cpy
+}
+
+// GetGasUsedPer10Secs returns gas used per 10 seconds.
+func (r *Repository) GetGasUsedPer10Secs() []types.HexUintTick {
+	return r.gasUsedPer10Secs
+}
+
+// SetGasUsedPer10Secs sets gas used per 10 seconds.
+func (r *Repository) SetGasUsedPer10Secs(data []types.HexUintTick) {
+	cpy := make([]types.HexUintTick, len(data))
+	copy(cpy, data)
+	r.gasUsedPer10Secs = cpy
 }
