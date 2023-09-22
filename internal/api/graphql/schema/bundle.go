@@ -2,6 +2,93 @@ package schema
 
 // Auto generated GraphQL schema bundle
 const schema = `
+# Root schema definition
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+# Entry points for querying the API
+type Query {
+    # State represents the current state of the blockchain and network.
+    state: CurrentState!
+
+    # Get transaction information for given transaction hash.
+    transaction(hash:Bytes32!):Transaction
+
+    # Get block information by number.
+    block(number:Long!):Block
+
+    # Get recent observed blocks
+    recentBlocks(limit:Int!):[Block!]!
+
+    # Get current block height
+    currentBlockHeight:Long
+
+    # Get total number of accounts
+    numberOfAccounts:Int!
+
+    # Get total number of transactions
+    numberOfTransactions:Long!
+
+    # Get total number of validators
+    numberOfValidators:Int!
+
+    # Get disk size per 100M transactions in bytes
+    diskSizePer100MTxs:Long!
+
+    # Get time to finality in seconds (rounded to 2 decimal places)
+    timeToFinality:Float!
+
+    # Get block aggregated data by timestamp. It returns last 60 ticks aggregated
+    # by 10 seconds.
+    # parameters:
+    #   subject: the subject of the aggregation - value of AggSubject enum
+    blockTimestampAggregations(subject: AggSubject!):[Tick!]!
+}
+
+type Mutation {
+    # Send request to obtain tokens from faucet. Returns phrase that should be signed by the user.
+    requestTokens: String!
+
+    # Send signed phrase to faucet to obtain tokens.
+    claimTokens(address: Address!, challenge: String!, signature: String!): Boolean!
+}
+
+type Tick {
+    # The timestamp of the tick
+    timestamp: Int!
+
+    # The value of the tick
+    value: Long!
+}
+# Bytes32 is a 32 byte binary string, represented by 0x prefixed hexadecimal hash.
+scalar Bytes32
+
+# Address is a 20 byte Opera address, represented as 0x prefixed hexadecimal number.
+scalar Address
+
+# BigInt is a large integer value. Input is accepted as either a JSON number,
+# or a hexadecimal string alternatively prefixed with 0x. Output is 0x prefixed hexadecimal.
+scalar BigInt
+
+# Long is a 64 bit unsigned integer value.
+scalar Long
+
+# Bytes is an arbitrary length binary string, represented as 0x-prefixed hexadecimal.
+# An empty byte string is represented as '0x'.
+scalar Bytes
+
+# Cursor is a string representing position in a sequential list of edges.
+scalar Cursor
+
+# Time represents date and time including time zone information in RFC3339 format.
+scalar Time
+# AggSubject is the subject of the aggregation
+enum AggSubject {
+    TXS_COUNT,
+    GAS_USED
+}
 type Block {
     # Number is the number of this block.
     number: Long!
@@ -34,6 +121,25 @@ type Block {
 
     # TransactionCount is the number of transactions in this block.
     transactionsCount: Int!
+}
+type CurrentState {
+    # Get current block height
+    currentBlockHeight:Long
+
+    # Get total number of accounts
+    numberOfAccounts:Int!
+
+    # Get total number of transactions
+    numberOfTransactions:Long!
+
+    # Get total number of validators
+    numberOfValidators:Int!
+
+    # Get disk size per 100M transactions in bytes
+    diskSizePer100MTxs:Long!
+
+    # Get time to finality in seconds (rounded to 2 decimal places)
+    timeToFinality:Float!
 }
 type Transaction {
     # Hash of the transaction
@@ -98,110 +204,4 @@ type Transaction {
     # Type is the type of the transaction.
     type: String!
 }
-type Tick {
-    # The timestamp of the tick
-    timestamp: Int!
-
-    # The value of the tick
-    value: Long!
-}
-# AggSubject is the subject of the aggregation
-enum AggSubject {
-    TXS_COUNT,
-    GAS_USED
-}
-type CurrentState {
-    # Get current block height
-    currentBlockHeight:Long
-
-    # Get total number of accounts
-    numberOfAccounts:Int!
-
-    # Get total number of transactions
-    numberOfTransactions:Long!
-
-    # Get total number of validators
-    numberOfValidators:Int!
-
-    # Get disk size per 100M transactions in bytes
-    diskSizePer100MTxs:Long!
-
-    # Get time to finality in seconds (rounded to 2 decimal places)
-    timeToFinality:Float!
-}
-# Bytes32 is a 32 byte binary string, represented by 0x prefixed hexadecimal hash.
-scalar Bytes32
-
-# Address is a 20 byte Opera address, represented as 0x prefixed hexadecimal number.
-scalar Address
-
-# BigInt is a large integer value. Input is accepted as either a JSON number,
-# or a hexadecimal string alternatively prefixed with 0x. Output is 0x prefixed hexadecimal.
-scalar BigInt
-
-# Long is a 64 bit unsigned integer value.
-scalar Long
-
-# Bytes is an arbitrary length binary string, represented as 0x-prefixed hexadecimal.
-# An empty byte string is represented as '0x'.
-scalar Bytes
-
-# Cursor is a string representing position in a sequential list of edges.
-scalar Cursor
-
-# Time represents date and time including time zone information in RFC3339 format.
-scalar Time
-# Root schema definition
-schema {
-    query: Query
-    mutation: Mutation
-}
-
-# Entry points for querying the API
-type Query {
-    # State represents the current state of the blockchain and network.
-    state: CurrentState!
-
-    # Get transaction information for given transaction hash.
-    transaction(hash:Bytes32!):Transaction
-
-    # Get block information by number.
-    block(number:Long!):Block
-
-    # Get recent observed blocks
-    recentBlocks(limit:Int!):[Block!]!
-
-    # Get current block height
-    currentBlockHeight:Long
-
-    # Get total number of accounts
-    numberOfAccounts:Int!
-
-    # Get total number of transactions
-    numberOfTransactions:Long!
-
-    # Get total number of validators
-    numberOfValidators:Int!
-
-    # Get disk size per 100M transactions in bytes
-    diskSizePer100MTxs:Long!
-
-    # Get time to finality in seconds (rounded to 2 decimal places)
-    timeToFinality:Float!
-
-    # Get block aggregated data by timestamp. It returns last 60 ticks aggregated
-    # by 10 seconds.
-    # parameters:
-    #   subject: the subject of the aggregation - value of AggSubject enum
-    blockTimestampAggregations(subject: AggSubject!):[Tick!]!
-}
-
-type Mutation {
-    # Send request to obtain tokens from faucet. Returns phrase that should be signed by the user.
-    requestTokens: String!
-
-    # Send signed phrase to faucet to obtain tokens.
-    claimTokens(address: Address!, challenge: String!, signature: String!): Boolean!
-}
-
 `

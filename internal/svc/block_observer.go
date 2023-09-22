@@ -85,7 +85,9 @@ func (bs *blockObserver) processBlock(block *types.Block) {
 
 	// if the time is different from the last time the aggregator was run, run the aggregations
 	// we also get last 60 ticks (10 seconds each) to be used by the chart
-	if aggTime != bs.lastAggTime {
+	// also wait for the latest block to be at least 1 second older than the aggregation time
+	// so that we don't miss any blocks
+	if aggTime != bs.lastAggTime && uint64(block.Timestamp) > aggTime+1 {
 		bs.lastAggTime = aggTime
 		txAggs, err := bs.repo.GetTrxCountAggByTimestamp(resolution, 60, &aggTime)
 		if err != nil {
