@@ -5,6 +5,7 @@ import (
 	"ftm-explorer/internal/types"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"golang.org/x/exp/rand"
 )
 
 // Block represents resolvable blockchain block structure.
@@ -88,14 +89,54 @@ func (blk *Block) TransactionsCount() int32 {
 func (blk *Block) FullTransactions() ([]*Transaction, error) {
 	result := make([]*Transaction, 0)
 
+	// we will use this slice to store indexes of transactions that will be on top of the list
+	reservedIndexes := make([]int, 0)
+
+	// we will use this slice to store indexes of transactions those were marked as expensive
+	expensiveIndexes := make([]int, 0)
+
 	// fetch transactions
-	for _, hash := range blk.Transactions {
+	for ix, hash := range blk.Transactions {
+		// we use a "hack" to put very expensive transactions on top of the list
+		if ix == 0 {
+			// we use block number as seed for random number generator
+			// this way we get the same "random" order for the same block
+			gen := rand.NewSource(uint64(blk.Number))
+			// generate number between 1 and 2 (inclusive), it indicates how many
+			// transactions will be on top of the list
+			num := rand.New(gen).Intn(2) + 1
+			// generate random reservedIndexes for transactions
+			for i := 0; i < num; i++ {
+				// first number can appear on positions 0 - 4,
+				// second number can appear on positions 5 - 9
+				reservedIndexes = append(reservedIndexes, rand.New(gen).Intn(5)+(i*5))
+			}
+		}
+
 		trx, err := blk.rs.repository.GetTransactionByHash(hash)
 		if err != nil {
 			blk.rs.log.Warningf("Failed to get transaction by hash [%s]; %v", hash.Hex(), err)
 			return nil, err
 		}
+
+		// if gas used is greater or equal 1_000_000, we consider it expensive and put into reserved slot
+		if trx.GasUsed != nil && *trx.GasUsed >= 1_000_000 {
+			// mark index of expensive transaction
+			expensiveIndexes = append(expensiveIndexes, ix)
+		}
+
 		result = append(result, (*Transaction)(trx))
+	}
+
+	// move expensive transactions to reserved slots
+	for _, expIndex := range expensiveIndexes {
+		if len(reservedIndexes) == 0 {
+			break
+		}
+		// swap expensive transaction with reserved one
+		result[reservedIndexes[0]], result[expIndex] = result[expIndex], result[reservedIndexes[0]]
+		// remove reserved slot
+		reservedIndexes = reservedIndexes[1:]
 	}
 
 	return result, nil
