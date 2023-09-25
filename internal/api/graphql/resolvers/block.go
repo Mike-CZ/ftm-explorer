@@ -107,9 +107,9 @@ func (blk *Block) FullTransactions() ([]*Transaction, error) {
 			num := rand.New(gen).Intn(2) + 1
 			// generate random reservedIndexes for transactions
 			for i := 0; i < num; i++ {
-				// first number can appear on positions 0 - 4,
-				// second number can appear on positions 5 - 9
-				reservedIndexes = append(reservedIndexes, rand.New(gen).Intn(5)+(i*5))
+				// first number can appear on positions 0 - 14,
+				// second number can appear on positions 15 - 29
+				reservedIndexes = append(reservedIndexes, rand.New(gen).Intn(15)+i*15)
 			}
 		}
 
