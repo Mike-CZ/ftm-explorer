@@ -61,6 +61,7 @@ func TestApiServer_Run(t *testing.T) {
 		getNumberOfValidatorsTestCase(t),
 		getDiskSizePer100MTxsTestCase(t),
 		getTimeToFinalityTestCase(t),
+		getTimeToBlockTestCase(t),
 		getCurrentStateTestCase(t),
 		getRequestTokensTestCase(t),
 		getClaimTokensTestCase(t),
@@ -443,6 +444,35 @@ func getTimeToFinalityTestCase(_ *testing.T) apiTestCase {
 	}
 }
 
+// getTimeToBlockTestCase returns a test case for a time to block query.
+func getTimeToBlockTestCase(_ *testing.T) apiTestCase {
+	var timeToBlock = 2.5
+	return apiTestCase{
+		testName:    "GetTimeToBlock",
+		requestBody: `{"query": "query { timeToBlock }"}`,
+		buildStubs: func(mockRepository *repository.MockRepository, _ *faucet.MockFaucet) {
+			mockRepository.EXPECT().GetTimeToBlock().Return(timeToBlock)
+		},
+		checkResponse: func(t *testing.T, resp *http.Response) {
+			apiRes := decodeResponse(t, resp)
+			if len(apiRes.Errors) != 0 {
+				t.Errorf("expected no errors, got: %s", apiRes.Errors[0].Message)
+			}
+			// decode raw data into response
+			numberRes := struct {
+				TimeToBlock float64 `json:"timeToBlock"`
+			}{}
+			if err := json.Unmarshal(apiRes.Data, &numberRes); err != nil {
+				t.Errorf("failed to unmarshall data: %v", err)
+			}
+			// validate time to finality
+			if numberRes.TimeToBlock != timeToBlock {
+				t.Errorf("expected time to block %f, got %f", timeToBlock, numberRes.TimeToBlock)
+			}
+		},
+	}
+}
+
 // getNumberOfTransactionsTestCase returns a test case for a number of transactions query.
 func getNumberOfTransactionsTestCase(_ *testing.T) apiTestCase {
 	var number uint64 = 12_852_456
@@ -480,15 +510,17 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 	var numberOfValidators uint64 = 8
 	var diskSizePer100MTxs uint64 = 54_494_722_457
 	var timeToFinality = 1.2
+	var timeToBlock = 2.2
 	return apiTestCase{
 		testName:    "GetCurrentState",
-		requestBody: `{"query": "query { state { currentBlockHeight, numberOfAccounts, numberOfTransactions, numberOfValidators, diskSizePer100MTxs, timeToFinality } }"}`,
+		requestBody: `{"query": "query { state { currentBlockHeight, numberOfAccounts, numberOfTransactions, numberOfValidators, diskSizePer100MTxs, timeToFinality, timeToBlock } }"}`,
 		buildStubs: func(mockRepository *repository.MockRepository, _ *faucet.MockFaucet) {
 			mockRepository.EXPECT().GetLatestObservedBlock().Return(&types.Block{Number: hexutil.Uint64(blockHeight)})
 			mockRepository.EXPECT().GetNumberOfAccounts().Return(numberOfAccounts)
 			mockRepository.EXPECT().GetTrxCount().Return(numberOfTransactions, nil)
 			mockRepository.EXPECT().GetNumberOfValidators().Return(numberOfValidators, nil)
 			mockRepository.EXPECT().FetchTimeToFinality().Return(timeToFinality, nil)
+			mockRepository.EXPECT().GetTimeToBlock().Return(timeToBlock)
 			mockRepository.EXPECT().GetDiskSizePer100MTxs().Return(diskSizePer100MTxs)
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
@@ -505,6 +537,7 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 					NumberOfValidators   int32          `json:"numberOfValidators"`
 					DiskSizePer100MTxs   hexutil.Uint64 `json:"diskSizePer100MTxs"`
 					TimeToFinality       float64        `json:"timeToFinality"`
+					TimeToBlock          float64        `json:"timeToBlock"`
 				}
 			}{}
 			if err := json.Unmarshal(apiRes.Data, &stateRes); err != nil {
@@ -528,6 +561,9 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 			}
 			if stateRes.State.TimeToFinality != timeToFinality {
 				t.Errorf("expected time to finality %f, got %f", timeToFinality, stateRes.State.TimeToFinality)
+			}
+			if stateRes.State.TimeToBlock != timeToBlock {
+				t.Errorf("expected time to block %f, got %f", timeToBlock, stateRes.State.TimeToBlock)
 			}
 		},
 	}

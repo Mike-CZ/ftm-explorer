@@ -16,4 +16,7 @@ type CurrentState {
 
     # Get time to finality in seconds (rounded to 2 decimal places)
     timeToFinality:Float!
+
+    # Get time to block in seconds (rounded to 2 decimal places)
+    timeToBlock:Float!
 }

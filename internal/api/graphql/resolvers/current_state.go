@@ -47,6 +47,11 @@ func (rs *RootResolver) TimeToFinality() float64 {
 	return roundedValue
 }
 
+// TimeToBlock resolves the time to block.
+func (rs *RootResolver) TimeToBlock() float64 {
+	return float64(rs.repository.GetTimeToBlock())
+}
+
 // CurrentBlockHeight resolves the current block height.
 func (cs CurrentState) CurrentBlockHeight() (*hexutil.Uint64, error) {
 	return cs.rs.CurrentBlockHeight()
@@ -75,4 +80,9 @@ func (cs CurrentState) DiskSizePer100MTxs() hexutil.Uint64 {
 // TimeToFinality resolves the time to finality.
 func (cs CurrentState) TimeToFinality() float64 {
 	return cs.rs.TimeToFinality()
+}
+
+// TimeToBlock resolves the time to block.
+func (cs CurrentState) TimeToBlock() float64 {
+	return cs.rs.TimeToBlock()
 }

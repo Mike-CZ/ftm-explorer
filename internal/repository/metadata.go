@@ -2,8 +2,8 @@ package repository
 
 import (
 	"context"
-	"math/big"
 	"ftm-explorer/internal/types"
+	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -74,4 +74,25 @@ func (r *Repository) SetGasUsedPer10Secs(data []types.HexUintTick) {
 	cpy := make([]types.HexUintTick, len(data))
 	copy(cpy, data)
 	r.gasUsedPer10Secs = cpy
+}
+
+// GetTimeToBlock returns the time to block.
+func (r *Repository) GetTimeToBlock() float64 {
+	// get last 100 blocks from buffer
+	blocks := r.blkBuffer.GetLatest(100)
+	// if there are no blocks or just 1 block, return 0
+	if len(blocks) <= 1 {
+		return 0
+	}
+	// calculate deltas between blocks
+	totalDelta := 0
+	for i := 1; i < len(blocks); i++ {
+		totalDelta += int(blocks[i-1].Timestamp - blocks[i].Timestamp)
+	}
+
+	// calculate average delta
+	avgDelta := float32(totalDelta) / float32(len(blocks)-1)
+
+	// round to 2 decimals and return
+	return float64(int(avgDelta*100)) / 100
 }

@@ -100,4 +100,7 @@ type IRepository interface {
 
 	// NetworkID returns the network ID.
 	NetworkID() (*big.Int, error)
+
+	// GetTimeToBlock returns the time to block.
+	GetTimeToBlock() float64
 }

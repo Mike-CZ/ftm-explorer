@@ -240,6 +240,20 @@ func (mr *MockRepositoryMockRecorder) GetNumberOfValidators() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNumberOfValidators", reflect.TypeOf((*MockRepository)(nil).GetNumberOfValidators))
 }
 
+// GetTimeToBlock mocks base method.
+func (m *MockRepository) GetTimeToBlock() float64 {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTimeToBlock")
+	ret0, _ := ret[0].(float64)
+	return ret0
+}
+
+// GetTimeToBlock indicates an expected call of GetTimeToBlock.
+func (mr *MockRepositoryMockRecorder) GetTimeToBlock() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTimeToBlock", reflect.TypeOf((*MockRepository)(nil).GetTimeToBlock))
+}
+
 // GetTransactionByHash mocks base method.
 func (m *MockRepository) GetTransactionByHash(arg0 common.Hash) (*types.Transaction, error) {
 	m.ctrl.T.Helper()
