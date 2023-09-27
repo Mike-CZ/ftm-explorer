@@ -37,6 +37,12 @@ type IDatabase interface {
 	// LatestTokensRequest returns the latest tokens request for the given ip address.
 	LatestTokensRequest(context.Context, string) (*types.TokensRequest, error)
 
+	// AddTimeToFinality adds the given time to finality.
+	AddTimeToFinality(context.Context, *types.Ttf) error
+
+	// TtfAvgAggByTimestamp returns average aggregation of time to finality in given time range.
+	TtfAvgAggByTimestamp(context.Context, uint64, uint, uint) ([]types.FloatTick, error)
+
 	// Close terminates the database connection.
 	Close()
 }

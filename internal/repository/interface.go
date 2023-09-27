@@ -80,6 +80,9 @@ type IRepository interface {
 	// This method will fetch data from remote host.
 	FetchTimeToFinality() (float64, error)
 
+	// GetTimeToFinality returns the time to finality in the blockchain.
+	GetTimeToFinality() float64
+
 	// AddTokensRequest adds a new tokens request to the database.
 	AddTokensRequest(*types.TokensRequest) error
 
@@ -100,4 +103,16 @@ type IRepository interface {
 
 	// NetworkID returns the network ID.
 	NetworkID() (*big.Int, error)
+
+	// AddTimeToFinality adds the given time to finality.
+	AddTimeToFinality(*types.Ttf) error
+
+	// GetTtfAvgAggByTimestamp returns average aggregation of time to finality in given time range.
+	GetTtfAvgAggByTimestamp(types.AggResolution, uint, uint64) ([]types.FloatTick, error)
+
+	// GetTimeToFinalityPer10Secs returns time to finality per 10 seconds.
+	GetTimeToFinalityPer10Secs() []types.FloatTick
+
+	// SetTimeToFinalityPer10Secs sets time to finality per 10 seconds.
+	SetTimeToFinalityPer10Secs(data []types.FloatTick)
 }

@@ -10,3 +10,6 @@ type Tick[T any] struct {
 
 // HexUintTick is a timestamp/hexutil.Uint64 pair.
 type HexUintTick = Tick[hexutil.Uint64]
+
+// FloatTick is a timestamp/float64 pair.
+type FloatTick = Tick[float64]

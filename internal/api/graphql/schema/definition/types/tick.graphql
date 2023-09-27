@@ -5,3 +5,11 @@ type Tick {
     # The value of the tick
     value: Long!
 }
+
+type TtfTick {
+    # The timestamp of the tick
+    timestamp: Int!
+
+    # The value of the tick
+    value: Float!
+}

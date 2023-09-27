@@ -50,6 +50,20 @@ func (mr *MockDatabaseMockRecorder) AddBlock(arg0, arg1 interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddBlock", reflect.TypeOf((*MockDatabase)(nil).AddBlock), arg0, arg1)
 }
 
+// AddTimeToFinality mocks base method.
+func (m *MockDatabase) AddTimeToFinality(arg0 context.Context, arg1 *types.Ttf) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddTimeToFinality", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddTimeToFinality indicates an expected call of AddTimeToFinality.
+func (mr *MockDatabaseMockRecorder) AddTimeToFinality(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTimeToFinality", reflect.TypeOf((*MockDatabase)(nil).AddTimeToFinality), arg0, arg1)
+}
+
 // AddTokensRequest mocks base method.
 func (m *MockDatabase) AddTokensRequest(arg0 context.Context, arg1 *types.TokensRequest) error {
 	m.ctrl.T.Helper()
@@ -163,6 +177,21 @@ func (m *MockDatabase) TrxCountAggByTimestamp(arg0 context.Context, arg1 uint64,
 func (mr *MockDatabaseMockRecorder) TrxCountAggByTimestamp(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TrxCountAggByTimestamp", reflect.TypeOf((*MockDatabase)(nil).TrxCountAggByTimestamp), arg0, arg1, arg2, arg3)
+}
+
+// TtfAvgAggByTimestamp mocks base method.
+func (m *MockDatabase) TtfAvgAggByTimestamp(arg0 context.Context, arg1 uint64, arg2, arg3 uint) ([]types.FloatTick, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "TtfAvgAggByTimestamp", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].([]types.FloatTick)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// TtfAvgAggByTimestamp indicates an expected call of TtfAvgAggByTimestamp.
+func (mr *MockDatabaseMockRecorder) TtfAvgAggByTimestamp(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TtfAvgAggByTimestamp", reflect.TypeOf((*MockDatabase)(nil).TtfAvgAggByTimestamp), arg0, arg1, arg2, arg3)
 }
 
 // UpdateTokensRequest mocks base method.

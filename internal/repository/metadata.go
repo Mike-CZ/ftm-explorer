@@ -2,8 +2,8 @@ package repository
 
 import (
 	"context"
-	"math/big"
 	"ftm-explorer/internal/types"
+	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -74,4 +74,43 @@ func (r *Repository) SetGasUsedPer10Secs(data []types.HexUintTick) {
 	cpy := make([]types.HexUintTick, len(data))
 	copy(cpy, data)
 	r.gasUsedPer10Secs = cpy
+}
+
+// AddTimeToFinality adds the given time to finality.
+func (r *Repository) AddTimeToFinality(ttf *types.Ttf) error {
+	ctx, cancel := context.WithTimeout(context.Background(), kDbTimeout)
+	defer cancel()
+
+	return r.db.AddTimeToFinality(ctx, ttf)
+}
+
+// GetTtfAvgAggByTimestamp returns average aggregation of time to finality in given time range.
+func (r *Repository) GetTtfAvgAggByTimestamp(resolution types.AggResolution, ticks uint, endTime uint64) ([]types.FloatTick, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), kDbTimeout)
+	defer cancel()
+
+	return r.db.TtfAvgAggByTimestamp(ctx, endTime, resolution.ToDuration(), ticks)
+}
+
+// GetTimeToFinality returns the time to finality in the blockchain.
+func (r *Repository) GetTimeToFinality() float64 {
+	// if there is no data, return 0
+	if len(r.ttfPer10Secs) == 0 {
+		return 0
+	}
+
+	// otherwise return last value rounded to 2 decimals
+	return float64(int(r.ttfPer10Secs[len(r.ttfPer10Secs)-1].Value*100)) / 100
+}
+
+// GetTimeToFinalityPer10Secs returns time to finality per 10 seconds.
+func (r *Repository) GetTimeToFinalityPer10Secs() []types.FloatTick {
+	return r.ttfPer10Secs
+}
+
+// SetTimeToFinalityPer10Secs sets time to finality per 10 seconds.
+func (r *Repository) SetTimeToFinalityPer10Secs(data []types.FloatTick) {
+	cpy := make([]types.FloatTick, len(data))
+	copy(cpy, data)
+	r.ttfPer10Secs = cpy
 }

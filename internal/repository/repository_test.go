@@ -287,6 +287,37 @@ func TestRepository_NetworkID(t *testing.T) {
 	}
 }
 
+// Test that ttf can be added.
+func TestRepository_AddTimeToFinality(t *testing.T) {
+	repository, _, mockDb, _ := createRepository(t)
+
+	// expect db.AddTimeToFinality to be called
+	mockDb.EXPECT().AddTimeToFinality(gomock.Any(), gomock.Any()).Return(nil)
+
+	// check that time to finality is added
+	err := repository.AddTimeToFinality(&types.Ttf{
+		Timestamp: 100,
+		Value:     11.5,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+// Test that ttf avg agg by timestamp can be fetched.
+func TestRepository_GetTtfAvgAggByTimestamp(t *testing.T) {
+	repository, _, mockDb, _ := createRepository(t)
+
+	// expect db.TtfAvgAggByTimestamp to be called
+	mockDb.EXPECT().TtfAvgAggByTimestamp(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return([]types.FloatTick{}, nil)
+
+	// check that time to finality avg is called
+	_, err := repository.GetTtfAvgAggByTimestamp(types.AggResolutionSeconds, 10, 100)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
 // createRepository creates a new repository instance with mocked dependencies.
 func createRepository(t *testing.T) (*Repository, *rpc.MockRpc, *db.MockDatabase, *meta_fetcher.MockMetaFetcher) {
 	t.Helper()

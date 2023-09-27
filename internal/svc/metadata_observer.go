@@ -1,6 +1,7 @@
 package svc
 
 import (
+	"ftm-explorer/internal/types"
 	"time"
 )
 
@@ -12,6 +13,8 @@ type metadataObserver struct {
 	service
 	sigClose     chan struct{}
 	tickDuration time.Duration
+
+	lastTtfTime uint64
 }
 
 // newMetadataObserver returns a new metadata observer.
@@ -74,6 +77,37 @@ func (mo *metadataObserver) execute() {
 				mo.log.Noticef("disk size per 100M txs: %d", diskSizePer100MTxs)
 				mo.repo.SetDiskSizePer100MTxs(diskSizePer100MTxs)
 				latestDiskSizePer100MTxs = diskSizePer100MTxs
+			}
+
+			// fetch and update time to finality
+			ttf, err := mo.repo.FetchTimeToFinality()
+			if err != nil {
+				mo.log.Errorf("failed to get time to finality: %v", err)
+			} else {
+				// add time to finality
+				currentTime := time.Now().Unix()
+				err := mo.repo.AddTimeToFinality(&types.Ttf{
+					Timestamp: currentTime,
+					Value:     ttf,
+				})
+				if err != nil {
+					mo.log.Errorf("failed to add time to finality: %v", err)
+				} else {
+					resolution := types.AggResolutionSeconds
+					seconds := uint64(resolution.ToDuration())
+					aggTime := (uint64(currentTime) / seconds) * seconds
+					if aggTime > mo.lastTtfTime {
+						// calculate time to finality aggregations, get 60 ticks
+						ttfAgg, err := mo.repo.GetTtfAvgAggByTimestamp(resolution, 60, aggTime)
+						if err != nil {
+							mo.log.Errorf("failed to get time to finality aggregation: %v", err)
+						} else {
+							mo.repo.SetTimeToFinalityPer10Secs(ttfAgg)
+							mo.lastTtfTime = aggTime
+						}
+					}
+					mo.log.Noticef("time to finality: %f", ttf)
+				}
 			}
 		}
 	}

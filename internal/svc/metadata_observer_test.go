@@ -3,6 +3,7 @@ package svc
 import (
 	"ftm-explorer/internal/logger"
 	"ftm-explorer/internal/repository"
+	"ftm-explorer/internal/types"
 	"testing"
 	"time"
 
@@ -26,8 +27,16 @@ func TestMetadataObserver_Run(t *testing.T) {
 	// expect call to fetcher and repository
 	numberOfAccounts := uint64(100)
 	diskSizePer100MTxs := uint64(72799695667)
+	ttf := 3.5
+
 	mockRepository.EXPECT().FetchNumberOfAccounts().Return(numberOfAccounts, nil)
 	mockRepository.EXPECT().SetNumberOfAccounts(gomock.Eq(numberOfAccounts))
+
+	mockRepository.EXPECT().FetchTimeToFinality().Return(ttf, nil)
+	mockRepository.EXPECT().AddTimeToFinality(gomock.Any())
+	mockRepository.EXPECT().GetTtfAvgAggByTimestamp(gomock.Any(), gomock.Any(), gomock.Any()).Return([]types.FloatTick{}, nil)
+	mockRepository.EXPECT().SetTimeToFinalityPer10Secs(gomock.Any())
+
 	mockRepository.EXPECT().FetchDiskSizePer100MTxs().Return(diskSizePer100MTxs, nil)
 	mockRepository.EXPECT().SetDiskSizePer100MTxs(gomock.Eq(diskSizePer100MTxs))
 

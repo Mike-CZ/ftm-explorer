@@ -346,6 +346,70 @@ func TestMongoDb_UpdateTokensRequest(t *testing.T) {
 	}
 }
 
+// Test adding time to finality.
+func TestMongoDb_AddTimeToFinality(t *testing.T) {
+	db := startMongoDb(t)
+
+	// define time to finality to add
+	ttf := types.Ttf{
+		Timestamp: 1_689_601_270,
+		Value:     1.234,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
+	defer cancel()
+
+	// add time to finality
+	if err := db.AddTimeToFinality(ctx, &ttf); err != nil {
+		t.Fatalf("failed to add time to finality: %v", err)
+	}
+}
+
+// Test getting time to finality per day from MongoDB.
+func TestMongoDb_GetTimeToFinalityAggregation(t *testing.T) {
+	db := startMongoDb(t)
+
+	ttfs := []types.Ttf{
+		{Timestamp: 1_689_601_271, Value: 10},
+		{Timestamp: 1_689_601_278, Value: 5},
+		{Timestamp: 1_689_601_282, Value: 1},
+		{Timestamp: 1_689_601_290, Value: 2},
+	}
+
+	// add ttfs into db
+	for _, ttf := range ttfs {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
+		defer cancel()
+
+		if err := db.AddTimeToFinality(ctx, &ttf); err != nil {
+			t.Fatalf("failed to add time to finality: %v", err)
+		}
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
+	defer cancel()
+
+	// get time to finality aggregation
+	ttfAgg, err := db.TtfAvgAggByTimestamp(ctx, 1_689_601_290, types.AggResolutionSeconds.ToDuration(), 3)
+	if err != nil {
+		t.Fatalf("failed to get time to finality aggregation: %v", err)
+	}
+
+	// check returned number of ticks
+	// we expect 2 ticks, because agg `seconds` is 10 seconds and our range is 71 - 90 (in ts)
+	if len(ttfAgg) != 3 {
+		t.Fatalf("expected 3 ticks, got %d", len(ttfAgg))
+	}
+
+	// check time to finality aggregation
+	if ttfAgg[1].Value != 7.5 {
+		t.Fatalf("expected 7.5, got %f", ttfAgg[0].Value)
+	}
+	if ttfAgg[2].Value != 1.5 {
+		t.Fatalf("expected 1.5, got %f", ttfAgg[1].Value)
+	}
+}
+
 // startMongoDb starts MongoDB in a Docker container and returns the MongoDb instance.
 func startMongoDb(t *testing.T) *MongoDb {
 	t.Helper()

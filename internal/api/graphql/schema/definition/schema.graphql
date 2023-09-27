@@ -41,6 +41,10 @@ type Query {
     # parameters:
     #   subject: the subject of the aggregation - value of AggSubject enum
     blockTimestampAggregations(subject: AggSubject!):[Tick!]!
+
+    # Get ttf aggregated data by timestamp. It returns last 60 ticks aggregated
+    # by 10 seconds.
+    ttfTimestampAggregations:[TtfTick!]!
 }
 
 type Mutation {

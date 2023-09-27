@@ -421,7 +421,7 @@ func getTimeToFinalityTestCase(_ *testing.T) apiTestCase {
 		testName:    "GetTimeToFinality",
 		requestBody: `{"query": "query { timeToFinality }"}`,
 		buildStubs: func(mockRepository *repository.MockRepository, _ *faucet.MockFaucet) {
-			mockRepository.EXPECT().FetchTimeToFinality().Return(timeToFinality, nil)
+			mockRepository.EXPECT().GetTimeToFinality().Return(timeToFinality)
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
 			apiRes := decodeResponse(t, resp)
@@ -488,7 +488,7 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 			mockRepository.EXPECT().GetNumberOfAccounts().Return(numberOfAccounts)
 			mockRepository.EXPECT().GetTrxCount().Return(numberOfTransactions, nil)
 			mockRepository.EXPECT().GetNumberOfValidators().Return(numberOfValidators, nil)
-			mockRepository.EXPECT().FetchTimeToFinality().Return(timeToFinality, nil)
+			mockRepository.EXPECT().GetTimeToFinality().Return(timeToFinality)
 			mockRepository.EXPECT().GetDiskSizePer100MTxs().Return(diskSizePer100MTxs)
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {

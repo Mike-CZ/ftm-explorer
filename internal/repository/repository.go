@@ -33,6 +33,8 @@ type Repository struct {
 	txCountPer10Secs []types.HexUintTick
 	// gasUsedPer10Secs is the gas used per 10 seconds.
 	gasUsedPer10Secs []types.HexUintTick
+	// ttfPer10Secs is the time to finality per 10 seconds.
+	ttfPer10Secs []types.FloatTick
 }
 
 // NewRepository creates a new repository.

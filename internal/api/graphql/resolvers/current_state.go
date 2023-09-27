@@ -1,7 +1,7 @@
 package resolvers
 
 import (
-	"math"
+	"ftm-explorer/internal/types"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
@@ -10,6 +10,9 @@ import (
 type CurrentState struct {
 	rs *RootResolver
 }
+
+// TtfTick represents a time to finality tick.
+type TtfTick types.FloatTick
 
 // State resolves the current state of the blockchain.
 func (rs *RootResolver) State() CurrentState {
@@ -36,15 +39,22 @@ func (rs *RootResolver) NumberOfValidators() int32 {
 	return int32(number)
 }
 
+// TtfTimestampAggregations resolves ttf timestamp aggregations.
+func (rs *RootResolver) TtfTimestampAggregations() []TtfTick {
+	result := rs.repository.GetTimeToFinalityPer10Secs()
+
+	// convert result
+	rv := make([]TtfTick, len(result))
+	for i, t := range result {
+		rv[i] = (TtfTick)(t)
+	}
+
+	return rv
+}
+
 // TimeToFinality resolves the time to finality.
 func (rs *RootResolver) TimeToFinality() float64 {
-	ttf, err := rs.repository.FetchTimeToFinality()
-	if err != nil {
-		rs.log.Errorf("failed to fetch time to finality: %v", err)
-		return 0
-	}
-	roundedValue := math.Round(ttf*100) / 100 // Round to 2 decimal places
-	return roundedValue
+	return rs.repository.GetTimeToFinality()
 }
 
 // CurrentBlockHeight resolves the current block height.
@@ -75,4 +85,9 @@ func (cs CurrentState) DiskSizePer100MTxs() hexutil.Uint64 {
 // TimeToFinality resolves the time to finality.
 func (cs CurrentState) TimeToFinality() float64 {
 	return cs.rs.TimeToFinality()
+}
+
+// Timestamp resolves tick timestamp.
+func (t TtfTick) Timestamp() int32 {
+	return int32(t.Time)
 }
