@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	eth "github.com/ethereum/go-ethereum/core/types"
 	"github.com/golang/mock/gomock"
 )
@@ -315,6 +316,26 @@ func TestRepository_GetTtfAvgAggByTimestamp(t *testing.T) {
 	_, err := repository.GetTtfAvgAggByTimestamp(types.AggResolutionSeconds, 10, 100)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+// Test that time to block is calculated correctly.
+func TestRepository_TimeToBlock(t *testing.T) {
+	repository, _, _, _ := createRepository(t)
+
+	// add 100 blocks to the buffer with 10 seconds between each block
+	for i := 1; i <= 100; i++ {
+		repository.blkBuffer.Add(
+			&types.Block{
+				Number:    hexutil.Uint64(i),
+				Timestamp: hexutil.Uint64(i * 10)},
+		)
+	}
+
+	// test that time to block is 7.5 seconds
+	timeToBlock := repository.GetTimeToBlock()
+	if timeToBlock != 10 {
+		t.Errorf("expected 10, got %v", timeToBlock)
 	}
 }
 

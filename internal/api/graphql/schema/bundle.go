@@ -105,14 +105,6 @@ type Tick {
     # The value of the tick
     value: Long!
 }
-
-type TtfTick {
-    # The timestamp of the tick
-    timestamp: Int!
-
-    # The value of the tick
-    value: Float!
-}
 # AggSubject is the subject of the aggregation
 enum AggSubject {
     TXS_COUNT,
@@ -136,6 +128,9 @@ type CurrentState {
 
     # Get time to finality in seconds (rounded to 2 decimal places)
     timeToFinality:Float!
+
+    # Get time to block in seconds (rounded to 2 decimal places)
+    timeToBlock:Float!
 }
 # Bytes32 is a 32 byte binary string, represented by 0x prefixed hexadecimal hash.
 scalar Bytes32
@@ -197,15 +192,14 @@ type Query {
     # Get time to finality in seconds (rounded to 2 decimal places)
     timeToFinality:Float!
 
+    # Get time to block in seconds (rounded to 2 decimal places)
+    timeToBlock:Float!
+
     # Get block aggregated data by timestamp. It returns last 60 ticks aggregated
     # by 10 seconds.
     # parameters:
     #   subject: the subject of the aggregation - value of AggSubject enum
     blockTimestampAggregations(subject: AggSubject!):[Tick!]!
-
-    # Get ttf aggregated data by timestamp. It returns last 60 ticks aggregated
-    # by 10 seconds.
-    ttfTimestampAggregations:[TtfTick!]!
 }
 
 type Mutation {

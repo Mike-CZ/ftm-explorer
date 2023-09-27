@@ -37,20 +37,6 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
-// AddTimeToFinality mocks base method.
-func (m *MockRepository) AddTimeToFinality(arg0 *types.Ttf) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddTimeToFinality", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// AddTimeToFinality indicates an expected call of AddTimeToFinality.
-func (mr *MockRepositoryMockRecorder) AddTimeToFinality(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTimeToFinality", reflect.TypeOf((*MockRepository)(nil).AddTimeToFinality), arg0)
-}
-
 // AddTokensRequest mocks base method.
 func (m *MockRepository) AddTokensRequest(arg0 *types.TokensRequest) error {
 	m.ctrl.T.Helper()
@@ -254,32 +240,18 @@ func (mr *MockRepositoryMockRecorder) GetNumberOfValidators() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNumberOfValidators", reflect.TypeOf((*MockRepository)(nil).GetNumberOfValidators))
 }
 
-// GetTimeToFinality mocks base method.
-func (m *MockRepository) GetTimeToFinality() float64 {
+// GetTimeToBlock mocks base method.
+func (m *MockRepository) GetTimeToBlock() float64 {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTimeToFinality")
+	ret := m.ctrl.Call(m, "GetTimeToBlock")
 	ret0, _ := ret[0].(float64)
 	return ret0
 }
 
-// GetTimeToFinality indicates an expected call of GetTimeToFinality.
-func (mr *MockRepositoryMockRecorder) GetTimeToFinality() *gomock.Call {
+// GetTimeToBlock indicates an expected call of GetTimeToBlock.
+func (mr *MockRepositoryMockRecorder) GetTimeToBlock() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTimeToFinality", reflect.TypeOf((*MockRepository)(nil).GetTimeToFinality))
-}
-
-// GetTimeToFinalityPer10Secs mocks base method.
-func (m *MockRepository) GetTimeToFinalityPer10Secs() []types.FloatTick {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTimeToFinalityPer10Secs")
-	ret0, _ := ret[0].([]types.FloatTick)
-	return ret0
-}
-
-// GetTimeToFinalityPer10Secs indicates an expected call of GetTimeToFinalityPer10Secs.
-func (mr *MockRepositoryMockRecorder) GetTimeToFinalityPer10Secs() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTimeToFinalityPer10Secs", reflect.TypeOf((*MockRepository)(nil).GetTimeToFinalityPer10Secs))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTimeToBlock", reflect.TypeOf((*MockRepository)(nil).GetTimeToBlock))
 }
 
 // GetTransactionByHash mocks base method.
@@ -325,21 +297,6 @@ func (m *MockRepository) GetTrxCountAggByTimestamp(arg0 types.AggResolution, arg
 func (mr *MockRepositoryMockRecorder) GetTrxCountAggByTimestamp(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTrxCountAggByTimestamp", reflect.TypeOf((*MockRepository)(nil).GetTrxCountAggByTimestamp), arg0, arg1, arg2)
-}
-
-// GetTtfAvgAggByTimestamp mocks base method.
-func (m *MockRepository) GetTtfAvgAggByTimestamp(arg0 types.AggResolution, arg1 uint, arg2 uint64) ([]types.FloatTick, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTtfAvgAggByTimestamp", arg0, arg1, arg2)
-	ret0, _ := ret[0].([]types.FloatTick)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetTtfAvgAggByTimestamp indicates an expected call of GetTtfAvgAggByTimestamp.
-func (mr *MockRepositoryMockRecorder) GetTtfAvgAggByTimestamp(arg0, arg1, arg2 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTtfAvgAggByTimestamp", reflect.TypeOf((*MockRepository)(nil).GetTtfAvgAggByTimestamp), arg0, arg1, arg2)
 }
 
 // GetTxCountPer10Secs mocks base method.
@@ -448,18 +405,6 @@ func (m *MockRepository) SetNumberOfAccounts(arg0 uint64) {
 func (mr *MockRepositoryMockRecorder) SetNumberOfAccounts(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetNumberOfAccounts", reflect.TypeOf((*MockRepository)(nil).SetNumberOfAccounts), arg0)
-}
-
-// SetTimeToFinalityPer10Secs mocks base method.
-func (m *MockRepository) SetTimeToFinalityPer10Secs(data []types.FloatTick) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "SetTimeToFinalityPer10Secs", data)
-}
-
-// SetTimeToFinalityPer10Secs indicates an expected call of SetTimeToFinalityPer10Secs.
-func (mr *MockRepositoryMockRecorder) SetTimeToFinalityPer10Secs(data interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetTimeToFinalityPer10Secs", reflect.TypeOf((*MockRepository)(nil).SetTimeToFinalityPer10Secs), data)
 }
 
 // SetTxCountPer10Secs mocks base method.
