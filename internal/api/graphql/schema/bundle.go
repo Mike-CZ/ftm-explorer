@@ -105,6 +105,14 @@ type Tick {
     # The value of the tick
     value: Long!
 }
+
+type TtfTick {
+    # The timestamp of the tick
+    timestamp: Int!
+
+    # The value of the tick
+    value: Float!
+}
 # AggSubject is the subject of the aggregation
 enum AggSubject {
     TXS_COUNT,
@@ -200,6 +208,10 @@ type Query {
     # parameters:
     #   subject: the subject of the aggregation - value of AggSubject enum
     blockTimestampAggregations(subject: AggSubject!):[Tick!]!
+
+    # Get ttf aggregated data by timestamp. It returns last 60 ticks aggregated
+    # by 10 seconds.
+    ttfTimestampAggregations:[TtfTick!]!
 }
 
 type Mutation {
