@@ -55,6 +55,7 @@ func (api *ApiServer) makeHttpServer() {
 		"Service timeout.",
 	)
 
+	srvMux.Handle("/", h)
 	srvMux.Handle("/api", h)
 	srvMux.Handle("/graphql", h)
 
