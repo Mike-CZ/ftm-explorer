@@ -136,7 +136,7 @@ func (blk *Block) FullTransactions() ([]*Transaction, error) {
 		}
 		// if reserved slot is out of range, skip it
 		if reservedIndexes[0] >= len(result) {
-			continue
+			break
 		}
 		// swap expensive transaction with reserved one
 		result[reservedIndexes[0]], result[expIndex] = result[expIndex], result[reservedIndexes[0]]
