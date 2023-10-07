@@ -130,8 +130,13 @@ func (blk *Block) FullTransactions() ([]*Transaction, error) {
 
 	// move expensive transactions to reserved slots
 	for _, expIndex := range expensiveIndexes {
+		// if there are no more reserved slots, stop
 		if len(reservedIndexes) == 0 {
 			break
+		}
+		// if reserved slot is out of range, skip it
+		if reservedIndexes[0] >= len(result) {
+			continue
 		}
 		// swap expensive transaction with reserved one
 		result[reservedIndexes[0]], result[expIndex] = result[expIndex], result[reservedIndexes[0]]
