@@ -95,6 +95,10 @@ func (bs *blockScanner) execute() {
 					bs.log.Warningf("block scanner can not proceed; %v", err)
 					continue
 				}
+				if block == nil {
+					bs.log.Warningf("block scanner can not proceed; block %d not found", *nextBlock)
+					continue
+				}
 				bs.outBlocks <- block
 				*nextBlock++
 			}

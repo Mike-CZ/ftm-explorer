@@ -76,6 +76,9 @@ func (rs *RootResolver) Block(args *struct{ Number hexutil.Uint64 }) (*Block, er
 		rs.log.Warningf("Failed to get block by number [%d]; %v", args.Number, err)
 		return nil, err
 	}
+	if block == nil {
+		return nil, nil
+	}
 	blk := Block{rs: rs, Block: *block}
 	return &blk, nil
 }

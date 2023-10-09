@@ -21,7 +21,7 @@ func (rpc *OperaRpc) BlockByNumber(ctx context.Context, number uint64) (*types.B
 
 	// detect block not found situation; block number is zero and the hash is also zero
 	if uint64(block.Number) == 0 && block.Hash.Big().Cmp(big.NewInt(0)) == 0 {
-		return nil, fmt.Errorf("block %d not found", number)
+		return nil, nil
 	}
 
 	return &block, nil
