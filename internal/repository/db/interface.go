@@ -6,6 +6,8 @@ import (
 	"context"
 	"ftm-explorer/internal/repository/db/types"
 	"ftm-explorer/internal/types"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // IDatabase is the interface for database operations.
@@ -42,6 +44,12 @@ type IDatabase interface {
 
 	// TtfAvgAggByTimestamp returns average aggregation of time to finality in given time range.
 	TtfAvgAggByTimestamp(context.Context, uint64, uint, uint) ([]types.FloatTick, error)
+
+	// AddTransactions adds transactions to the database.
+	AddTransactions(ctx context.Context, txs []db_types.Transaction) error
+
+	// TransactionsWhereAddress returns transactions where the given address is involved.
+	TransactionsWhereAddress(ctx context.Context, addr common.Address) ([]db_types.Transaction, error)
 
 	// Close terminates the database connection.
 	Close()

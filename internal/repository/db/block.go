@@ -128,7 +128,7 @@ func (db *MongoDb) initBlockCollection() {
 		db.log.Panicf("can not create indexes for block collection; %v", err)
 	}
 
-	db.log.Debugf("transactions collection initialized")
+	db.log.Debugf("blocks collection initialized")
 }
 
 // getBlkAggByTimestamp returns the aggregation result for the given time range.

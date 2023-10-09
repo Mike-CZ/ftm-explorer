@@ -5,6 +5,7 @@
 package repository
 
 import (
+	db_types "ftm-explorer/internal/repository/db/types"
 	types "ftm-explorer/internal/types"
 	big "math/big"
 	reflect "reflect"
@@ -63,6 +64,20 @@ func (m *MockRepository) AddTokensRequest(arg0 *types.TokensRequest) error {
 func (mr *MockRepositoryMockRecorder) AddTokensRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTokensRequest", reflect.TypeOf((*MockRepository)(nil).AddTokensRequest), arg0)
+}
+
+// AddTransactions mocks base method.
+func (m *MockRepository) AddTransactions(arg0 []db_types.Transaction) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddTransactions", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddTransactions indicates an expected call of AddTransactions.
+func (mr *MockRepositoryMockRecorder) AddTransactions(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTransactions", reflect.TypeOf((*MockRepository)(nil).AddTransactions), arg0)
 }
 
 // FetchDiskSizePer100MTxs mocks base method.
@@ -309,6 +324,21 @@ func (m *MockRepository) GetTransactionByHash(arg0 common.Hash) (*types.Transact
 func (mr *MockRepositoryMockRecorder) GetTransactionByHash(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTransactionByHash", reflect.TypeOf((*MockRepository)(nil).GetTransactionByHash), arg0)
+}
+
+// GetTransactionsWhereAddress mocks base method.
+func (m *MockRepository) GetTransactionsWhereAddress(arg0 common.Address) ([]db_types.Transaction, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTransactionsWhereAddress", arg0)
+	ret0, _ := ret[0].([]db_types.Transaction)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTransactionsWhereAddress indicates an expected call of GetTransactionsWhereAddress.
+func (mr *MockRepositoryMockRecorder) GetTransactionsWhereAddress(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTransactionsWhereAddress", reflect.TypeOf((*MockRepository)(nil).GetTransactionsWhereAddress), arg0)
 }
 
 // GetTrxCount mocks base method.

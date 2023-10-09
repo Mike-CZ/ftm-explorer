@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	db_types "ftm-explorer/internal/repository/db/types"
 	"ftm-explorer/internal/types"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -43,4 +44,20 @@ func (r *Repository) SendSignedTransaction(tx *eth.Transaction) error {
 	defer cancel()
 
 	return r.rpc.SendSignedTransaction(ctx, tx)
+}
+
+// AddTransactions adds transactions to the database.
+func (r *Repository) AddTransactions(txs []db_types.Transaction) error {
+	ctx, cancel := context.WithTimeout(context.Background(), kDbTimeout)
+	defer cancel()
+
+	return r.db.AddTransactions(ctx, txs)
+}
+
+// GetTransactionsWhereAddress returns transactions where the given address is involved.
+func (r *Repository) GetTransactionsWhereAddress(addr common.Address) ([]db_types.Transaction, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), kDbTimeout)
+	defer cancel()
+
+	return r.db.TransactionsWhereAddress(ctx, addr)
 }

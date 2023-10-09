@@ -4,6 +4,7 @@ import (
 	"context"
 	"ftm-explorer/internal/config"
 	"ftm-explorer/internal/logger"
+	db_types "ftm-explorer/internal/repository/db/types"
 	"ftm-explorer/internal/types"
 	"testing"
 	"time"
@@ -407,6 +408,68 @@ func TestMongoDb_GetTimeToFinalityAggregation(t *testing.T) {
 	}
 	if ttfAgg[2].Value != 1.5 {
 		t.Fatalf("expected 1.5, got %f", ttfAgg[1].Value)
+	}
+}
+
+// Test transactions can be added to MongoDB.
+func TestMongoDb_AddAndGetTransactions(t *testing.T) {
+	db := startMongoDb(t)
+
+	// define transactions to add
+	txs := []db_types.Transaction{
+		{
+			Addresses: []common.Address{
+				common.HexToAddress("0x1"),
+				common.HexToAddress("0x2"),
+			},
+			Hash:      common.Hash{0x12},
+			Timestamp: 1_689_601_270,
+		},
+		{
+			Addresses: []common.Address{
+				common.HexToAddress("0x3"),
+				common.HexToAddress("0x4"),
+				common.HexToAddress("0x5"),
+			},
+			Hash:      common.Hash{0x34},
+			Timestamp: 1_689_601_271,
+		},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
+	defer cancel()
+
+	// add transactions
+	if err := db.AddTransactions(ctx, txs); err != nil {
+		t.Fatalf("failed to add transactions: %v", err)
+	}
+
+	// get transactions
+	returnedTxs, err := db.TransactionsWhereAddress(ctx, common.HexToAddress("0x1"))
+	if err != nil {
+		t.Fatalf("failed to get transactions: %v", err)
+	}
+
+	// compare transactions
+	if len(returnedTxs) != 1 {
+		t.Fatalf("expected 1 transaction, got %d", len(returnedTxs))
+	}
+	if returnedTxs[0].Hash != txs[0].Hash {
+		t.Fatalf("expected hash %s, got %s", txs[0].Hash.Hex(), returnedTxs[0].Hash.Hex())
+	}
+	if returnedTxs[0].Timestamp != txs[0].Timestamp {
+		t.Fatalf("expected timestamp %d, got %d", txs[0].Timestamp, returnedTxs[0].Timestamp)
+	}
+
+	// get transactions for another address that is not in the database
+	returnedTxs, err = db.TransactionsWhereAddress(ctx, common.HexToAddress("0x6"))
+	if err != nil {
+		t.Fatalf("failed to get transactions: %v", err)
+	}
+
+	// compare transactions
+	if len(returnedTxs) != 0 {
+		t.Fatalf("expected 0 transaction, got %d", len(returnedTxs))
 	}
 }
 

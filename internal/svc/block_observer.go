@@ -1,7 +1,9 @@
 package svc
 
 import (
+	db_types "ftm-explorer/internal/repository/db/types"
 	"ftm-explorer/internal/types"
+	"sync"
 )
 
 // blockObserver represents an observer of blockchain blocks.
@@ -12,6 +14,9 @@ type blockObserver struct {
 
 	// lastAggTime is the last time the aggregator was run.
 	lastAggTime uint64
+
+	// aggMtx is a mutex used to synchronize access to the aggregator
+	aggMtx sync.Mutex
 }
 
 // newBlockObserver creates a new block observer.
@@ -47,22 +52,29 @@ func (bs *blockObserver) name() string {
 
 // execute executes the block observer.
 func (bs *blockObserver) execute() {
+	wg := sync.WaitGroup{}
+
 	for {
 		select {
 		case <-bs.sigClose:
+			// wait for all goroutines to finish, then return
+			wg.Wait()
 			return
 		case block, ok := <-bs.inBlocks:
 			if !ok {
 				bs.log.Notice("input blocks channel closed. stopping block observer")
 				return
 			}
-			bs.processBlock(block)
+			wg.Add(1)
+			go bs.processBlock(block, &wg)
 		}
 	}
 }
 
 // processBlock processes a block.
-func (bs *blockObserver) processBlock(block *types.Block) {
+func (bs *blockObserver) processBlock(block *types.Block, wg *sync.WaitGroup) {
+	defer wg.Done()
+
 	bs.log.Noticef("block observer processing block %d", block.Number)
 
 	// update latest observed block
@@ -88,19 +100,78 @@ func (bs *blockObserver) processBlock(block *types.Block) {
 	// also wait for the latest block to be at least 1 second older than the aggregation time
 	// so that we don't miss any blocks
 	if aggTime != bs.lastAggTime && uint64(block.Timestamp) > aggTime+1 {
-		bs.lastAggTime = aggTime
-		txAggs, err := bs.repo.GetTrxCountAggByTimestamp(resolution, 60, &aggTime)
-		if err != nil {
-			bs.log.Errorf("error getting transaction count aggregation by timestamp: %v", err)
-			return
+		// lock the aggregator, so that only one goroutine can run it at a time
+		updateAggs := bs.aggMtx.TryLock()
+		if updateAggs {
+			bs.lastAggTime = aggTime
+			txAggs, err := bs.repo.GetTrxCountAggByTimestamp(resolution, 60, &aggTime)
+			if err != nil {
+				bs.log.Errorf("error getting transaction count aggregation by timestamp: %v", err)
+				return
+			}
+			gasUsedAggs, err := bs.repo.GetGasUsedAggByTimestamp(resolution, 60, &aggTime)
+			if err != nil {
+				bs.log.Errorf("error getting gas used aggregation by timestamp: %v", err)
+				return
+			}
+			bs.repo.SetTxCountPer10Secs(txAggs)
+			bs.repo.SetGasUsedPer10Secs(gasUsedAggs)
+			bs.log.Notice("aggregation data updated successfully")
+
+			// unlock the aggregator
+			bs.aggMtx.Unlock()
 		}
-		gasUsedAggs, err := bs.repo.GetGasUsedAggByTimestamp(resolution, 60, &aggTime)
-		if err != nil {
-			bs.log.Errorf("error getting gas used aggregation by timestamp: %v", err)
-			return
-		}
-		bs.repo.SetTxCountPer10Secs(txAggs)
-		bs.repo.SetGasUsedPer10Secs(gasUsedAggs)
-		bs.log.Notice("aggregation data updated successfully")
 	}
+
+	// store transactions
+	if bs.mgr.cfg.Explorer.IsPersisted {
+		bs.storeTransactions(block)
+	}
+}
+
+// storeTransactions stores transactions in the database.
+func (bs *blockObserver) storeTransactions(block *types.Block) {
+	var txs []db_types.Transaction
+
+	if len(block.Transactions) == 0 {
+		bs.log.Noticef("no transactions to store in block %d", block.Number)
+		return
+	}
+
+	for _, hash := range block.Transactions {
+		// get transaction
+		tx, err := bs.repo.GetTransactionByHash(hash)
+		if err != nil {
+			bs.log.Errorf("error getting transaction %s: %v", hash, err)
+			continue
+		}
+		if tx == nil {
+			bs.log.Errorf("transaction %s not found", hash)
+			continue
+		}
+		dbTx := db_types.Transaction{
+			Hash:      tx.Hash,
+			Timestamp: int64(block.Timestamp),
+		}
+		// append sender address
+		dbTx.Addresses = append(dbTx.Addresses, tx.From)
+		// append receiver address if it is not a contract creation
+		if tx.To != nil {
+			dbTx.Addresses = append(dbTx.Addresses, *tx.To)
+		}
+		// append contract address if it is a contract creation
+		if tx.ContractAddress != nil {
+			dbTx.Addresses = append(dbTx.Addresses, *tx.ContractAddress)
+		}
+		// append transaction to the list
+		txs = append(txs, dbTx)
+	}
+
+	// store transactions
+	if err := bs.repo.AddTransactions(txs); err != nil {
+		bs.log.Criticalf("error storing transactions: %v", err)
+		return
+	}
+
+	bs.log.Noticef("stored %d transactions for block %d", len(txs), block.Number)
 }
