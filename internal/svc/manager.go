@@ -14,11 +14,6 @@ type Manager struct {
 	wg   sync.WaitGroup
 	svc  []iService
 	log  logger.ILogger
-
-	// managed services
-	blkScanner   *blockScanner
-	blkObserver  *blockObserver
-	metaObserver *metadataObserver
 }
 
 // NewServiceManager returns a new service manager.
@@ -59,14 +54,11 @@ func (mgr *Manager) Close() {
 // init initializes the services in the correct order.
 func (mgr *Manager) init() {
 	// make services
-	mgr.blkScanner = newBlockScanner(mgr)
-	mgr.svc = append(mgr.svc, mgr.blkScanner)
-
-	mgr.blkObserver = newBlockObserver(mgr, mgr.blkScanner.scannedBlocks())
-	mgr.svc = append(mgr.svc, mgr.blkObserver)
-
-	mgr.metaObserver = newMetadataObserver(mgr)
-	mgr.svc = append(mgr.svc, mgr.metaObserver)
+	blkScanner := newBlockScanner(mgr)
+	mgr.svc = append(mgr.svc, blkScanner)
+	mgr.svc = append(mgr.svc, newBlockObserver(mgr, blkScanner.scannedBlocks()))
+	mgr.svc = append(mgr.svc, newMetadataObserver(mgr))
+	mgr.svc = append(mgr.svc, newDataCleaner(mgr))
 }
 
 // started signals to the manager that the calling service

@@ -1,6 +1,7 @@
 package svc
 
 import (
+	"ftm-explorer/internal/config"
 	"ftm-explorer/internal/logger"
 	"ftm-explorer/internal/repository"
 	"ftm-explorer/internal/types"
@@ -21,7 +22,7 @@ func TestBlockObserver_Run(t *testing.T) {
 	blocks := make(chan *types.Block)
 
 	// start observer
-	observer := newBlockObserver(&Manager{repo: mockRepository, log: mockLogger}, blocks)
+	observer := newBlockObserver(&Manager{repo: mockRepository, log: mockLogger, cfg: &config.Config{}}, blocks)
 	observer.start()
 	defer observer.close()
 

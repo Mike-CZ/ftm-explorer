@@ -140,6 +140,17 @@ type CurrentState {
     # Get time to block in seconds (rounded to 2 decimal places)
     timeToBlock:Float!
 }
+# Account defines block-chain account information container
+type Account {
+    # Address is the address of the account.
+    address: Address!
+
+    # Balance is the current balance of the Account in WEI.
+    balance: BigInt!
+
+    # transactions is the list of transactions that are linked to this account.
+    transactions: [Transaction!]!
+}
 # Bytes32 is a 32 byte binary string, represented by 0x prefixed hexadecimal hash.
 scalar Bytes32
 
@@ -212,6 +223,9 @@ type Query {
     # Get ttf aggregated data by timestamp. It returns last 60 ticks aggregated
     # by 10 seconds.
     ttfTimestampAggregations:[TtfTick!]!
+
+    # Get an Account information by hash address.
+    account(address:Address!):Account!
 }
 
 type Mutation {

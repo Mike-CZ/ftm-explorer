@@ -20,6 +20,14 @@ type Explorer struct {
 	// BlockBufferSize is the size of the block buffer. The buffer is used to
 	// store blocks in memory, so that they can be accessed quickly.
 	BlockBufferSize uint
+
+	// IsPersisted is the flag indicating whether the explorer data is persisted.
+	IsPersisted bool
+
+	// MaxTxsCount is the maximum number of transactions to be stored in the database.
+	// If the number of transactions in the database exceeds this value, the oldest
+	// transactions are removed.
+	MaxTxsCount uint
 }
 
 type Faucet struct {

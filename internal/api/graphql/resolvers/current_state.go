@@ -20,8 +20,15 @@ func (rs *RootResolver) State() CurrentState {
 }
 
 // NumberOfAccounts returns the number of accounts.
-func (rs *RootResolver) NumberOfAccounts() int32 {
-	return int32(rs.repository.GetNumberOfAccounts())
+func (rs *RootResolver) NumberOfAccounts() (int32, error) {
+	if rs.isPersisted {
+		num, err := rs.repository.GetNumberOfAccountsInDb()
+		if err != nil {
+			return 0, err
+		}
+		return int32(num), nil
+	}
+	return int32(rs.repository.GetNumberOfAccounts()), nil
 }
 
 // DiskSizePer100MTxs resolves the disk size per 100M transactions.
@@ -68,7 +75,7 @@ func (cs CurrentState) CurrentBlockHeight() (*hexutil.Uint64, error) {
 }
 
 // NumberOfAccounts resolves the number of accounts in the blockchain.
-func (cs CurrentState) NumberOfAccounts() int32 {
+func (cs CurrentState) NumberOfAccounts() (int32, error) {
 	return cs.rs.NumberOfAccounts()
 }
 

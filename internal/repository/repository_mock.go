@@ -5,11 +5,13 @@
 package repository
 
 import (
+	db_types "ftm-explorer/internal/repository/db/types"
 	types "ftm-explorer/internal/types"
 	big "math/big"
 	reflect "reflect"
 
 	common "github.com/ethereum/go-ethereum/common"
+	hexutil "github.com/ethereum/go-ethereum/common/hexutil"
 	types0 "github.com/ethereum/go-ethereum/core/types"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -35,6 +37,35 @@ func NewMockRepository(ctrl *gomock.Controller) *MockRepository {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
+}
+
+// AccountBalance mocks base method.
+func (m *MockRepository) AccountBalance(addr common.Address) (*hexutil.Big, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AccountBalance", addr)
+	ret0, _ := ret[0].(*hexutil.Big)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AccountBalance indicates an expected call of AccountBalance.
+func (mr *MockRepositoryMockRecorder) AccountBalance(addr interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AccountBalance", reflect.TypeOf((*MockRepository)(nil).AccountBalance), addr)
+}
+
+// AddAccounts mocks base method.
+func (m *MockRepository) AddAccounts(accs []common.Address, stamp int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddAccounts", accs, stamp)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddAccounts indicates an expected call of AddAccounts.
+func (mr *MockRepositoryMockRecorder) AddAccounts(accs, stamp interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddAccounts", reflect.TypeOf((*MockRepository)(nil).AddAccounts), accs, stamp)
 }
 
 // AddTimeToFinality mocks base method.
@@ -63,6 +94,20 @@ func (m *MockRepository) AddTokensRequest(arg0 *types.TokensRequest) error {
 func (mr *MockRepositoryMockRecorder) AddTokensRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTokensRequest", reflect.TypeOf((*MockRepository)(nil).AddTokensRequest), arg0)
+}
+
+// AddTransactions mocks base method.
+func (m *MockRepository) AddTransactions(arg0 []db_types.Transaction) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddTransactions", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddTransactions indicates an expected call of AddTransactions.
+func (mr *MockRepositoryMockRecorder) AddTransactions(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTransactions", reflect.TypeOf((*MockRepository)(nil).AddTransactions), arg0)
 }
 
 // FetchDiskSizePer100MTxs mocks base method.
@@ -239,6 +284,21 @@ func (mr *MockRepositoryMockRecorder) GetNumberOfAccounts() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNumberOfAccounts", reflect.TypeOf((*MockRepository)(nil).GetNumberOfAccounts))
 }
 
+// GetNumberOfAccountsInDb mocks base method.
+func (m *MockRepository) GetNumberOfAccountsInDb() (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetNumberOfAccountsInDb")
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetNumberOfAccountsInDb indicates an expected call of GetNumberOfAccountsInDb.
+func (mr *MockRepositoryMockRecorder) GetNumberOfAccountsInDb() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNumberOfAccountsInDb", reflect.TypeOf((*MockRepository)(nil).GetNumberOfAccountsInDb))
+}
+
 // GetNumberOfValidators mocks base method.
 func (m *MockRepository) GetNumberOfValidators() (uint64, error) {
 	m.ctrl.T.Helper()
@@ -309,6 +369,21 @@ func (m *MockRepository) GetTransactionByHash(arg0 common.Hash) (*types.Transact
 func (mr *MockRepositoryMockRecorder) GetTransactionByHash(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTransactionByHash", reflect.TypeOf((*MockRepository)(nil).GetTransactionByHash), arg0)
+}
+
+// GetTransactionsWhereAddress mocks base method.
+func (m *MockRepository) GetTransactionsWhereAddress(arg0 common.Address) ([]db_types.Transaction, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTransactionsWhereAddress", arg0)
+	ret0, _ := ret[0].([]db_types.Transaction)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTransactionsWhereAddress indicates an expected call of GetTransactionsWhereAddress.
+func (mr *MockRepositoryMockRecorder) GetTransactionsWhereAddress(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTransactionsWhereAddress", reflect.TypeOf((*MockRepository)(nil).GetTransactionsWhereAddress), arg0)
 }
 
 // GetTrxCount mocks base method.
@@ -465,15 +540,15 @@ func (mr *MockRepositoryMockRecorder) SetNumberOfAccounts(arg0 interface{}) *gom
 }
 
 // SetTimeToFinalityPer10Secs mocks base method.
-func (m *MockRepository) SetTimeToFinalityPer10Secs(data []types.FloatTick) {
+func (m *MockRepository) SetTimeToFinalityPer10Secs(arg0 []types.FloatTick) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "SetTimeToFinalityPer10Secs", data)
+	m.ctrl.Call(m, "SetTimeToFinalityPer10Secs", arg0)
 }
 
 // SetTimeToFinalityPer10Secs indicates an expected call of SetTimeToFinalityPer10Secs.
-func (mr *MockRepositoryMockRecorder) SetTimeToFinalityPer10Secs(data interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) SetTimeToFinalityPer10Secs(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetTimeToFinalityPer10Secs", reflect.TypeOf((*MockRepository)(nil).SetTimeToFinalityPer10Secs), data)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetTimeToFinalityPer10Secs", reflect.TypeOf((*MockRepository)(nil).SetTimeToFinalityPer10Secs), arg0)
 }
 
 // SetTxCountPer10Secs mocks base method.
@@ -486,6 +561,34 @@ func (m *MockRepository) SetTxCountPer10Secs(arg0 []types.HexUintTick) {
 func (mr *MockRepositoryMockRecorder) SetTxCountPer10Secs(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetTxCountPer10Secs", reflect.TypeOf((*MockRepository)(nil).SetTxCountPer10Secs), arg0)
+}
+
+// ShrinkTransactions mocks base method.
+func (m *MockRepository) ShrinkTransactions(arg0 int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ShrinkTransactions", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ShrinkTransactions indicates an expected call of ShrinkTransactions.
+func (mr *MockRepositoryMockRecorder) ShrinkTransactions(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShrinkTransactions", reflect.TypeOf((*MockRepository)(nil).ShrinkTransactions), arg0)
+}
+
+// ShrinkTtf mocks base method.
+func (m *MockRepository) ShrinkTtf(arg0 int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ShrinkTtf", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ShrinkTtf indicates an expected call of ShrinkTtf.
+func (mr *MockRepositoryMockRecorder) ShrinkTtf(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShrinkTtf", reflect.TypeOf((*MockRepository)(nil).ShrinkTtf), arg0)
 }
 
 // SuggestGasPrice mocks base method.

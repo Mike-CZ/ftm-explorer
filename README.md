@@ -44,7 +44,9 @@ build/demonet-explorer
 ```
 {
   "explorer": {
-    "blockBufferSize": 10000
+    "blockBufferSize": 10000,
+    "isPersisted": false,
+    "maxTxsCount": 10000000
   },
   "faucet": {
     "claimLimitSeconds": 86400,

@@ -7,6 +7,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
@@ -114,6 +115,55 @@ func (db *MongoDb) TtfAvgAggByTimestamp(ctx context.Context, endTime uint64, res
 	}
 
 	return ticksResult, nil
+}
+
+// ShrinkTtf shrinks the time to finality collection. It will persist the given number of ttfs.
+func (db *MongoDb) ShrinkTtf(ctx context.Context, count int64) error {
+	// get the number of ttfs
+	numOfTtfs, err := db.timeToFinalityCollection().CountDocuments(ctx, bson.M{})
+	if err != nil {
+		return err
+	}
+	// if there are less ttfs than the given count, do nothing
+	if numOfTtfs <= count {
+		return nil
+	}
+
+	// Find the timestamp of the Xth most recent record.
+	opts := options.FindOne().SetSort(bson.D{{kFiTimeToFinalityTimestamp, -1}}).SetSkip(count - 1)
+	var result types.Ttf
+	if err := db.timeToFinalityCollection().FindOne(ctx, bson.D{}, opts).Decode(&result); err != nil {
+		if err == mongo.ErrNoDocuments {
+			// Handle no document found logically if needed
+			return nil
+		}
+		return err
+	}
+	cutoffTimestamp := result.Timestamp
+
+	// Delete all records older than the found timestamp.
+	deleteFilter := bson.M{kFiTimeToFinalityTimestamp: bson.M{"$lt": cutoffTimestamp}}
+	_, err = db.timeToFinalityCollection().DeleteMany(ctx, deleteFilter)
+
+	return err
+}
+
+// initTtfCollection initializes the time to finality collection.
+func (db *MongoDb) initTtfCollection() {
+	// prepare index models
+	ix := make([]mongo.IndexModel, 0)
+
+	// index the timestamp
+	ix = append(ix, mongo.IndexModel{Keys: bson.D{{Key: kFiTimeToFinalityTimestamp, Value: -1}}})
+
+	// create indexes
+	ctx, cancel := context.WithTimeout(context.Background(), kMongoDefaultTimeout)
+	defer cancel()
+	if _, err := db.timeToFinalityCollection().Indexes().CreateMany(ctx, ix); err != nil {
+		db.log.Panicf("can not create indexes for ttf collection; %v", err)
+	}
+
+	db.log.Debugf("ttf collection initialized")
 }
 
 // timeToFinalityCollection returns the time to finality collection.

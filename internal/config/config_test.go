@@ -9,7 +9,9 @@ import (
 func TestConfig_Load(t *testing.T) {
 	cfgStr := `{
 	  "explorer": {
-		"blockBufferSize": 128964
+		"blockBufferSize": 128964,
+		"isPersisted": true,
+		"maxTxsCount": 66999999
 	  },
       "faucet": {
         "claimLimitSeconds": 1000,
@@ -69,6 +71,12 @@ func TestConfig_Load(t *testing.T) {
 	// Check the configuration values
 	if cfg.Explorer.BlockBufferSize != 128964 {
 		t.Errorf("expected Explorer.BlockBufferSize to be 128964, got %d", cfg.Explorer.BlockBufferSize)
+	}
+	if !cfg.Explorer.IsPersisted {
+		t.Errorf("expected Explorer.IsPersisted to be true, got %v", cfg.Explorer.IsPersisted)
+	}
+	if cfg.Explorer.MaxTxsCount != 66999999 {
+		t.Errorf("expected Explorer.MaxTxsCount to be 66999999, got %d", cfg.Explorer.MaxTxsCount)
 	}
 	if cfg.Faucet.ClaimLimitSeconds != 1000 {
 		t.Errorf("expected Faucet.ClaimLimitSeconds to be 1000, got %d", cfg.Faucet.ClaimLimitSeconds)

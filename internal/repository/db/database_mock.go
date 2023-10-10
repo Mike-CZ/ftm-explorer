@@ -10,6 +10,7 @@ import (
 	types "ftm-explorer/internal/types"
 	reflect "reflect"
 
+	common "github.com/ethereum/go-ethereum/common"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -34,6 +35,20 @@ func NewMockDatabase(ctrl *gomock.Controller) *MockDatabase {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockDatabase) EXPECT() *MockDatabaseMockRecorder {
 	return m.recorder
+}
+
+// AddAccounts mocks base method.
+func (m *MockDatabase) AddAccounts(arg0 context.Context, arg1 []common.Address, arg2 int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddAccounts", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddAccounts indicates an expected call of AddAccounts.
+func (mr *MockDatabaseMockRecorder) AddAccounts(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddAccounts", reflect.TypeOf((*MockDatabase)(nil).AddAccounts), arg0, arg1, arg2)
 }
 
 // AddBlock mocks base method.
@@ -76,6 +91,20 @@ func (m *MockDatabase) AddTokensRequest(arg0 context.Context, arg1 *types.Tokens
 func (mr *MockDatabaseMockRecorder) AddTokensRequest(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTokensRequest", reflect.TypeOf((*MockDatabase)(nil).AddTokensRequest), arg0, arg1)
+}
+
+// AddTransactions mocks base method.
+func (m *MockDatabase) AddTransactions(ctx context.Context, txs []db_types.Transaction) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddTransactions", ctx, txs)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddTransactions indicates an expected call of AddTransactions.
+func (mr *MockDatabaseMockRecorder) AddTransactions(ctx, txs interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTransactions", reflect.TypeOf((*MockDatabase)(nil).AddTransactions), ctx, txs)
 }
 
 // Block mocks base method.
@@ -147,6 +176,64 @@ func (m *MockDatabase) LatestTokensRequest(arg0 context.Context, arg1 string) (*
 func (mr *MockDatabaseMockRecorder) LatestTokensRequest(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LatestTokensRequest", reflect.TypeOf((*MockDatabase)(nil).LatestTokensRequest), arg0, arg1)
+}
+
+// NumberOfAccoutns mocks base method.
+func (m *MockDatabase) NumberOfAccoutns(ctx context.Context) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NumberOfAccoutns", ctx)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// NumberOfAccoutns indicates an expected call of NumberOfAccoutns.
+func (mr *MockDatabaseMockRecorder) NumberOfAccoutns(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NumberOfAccoutns", reflect.TypeOf((*MockDatabase)(nil).NumberOfAccoutns), ctx)
+}
+
+// ShrinkTransactions mocks base method.
+func (m *MockDatabase) ShrinkTransactions(ctx context.Context, count int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ShrinkTransactions", ctx, count)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ShrinkTransactions indicates an expected call of ShrinkTransactions.
+func (mr *MockDatabaseMockRecorder) ShrinkTransactions(ctx, count interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShrinkTransactions", reflect.TypeOf((*MockDatabase)(nil).ShrinkTransactions), ctx, count)
+}
+
+// ShrinkTtf mocks base method.
+func (m *MockDatabase) ShrinkTtf(ctx context.Context, count int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ShrinkTtf", ctx, count)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ShrinkTtf indicates an expected call of ShrinkTtf.
+func (mr *MockDatabaseMockRecorder) ShrinkTtf(ctx, count interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShrinkTtf", reflect.TypeOf((*MockDatabase)(nil).ShrinkTtf), ctx, count)
+}
+
+// TransactionsWhereAddress mocks base method.
+func (m *MockDatabase) TransactionsWhereAddress(ctx context.Context, addr common.Address) ([]db_types.Transaction, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "TransactionsWhereAddress", ctx, addr)
+	ret0, _ := ret[0].([]db_types.Transaction)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// TransactionsWhereAddress indicates an expected call of TransactionsWhereAddress.
+func (mr *MockDatabaseMockRecorder) TransactionsWhereAddress(ctx, addr interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TransactionsWhereAddress", reflect.TypeOf((*MockDatabase)(nil).TransactionsWhereAddress), ctx, addr)
 }
 
 // TrxCount mocks base method.
