@@ -105,6 +105,9 @@ func (bs *blockObserver) processBlock(block *types.Block, wg *sync.WaitGroup) {
 		// lock the aggregator, so that only one goroutine can run it at a time
 		updateAggs := bs.aggMtx.TryLock()
 		if updateAggs {
+			// unlock the aggregator
+			defer bs.aggMtx.Unlock()
+
 			bs.lastAggTime = aggTime
 			txAggs, err := bs.repo.GetTrxCountAggByTimestamp(resolution, 60, &aggTime)
 			if err != nil {
@@ -119,9 +122,6 @@ func (bs *blockObserver) processBlock(block *types.Block, wg *sync.WaitGroup) {
 			bs.repo.SetTxCountPer10Secs(txAggs)
 			bs.repo.SetGasUsedPer10Secs(gasUsedAggs)
 			bs.log.Notice("aggregation data updated successfully")
-
-			// unlock the aggregator
-			bs.aggMtx.Unlock()
 		}
 	}
 
