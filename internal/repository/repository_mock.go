@@ -38,6 +38,20 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
+// AddAccounts mocks base method.
+func (m *MockRepository) AddAccounts(accs []common.Address, stamp int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddAccounts", accs, stamp)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddAccounts indicates an expected call of AddAccounts.
+func (mr *MockRepositoryMockRecorder) AddAccounts(accs, stamp interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddAccounts", reflect.TypeOf((*MockRepository)(nil).AddAccounts), accs, stamp)
+}
+
 // AddTimeToFinality mocks base method.
 func (m *MockRepository) AddTimeToFinality(arg0 *types.Ttf) error {
 	m.ctrl.T.Helper()
@@ -252,6 +266,21 @@ func (m *MockRepository) GetNumberOfAccounts() uint64 {
 func (mr *MockRepositoryMockRecorder) GetNumberOfAccounts() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNumberOfAccounts", reflect.TypeOf((*MockRepository)(nil).GetNumberOfAccounts))
+}
+
+// GetNumberOfAccountsInDb mocks base method.
+func (m *MockRepository) GetNumberOfAccountsInDb() (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetNumberOfAccountsInDb")
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetNumberOfAccountsInDb indicates an expected call of GetNumberOfAccountsInDb.
+func (mr *MockRepositoryMockRecorder) GetNumberOfAccountsInDb() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNumberOfAccountsInDb", reflect.TypeOf((*MockRepository)(nil).GetNumberOfAccountsInDb))
 }
 
 // GetNumberOfValidators mocks base method.
@@ -495,15 +524,15 @@ func (mr *MockRepositoryMockRecorder) SetNumberOfAccounts(arg0 interface{}) *gom
 }
 
 // SetTimeToFinalityPer10Secs mocks base method.
-func (m *MockRepository) SetTimeToFinalityPer10Secs(data []types.FloatTick) {
+func (m *MockRepository) SetTimeToFinalityPer10Secs(arg0 []types.FloatTick) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "SetTimeToFinalityPer10Secs", data)
+	m.ctrl.Call(m, "SetTimeToFinalityPer10Secs", arg0)
 }
 
 // SetTimeToFinalityPer10Secs indicates an expected call of SetTimeToFinalityPer10Secs.
-func (mr *MockRepositoryMockRecorder) SetTimeToFinalityPer10Secs(data interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) SetTimeToFinalityPer10Secs(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetTimeToFinalityPer10Secs", reflect.TypeOf((*MockRepository)(nil).SetTimeToFinalityPer10Secs), data)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetTimeToFinalityPer10Secs", reflect.TypeOf((*MockRepository)(nil).SetTimeToFinalityPer10Secs), arg0)
 }
 
 // SetTxCountPer10Secs mocks base method.
@@ -516,6 +545,34 @@ func (m *MockRepository) SetTxCountPer10Secs(arg0 []types.HexUintTick) {
 func (mr *MockRepositoryMockRecorder) SetTxCountPer10Secs(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetTxCountPer10Secs", reflect.TypeOf((*MockRepository)(nil).SetTxCountPer10Secs), arg0)
+}
+
+// ShrinkTransactions mocks base method.
+func (m *MockRepository) ShrinkTransactions(arg0 int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ShrinkTransactions", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ShrinkTransactions indicates an expected call of ShrinkTransactions.
+func (mr *MockRepositoryMockRecorder) ShrinkTransactions(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShrinkTransactions", reflect.TypeOf((*MockRepository)(nil).ShrinkTransactions), arg0)
+}
+
+// ShrinkTtf mocks base method.
+func (m *MockRepository) ShrinkTtf(arg0 int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ShrinkTtf", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ShrinkTtf indicates an expected call of ShrinkTtf.
+func (mr *MockRepositoryMockRecorder) ShrinkTtf(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShrinkTtf", reflect.TypeOf((*MockRepository)(nil).ShrinkTtf), arg0)
 }
 
 // SuggestGasPrice mocks base method.

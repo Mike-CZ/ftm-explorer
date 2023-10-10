@@ -45,6 +45,7 @@ func NewMongoDb(cfg *config.MongoDb, log logger.ILogger) (*MongoDb, error) {
 	// initialize the collections
 	db.initBlockCollection()
 	db.initTransactionCollection()
+	db.initTtfCollection()
 
 	return db, nil
 }

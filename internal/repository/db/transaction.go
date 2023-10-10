@@ -7,6 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
@@ -71,6 +72,38 @@ func (db *MongoDb) TransactionsWhereAddress(ctx context.Context, addr common.Add
 	return transactions, nil
 }
 
+// ShrinkTransactions shrinks the transactions collection. It will persist the given number of transactions.
+// It will delete the oldest transactions.
+func (db *MongoDb) ShrinkTransactions(ctx context.Context, count int64) error {
+	// get the number of transactions
+	numOfTrx, err := db.transactionCollection().CountDocuments(ctx, bson.M{})
+	if err != nil {
+		return err
+	}
+	// if there are less transactions than the given count, do nothing
+	if numOfTrx <= count {
+		return nil
+	}
+
+	// Find the timestamp of the Xth most recent record.
+	opts := options.FindOne().SetSort(bson.D{{kFiTransactionTimestamp, -1}}).SetSkip(count - 1)
+	var result db_types.Transaction
+	if err := db.transactionCollection().FindOne(ctx, bson.D{}, opts).Decode(&result); err != nil {
+		if err == mongo.ErrNoDocuments {
+			// Handle no document found logically if needed
+			return nil
+		}
+		return err
+	}
+	cutoffTimestamp := result.Timestamp
+
+	// Delete all records older than the found timestamp.
+	deleteFilter := bson.M{kFiTransactionTimestamp: bson.M{"$lt": cutoffTimestamp}}
+	_, err = db.transactionCollection().DeleteMany(ctx, deleteFilter)
+
+	return err
+}
+
 // transactionCollection returns the transaction collection.
 func (db *MongoDb) transactionCollection() *mongo.Collection {
 	return db.db.Collection(kCoTransactions)
@@ -82,7 +115,7 @@ func (db *MongoDb) initTransactionCollection() {
 	ix := make([]mongo.IndexModel, 0)
 
 	// index the timestamp
-	ix = append(ix, mongo.IndexModel{Keys: bson.D{{Key: kFiTransactionTimestamp, Value: 1}}})
+	ix = append(ix, mongo.IndexModel{Keys: bson.D{{Key: kFiTransactionTimestamp, Value: -1}}})
 
 	// index the addresses
 	ix = append(ix, mongo.IndexModel{Keys: bson.D{{Key: kFiTransactionAddresses, Value: 1}}})

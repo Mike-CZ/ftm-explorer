@@ -13,6 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // Test connection to MongoDB
@@ -470,6 +471,99 @@ func TestMongoDb_AddAndGetTransactions(t *testing.T) {
 	// compare transactions
 	if len(returnedTxs) != 0 {
 		t.Fatalf("expected 0 transaction, got %d", len(returnedTxs))
+	}
+}
+
+// Test transactions can be shrunk.
+func TestMongoDb_ShrinkTransactions(t *testing.T) {
+	db := startMongoDb(t)
+
+	// define transactions to add
+	txs := []db_types.Transaction{
+		{
+			Addresses: []common.Address{
+				common.HexToAddress("0x1"),
+				common.HexToAddress("0x2"),
+			},
+			Hash:      common.Hash{0x12},
+			Timestamp: 1_689_601_270,
+		},
+		{
+			Addresses: []common.Address{
+				common.HexToAddress("0x3"),
+				common.HexToAddress("0x4"),
+				common.HexToAddress("0x5"),
+			},
+			Hash:      common.Hash{0x34},
+			Timestamp: 1_689_601_271,
+		},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
+	defer cancel()
+
+	// add transactions
+	if err := db.AddTransactions(ctx, txs); err != nil {
+		t.Fatalf("failed to add transactions: %v", err)
+	}
+
+	// get current count of transactions
+	numOfTrx, err := db.transactionCollection().CountDocuments(ctx, bson.M{})
+	if err != nil {
+		t.Fatalf("failed to get number of transactions: %v", err)
+	}
+	if numOfTrx != 2 {
+		t.Fatalf("expected 2 transactions, got %d", numOfTrx)
+	}
+
+	// shrink transactions
+	if err := db.ShrinkTransactions(ctx, 1); err != nil {
+		t.Fatalf("failed to shrink transactions: %v", err)
+	}
+
+	// get current count of transactions
+	numOfTrx, err = db.transactionCollection().CountDocuments(ctx, bson.M{})
+	if err != nil {
+		t.Fatalf("failed to get number of transactions: %v", err)
+	}
+	if numOfTrx != 1 {
+		t.Fatalf("expected 1 transaction, got %d", numOfTrx)
+	}
+}
+
+// Test adding and getting number of accounts.
+func TestMongoDb_AddAndGetNumberOfAccounts(t *testing.T) {
+	db := startMongoDb(t)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
+	defer cancel()
+
+	// try getting number of accounts without previous adding
+	numOfAcc, err := db.NumberOfAccoutns(ctx)
+	if err != nil {
+		t.Fatalf("failed to get number of accounts: %v", err)
+	}
+	if numOfAcc != 0 {
+		t.Fatalf("expected 0 number of accounts, got %d", numOfAcc)
+	}
+
+	// add new accounts into database
+	accs := []common.Address{
+		common.HexToAddress("0x1"),
+		common.HexToAddress("0x2"),
+	}
+
+	if err := db.AddAccounts(ctx, accs, 1_689_601_270); err != nil {
+		t.Fatalf("failed to add accounts: %v", err)
+	}
+
+	// try getting number of accounts after adding
+	numOfAcc, err = db.NumberOfAccoutns(ctx)
+	if err != nil {
+		t.Fatalf("failed to get number of accounts: %v", err)
+	}
+	if numOfAcc != 2 {
+		t.Fatalf("expected 2 number of accounts, got %d", numOfAcc)
 	}
 }
 

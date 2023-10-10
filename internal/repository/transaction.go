@@ -61,3 +61,12 @@ func (r *Repository) GetTransactionsWhereAddress(addr common.Address) ([]db_type
 
 	return r.db.TransactionsWhereAddress(ctx, addr)
 }
+
+// ShrinkTransactions shrinks the transactions collection. It will persist the given number of transactions.
+// It will delete the oldest transactions.
+func (r *Repository) ShrinkTransactions(count int64) error {
+	ctx, cancel := context.WithTimeout(context.Background(), kDbTimeout)
+	defer cancel()
+
+	return r.db.ShrinkTransactions(ctx, count)
+}

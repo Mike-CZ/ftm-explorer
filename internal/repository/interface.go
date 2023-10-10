@@ -118,11 +118,24 @@ type IRepository interface {
 	GetTimeToFinalityPer10Secs() []types.FloatTick
 
 	// SetTimeToFinalityPer10Secs sets time to finality per 10 seconds.
-	SetTimeToFinalityPer10Secs(data []types.FloatTick)
+	SetTimeToFinalityPer10Secs([]types.FloatTick)
 
 	// AddTransactions adds transactions to the database.
 	AddTransactions([]db_types.Transaction) error
 
 	// GetTransactionsWhereAddress returns transactions where the given address is involved.
 	GetTransactionsWhereAddress(common.Address) ([]db_types.Transaction, error)
+
+	// ShrinkTransactions shrinks the transactions collection. It will persist the given number of transactions.
+	// It will delete the oldest transactions.
+	ShrinkTransactions(int64) error
+
+	// ShrinkTtf shrinks the time to finality collection. It will persist the given number of ttfs.
+	ShrinkTtf(int64) error
+
+	// AddAccounts adds accounts to the database.
+	AddAccounts(accs []common.Address, stamp int64) error
+
+	// GetNumberOfAccountsInDb returns the number of accounts in the database.
+	GetNumberOfAccountsInDb() (uint64, error)
 }

@@ -51,6 +51,19 @@ type IDatabase interface {
 	// TransactionsWhereAddress returns transactions where the given address is involved.
 	TransactionsWhereAddress(ctx context.Context, addr common.Address) ([]db_types.Transaction, error)
 
+	// ShrinkTransactions shrinks the transactions collection. It will persist the given number of transactions.
+	// It will delete the oldest transactions.
+	ShrinkTransactions(ctx context.Context, count int64) error
+
+	// ShrinkTtf shrinks the time to finality collection. It will persist the given number of ttfs.
+	ShrinkTtf(ctx context.Context, count int64) error
+
+	// AddAccounts adds accounts to the database.
+	AddAccounts(context.Context, []common.Address, int64) error
+
+	// NumberOfAccoutns returns the number of accounts in the database.
+	NumberOfAccoutns(ctx context.Context) (uint64, error)
+
 	// Close terminates the database connection.
 	Close()
 }

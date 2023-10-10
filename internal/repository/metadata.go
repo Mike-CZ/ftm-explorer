@@ -135,3 +135,11 @@ func (r *Repository) GetTimeToBlock() float64 {
 	// round to 2 decimals and return
 	return float64(int(avgDelta*100)) / 100
 }
+
+// ShrinkTtf shrinks the time to finality collection. It will persist the given number of ttfs.
+func (r *Repository) ShrinkTtf(count int64) error {
+	ctx, cancel := context.WithTimeout(context.Background(), kDbTimeout)
+	defer cancel()
+
+	return r.db.ShrinkTtf(ctx, count)
+}

@@ -4,6 +4,8 @@ import (
 	db_types "ftm-explorer/internal/repository/db/types"
 	"ftm-explorer/internal/types"
 	"sync"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // blockObserver represents an observer of blockchain blocks.
@@ -132,6 +134,7 @@ func (bs *blockObserver) processBlock(block *types.Block, wg *sync.WaitGroup) {
 // storeTransactions stores transactions in the database.
 func (bs *blockObserver) storeTransactions(block *types.Block) {
 	var txs []db_types.Transaction
+	accounts := make(map[common.Address]bool)
 
 	if len(block.Transactions) == 0 {
 		bs.log.Noticef("no transactions to store in block %d", block.Number)
@@ -165,6 +168,11 @@ func (bs *blockObserver) storeTransactions(block *types.Block) {
 		}
 		// append transaction to the list
 		txs = append(txs, dbTx)
+
+		// add addresses to the map
+		for _, addr := range dbTx.Addresses {
+			accounts[addr] = true
+		}
 	}
 
 	// store transactions
@@ -174,4 +182,14 @@ func (bs *blockObserver) storeTransactions(block *types.Block) {
 	}
 
 	bs.log.Noticef("stored %d transactions for block %d", len(txs), block.Number)
+
+	// store accounts
+	var accountsList []common.Address
+	for addr := range accounts {
+		accountsList = append(accountsList, addr)
+	}
+	if err := bs.repo.AddAccounts(accountsList, int64(block.Timestamp)); err != nil {
+		bs.log.Criticalf("error storing accounts: %v", err)
+		return
+	}
 }
