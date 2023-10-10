@@ -45,7 +45,8 @@ func (db *MongoDb) TransactionsWhereAddress(ctx context.Context, addr common.Add
 	var transactions []db_types.Transaction
 
 	// Perform the query
-	cur, err := db.transactionCollection().Find(ctx, bson.M{kFiTransactionAddresses: addr})
+	opts := options.Find().SetSort(bson.D{{kFiTransactionTimestamp, -1}})
+	cur, err := db.transactionCollection().Find(ctx, bson.M{kFiTransactionAddresses: addr}, opts)
 	if err != nil {
 		return nil, err
 	}

@@ -8,6 +8,7 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	eth "github.com/ethereum/go-ethereum/core/types"
 )
 
@@ -138,4 +139,7 @@ type IRepository interface {
 
 	// GetNumberOfAccountsInDb returns the number of accounts in the database.
 	GetNumberOfAccountsInDb() (uint64, error)
+
+	// AccountBalance returns the balance of the account.
+	AccountBalance(common.Address) (*hexutil.Big, error)
 }

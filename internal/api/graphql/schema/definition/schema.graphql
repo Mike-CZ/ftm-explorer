@@ -48,6 +48,9 @@ type Query {
     # Get ttf aggregated data by timestamp. It returns last 60 ticks aggregated
     # by 10 seconds.
     ttfTimestampAggregations:[TtfTick!]!
+
+    # Get an Account information by hash address.
+    account(address:Address!):Account!
 }
 
 type Mutation {

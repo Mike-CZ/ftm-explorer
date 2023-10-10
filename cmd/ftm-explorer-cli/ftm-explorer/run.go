@@ -51,7 +51,7 @@ func run(ctx *cli.Context) error {
 	}
 
 	// create api server
-	apiServer := api.NewApiServer(&cfg.Api, repo, fct, log)
+	apiServer := api.NewApiServer(cfg, repo, fct, log)
 
 	// run api server
 	apiServer.Start()

@@ -11,6 +11,7 @@ import (
 	reflect "reflect"
 
 	common "github.com/ethereum/go-ethereum/common"
+	hexutil "github.com/ethereum/go-ethereum/common/hexutil"
 	types0 "github.com/ethereum/go-ethereum/core/types"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -36,6 +37,21 @@ func NewMockRepository(ctrl *gomock.Controller) *MockRepository {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
+}
+
+// AccountBalance mocks base method.
+func (m *MockRepository) AccountBalance(addr common.Address) (*hexutil.Big, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AccountBalance", addr)
+	ret0, _ := ret[0].(*hexutil.Big)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AccountBalance indicates an expected call of AccountBalance.
+func (mr *MockRepositoryMockRecorder) AccountBalance(addr interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AccountBalance", reflect.TypeOf((*MockRepository)(nil).AccountBalance), addr)
 }
 
 // AddAccounts mocks base method.

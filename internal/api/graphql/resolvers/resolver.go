@@ -16,13 +16,18 @@ type RootResolver struct {
 
 	// singleflight is used to prevent multiple concurrent requests for the same data.
 	sfg singleflight.Group
+
+	// isPersisted is true if the explorer is running in persisted mode.
+	// this might get removed in the future.
+	isPersisted bool
 }
 
 // NewResolver creates a new root resolver.
-func NewResolver(repository repository.IRepository, log logger.ILogger, faucet faucet.IFaucet) *RootResolver {
+func NewResolver(repository repository.IRepository, log logger.ILogger, faucet faucet.IFaucet, isPersisted bool) *RootResolver {
 	return &RootResolver{
-		repository: repository,
-		log:        log.ModuleLogger("resolver"),
-		faucet:     faucet,
+		repository:  repository,
+		log:         log.ModuleLogger("resolver"),
+		faucet:      faucet,
+		isPersisted: isPersisted,
 	}
 }

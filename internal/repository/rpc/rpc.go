@@ -8,6 +8,7 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	eth "github.com/ethereum/go-ethereum/core/types"
 )
 
@@ -29,6 +30,8 @@ type IRpc interface {
 	SuggestGasPrice(context.Context) (*big.Int, error)
 	// NetworkID returns the network ID.
 	NetworkID(context.Context) (*big.Int, error)
+	// AccountBalance returns the balance of the account.
+	AccountBalance(context.Context, common.Address) (*hexutil.Big, error)
 	// Close closes the RPC client.
 	Close()
 }

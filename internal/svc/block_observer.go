@@ -142,6 +142,8 @@ func (bs *blockObserver) storeTransactions(block *types.Block) {
 	}
 
 	for _, hash := range block.Transactions {
+		txAccounts := make(map[common.Address]bool)
+
 		// get transaction
 		tx, err := bs.repo.GetTransactionByHash(hash)
 		if err != nil {
@@ -157,22 +159,52 @@ func (bs *blockObserver) storeTransactions(block *types.Block) {
 			Timestamp: int64(block.Timestamp),
 		}
 		// append sender address
-		dbTx.Addresses = append(dbTx.Addresses, tx.From)
+		txAccounts[tx.From] = true
 		// append receiver address if it is not a contract creation
 		if tx.To != nil {
-			dbTx.Addresses = append(dbTx.Addresses, *tx.To)
+			txAccounts[*tx.To] = true
 		}
 		// append contract address if it is a contract creation
 		if tx.ContractAddress != nil {
-			dbTx.Addresses = append(dbTx.Addresses, *tx.ContractAddress)
+			txAccounts[*tx.ContractAddress] = true
 		}
-		// append transaction to the list
-		txs = append(txs, dbTx)
+
+		// handles events
+		for _, log := range tx.Logs {
+			if len(log.Topics) == 0 {
+				continue
+			}
+			switch log.Topics[0].Hex() {
+			// ERC20::Approval(address indexed owner, address indexed spender, uint256 value)
+			case "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925":
+				fallthrough
+			// ERC20::Transfer(address indexed from, address indexed to, uint256 value)
+			case "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef":
+				if len(log.Topics) == 3 && len(log.Data) == 32 {
+					from := common.BytesToAddress(log.Topics[1].Bytes())
+					to := common.BytesToAddress(log.Topics[2].Bytes())
+					txAccounts[from] = true
+					txAccounts[to] = true
+				}
+			// UniswapPair::Swap(address indexed sender, uint256 amount0In, uint256 amount1In, uint256 amount0Out, uint256 amount1Out, address indexed to)
+			case "0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822":
+				if len(log.Data) == 128 && len(log.Topics) == 3 {
+					from := common.BytesToAddress(log.Topics[1].Bytes())
+					to := common.BytesToAddress(log.Topics[2].Bytes())
+					txAccounts[from] = true
+					txAccounts[to] = true
+				}
+			}
+		}
 
 		// add addresses to the map
-		for _, addr := range dbTx.Addresses {
+		for addr := range txAccounts {
+			dbTx.Addresses = append(dbTx.Addresses, addr)
 			accounts[addr] = true
 		}
+
+		// append transaction to the list
+		txs = append(txs, dbTx)
 	}
 
 	// store transactions

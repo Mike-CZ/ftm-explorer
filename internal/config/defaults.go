@@ -9,7 +9,7 @@ import (
 func applyDefaults(cfg *viper.Viper) {
 	// explorer
 	cfg.SetDefault("explorer.blockBufferSize", 10_000)
-	cfg.SetDefault("explorer.isPersisted", true)
+	cfg.SetDefault("explorer.isPersisted", false)
 	cfg.SetDefault("explorer.maxTxsCount", 10_000_000)
 
 	// rpc

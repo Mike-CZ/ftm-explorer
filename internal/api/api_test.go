@@ -43,7 +43,7 @@ func TestApiServer_Run(t *testing.T) {
 
 	// initialize test server
 	handler := middlewares.AuthMiddleware(
-		handlers.ApiHandler([]string{"*"}, resolvers.NewResolver(mockRepository, mockLogger, mockFaucet), mockLogger),
+		handlers.ApiHandler([]string{"*"}, resolvers.NewResolver(mockRepository, mockLogger, mockFaucet, false), mockLogger),
 	)
 	server := httptest.NewServer(handler)
 	defer server.Close()
