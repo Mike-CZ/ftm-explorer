@@ -54,12 +54,12 @@ func (r *Repository) AddTransactions(txs []db_types.Transaction) error {
 	return r.db.AddTransactions(ctx, txs)
 }
 
-// GetTransactionsWhereAddress returns transactions where the given address is involved.
-func (r *Repository) GetTransactionsWhereAddress(addr common.Address) ([]db_types.Transaction, error) {
+// GetLastTransactionsWhereAddress returns the last transactions for the given address.
+func (r *Repository) GetLastTransactionsWhereAddress(addr common.Address, count uint) ([]db_types.Transaction, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), kDbTimeout)
 	defer cancel()
 
-	return r.db.TransactionsWhereAddress(ctx, addr)
+	return r.db.LastTransactionsWhereAddress(ctx, addr, count)
 }
 
 // ShrinkTransactions shrinks the transactions collection. It will persist the given number of transactions.

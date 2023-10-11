@@ -446,7 +446,7 @@ func TestMongoDb_AddAndGetTransactions(t *testing.T) {
 	}
 
 	// get transactions
-	returnedTxs, err := db.TransactionsWhereAddress(ctx, common.HexToAddress("0x1"))
+	returnedTxs, err := db.LastTransactionsWhereAddress(ctx, common.HexToAddress("0x1"), 10)
 	if err != nil {
 		t.Fatalf("failed to get transactions: %v", err)
 	}
@@ -463,7 +463,7 @@ func TestMongoDb_AddAndGetTransactions(t *testing.T) {
 	}
 
 	// get transactions for another address that is not in the database
-	returnedTxs, err = db.TransactionsWhereAddress(ctx, common.HexToAddress("0x6"))
+	returnedTxs, err = db.LastTransactionsWhereAddress(ctx, common.HexToAddress("0x6"), 10)
 	if err != nil {
 		t.Fatalf("failed to get transactions: %v", err)
 	}

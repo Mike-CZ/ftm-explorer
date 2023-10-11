@@ -40,18 +40,18 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // AccountBalance mocks base method.
-func (m *MockRepository) AccountBalance(addr common.Address) (*hexutil.Big, error) {
+func (m *MockRepository) AccountBalance(arg0 common.Address) (*hexutil.Big, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AccountBalance", addr)
+	ret := m.ctrl.Call(m, "AccountBalance", arg0)
 	ret0, _ := ret[0].(*hexutil.Big)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // AccountBalance indicates an expected call of AccountBalance.
-func (mr *MockRepositoryMockRecorder) AccountBalance(addr interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) AccountBalance(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AccountBalance", reflect.TypeOf((*MockRepository)(nil).AccountBalance), addr)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AccountBalance", reflect.TypeOf((*MockRepository)(nil).AccountBalance), arg0)
 }
 
 // AddAccounts mocks base method.
@@ -213,6 +213,21 @@ func (mr *MockRepositoryMockRecorder) GetGasUsedPer10Secs() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGasUsedPer10Secs", reflect.TypeOf((*MockRepository)(nil).GetGasUsedPer10Secs))
 }
 
+// GetLastTransactionsWhereAddress mocks base method.
+func (m *MockRepository) GetLastTransactionsWhereAddress(arg0 common.Address, arg1 uint) ([]db_types.Transaction, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetLastTransactionsWhereAddress", arg0, arg1)
+	ret0, _ := ret[0].([]db_types.Transaction)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetLastTransactionsWhereAddress indicates an expected call of GetLastTransactionsWhereAddress.
+func (mr *MockRepositoryMockRecorder) GetLastTransactionsWhereAddress(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLastTransactionsWhereAddress", reflect.TypeOf((*MockRepository)(nil).GetLastTransactionsWhereAddress), arg0, arg1)
+}
+
 // GetLatestObservedBlock mocks base method.
 func (m *MockRepository) GetLatestObservedBlock() *types.Block {
 	m.ctrl.T.Helper()
@@ -369,21 +384,6 @@ func (m *MockRepository) GetTransactionByHash(arg0 common.Hash) (*types.Transact
 func (mr *MockRepositoryMockRecorder) GetTransactionByHash(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTransactionByHash", reflect.TypeOf((*MockRepository)(nil).GetTransactionByHash), arg0)
-}
-
-// GetTransactionsWhereAddress mocks base method.
-func (m *MockRepository) GetTransactionsWhereAddress(arg0 common.Address) ([]db_types.Transaction, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTransactionsWhereAddress", arg0)
-	ret0, _ := ret[0].([]db_types.Transaction)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetTransactionsWhereAddress indicates an expected call of GetTransactionsWhereAddress.
-func (mr *MockRepositoryMockRecorder) GetTransactionsWhereAddress(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTransactionsWhereAddress", reflect.TypeOf((*MockRepository)(nil).GetTransactionsWhereAddress), arg0)
 }
 
 // GetTrxCount mocks base method.

@@ -124,8 +124,8 @@ type IRepository interface {
 	// AddTransactions adds transactions to the database.
 	AddTransactions([]db_types.Transaction) error
 
-	// GetTransactionsWhereAddress returns transactions where the given address is involved.
-	GetTransactionsWhereAddress(common.Address) ([]db_types.Transaction, error)
+	// GetLastTransactionsWhereAddress returns the last transactions where the given address is involved.
+	GetLastTransactionsWhereAddress(common.Address, uint) ([]db_types.Transaction, error)
 
 	// ShrinkTransactions shrinks the transactions collection. It will persist the given number of transactions.
 	// It will delete the oldest transactions.

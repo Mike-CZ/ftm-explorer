@@ -40,12 +40,12 @@ func (db *MongoDb) AddTransactions(ctx context.Context, txs []db_types.Transacti
 	return nil
 }
 
-// TransactionsWhereAddress returns transactions where the given address is involved.
-func (db *MongoDb) TransactionsWhereAddress(ctx context.Context, addr common.Address) ([]db_types.Transaction, error) {
+// LastTransactionsWhereAddress returns the last transactions for the given address.
+func (db *MongoDb) LastTransactionsWhereAddress(ctx context.Context, addr common.Address, count uint) ([]db_types.Transaction, error) {
 	var transactions []db_types.Transaction
 
 	// Perform the query
-	opts := options.Find().SetSort(bson.D{{kFiTransactionTimestamp, -1}})
+	opts := options.Find().SetSort(bson.D{{kFiTransactionTimestamp, -1}}).SetLimit(int64(count))
 	cur, err := db.transactionCollection().Find(ctx, bson.M{kFiTransactionAddresses: addr}, opts)
 	if err != nil {
 		return nil, err
