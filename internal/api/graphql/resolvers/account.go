@@ -28,7 +28,7 @@ func (acc Account) Balance() (hexutil.Big, error) {
 // Transactions returns the transactions of the account.
 func (acc Account) Transactions() ([]*Transaction, error) {
 	// fetch 500 latest transactions
-	txs, err := acc.rs.repository.GetLastTransactionsWhereAddress(acc.Address, 500)
+	txs, err := acc.rs.repository.GetLastTransactionsWhereAddress(acc.Address, 250)
 	if err != nil {
 		return nil, err
 	}
