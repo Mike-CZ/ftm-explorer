@@ -4,6 +4,7 @@ import (
 	"context"
 	db_types "ftm-explorer/internal/repository/db/types"
 	"ftm-explorer/internal/types"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	eth "github.com/ethereum/go-ethereum/core/types"
@@ -65,7 +66,7 @@ func (r *Repository) GetLastTransactionsWhereAddress(addr common.Address, count 
 // ShrinkTransactions shrinks the transactions collection. It will persist the given number of transactions.
 // It will delete the oldest transactions.
 func (r *Repository) ShrinkTransactions(count int64) error {
-	ctx, cancel := context.WithTimeout(context.Background(), kDbTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	return r.db.ShrinkTransactions(ctx, count)
