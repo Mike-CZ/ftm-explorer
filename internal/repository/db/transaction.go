@@ -77,7 +77,7 @@ func (db *MongoDb) LastTransactionsWhereAddress(ctx context.Context, addr common
 // It will delete the oldest transactions.
 func (db *MongoDb) ShrinkTransactions(ctx context.Context, count int64) error {
 	// get the number of transactions
-	numOfTrx, err := db.transactionCollection().CountDocuments(ctx, bson.M{})
+	numOfTrx, err := db.transactionCollection().EstimatedDocumentCount(ctx)
 	if err != nil {
 		return err
 	}
