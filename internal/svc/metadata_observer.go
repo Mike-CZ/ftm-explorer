@@ -54,6 +54,7 @@ func (mo *metadataObserver) execute() {
 
 	lastNumberOfAccounts := uint64(0)
 	latestDiskSizePer100MTxs := uint64(0)
+	latestDiskSizePrunedPer100MTxs := uint64(0)
 	for {
 		select {
 		case <-mo.sigClose:
@@ -77,6 +78,16 @@ func (mo *metadataObserver) execute() {
 				mo.log.Noticef("disk size per 100M txs: %d", diskSizePer100MTxs)
 				mo.repo.SetDiskSizePer100MTxs(diskSizePer100MTxs)
 				latestDiskSizePer100MTxs = diskSizePer100MTxs
+			}
+
+			// fetch and update disk size pruned per 100M txs
+			diskSizePrunedPer100MTxs, err := mo.repo.FetchDiskSizePrunedPer100MTxs()
+			if err != nil {
+				mo.log.Errorf("failed to get disk size pruned per 100M txs: %v", err)
+			} else if diskSizePrunedPer100MTxs != latestDiskSizePrunedPer100MTxs {
+				mo.log.Noticef("disk size pruned per 100M txs: %d", diskSizePrunedPer100MTxs)
+				mo.repo.SetDiskSizePrunedPer100MTxs(diskSizePrunedPer100MTxs)
+				latestDiskSizePrunedPer100MTxs = diskSizePrunedPer100MTxs
 			}
 
 			// fetch and update time to finality

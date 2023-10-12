@@ -12,19 +12,21 @@ import (
 
 // MetaFetcher represents a meta fetcher. It is responsible for fetching the blockchain metadata.
 type MetaFetcher struct {
-	log                   logger.ILogger
-	numberOfAccountsUrl   string
-	diskSizePer100MTxsUrl string
-	timeToFinalityUrl     string
+	log                         logger.ILogger
+	numberOfAccountsUrl         string
+	diskSizePer100MTxsUrl       string
+	diskSizePrunedPer100MTxsUrl string
+	timeToFinalityUrl           string
 }
 
 // NewMetaFetcher returns a new meta fetcher.
 func NewMetaFetcher(cfg *config.MetaFetcher, log logger.ILogger) *MetaFetcher {
 	return &MetaFetcher{
-		log:                   log.ModuleLogger("meta_fetcher"),
-		numberOfAccountsUrl:   cfg.NumberOfAccountsUrl,
-		diskSizePer100MTxsUrl: cfg.DiskSizePer100MTxsUrl,
-		timeToFinalityUrl:     cfg.TimeToFinalityUrl,
+		log:                         log.ModuleLogger("meta_fetcher"),
+		numberOfAccountsUrl:         cfg.NumberOfAccountsUrl,
+		diskSizePer100MTxsUrl:       cfg.DiskSizePer100MTxsUrl,
+		diskSizePrunedPer100MTxsUrl: cfg.DiskSizePrunedPer100MTxsUrl,
+		timeToFinalityUrl:           cfg.TimeToFinalityUrl,
 	}
 }
 
@@ -80,6 +82,35 @@ func (mf *MetaFetcher) DiskSizePer100MTxs() (uint64, error) {
 	num, err := strconv.Atoi(numStr)
 	if err != nil {
 		mf.log.Errorf("failed to convert disk size per 100m txs: %v", err)
+		return 0, err
+	}
+
+	return uint64(num), nil
+}
+
+// DiskSizePrunedPer100MTxs returns the disk size pruned per 100M transactions.
+func (mf *MetaFetcher) DiskSizePrunedPer100MTxs() (uint64, error) {
+	resp, err := http.Get(mf.diskSizePrunedPer100MTxsUrl)
+	if err != nil {
+		mf.log.Errorf("failed to get disk size pruned per 100m txs: %v", err)
+		return 0, err
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			mf.log.Errorf("failed to close response body: %v", err)
+		}
+	}()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		mf.log.Errorf("failed to read response body: %v", err)
+		return 0, err
+	}
+
+	numStr := strings.TrimSpace(string(body))
+	num, err := strconv.Atoi(numStr)
+	if err != nil {
+		mf.log.Errorf("failed to convert disk size pruned per 100m txs: %v", err)
 		return 0, err
 	}
 

@@ -41,9 +41,10 @@ type Faucet struct {
 
 // MetaFetcher is the configuration structure for meta fetcher obtaining blockchain metadata.
 type MetaFetcher struct {
-	NumberOfAccountsUrl   string
-	DiskSizePer100MTxsUrl string
-	TimeToFinalityUrl     string
+	NumberOfAccountsUrl         string
+	DiskSizePer100MTxsUrl       string
+	DiskSizePrunedPer100MTxsUrl string
+	TimeToFinalityUrl           string
 }
 
 // Rpc is the configuration structure for RPC.

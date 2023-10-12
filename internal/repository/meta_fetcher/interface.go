@@ -8,6 +8,8 @@ type IMetaFetcher interface {
 	NumberOfAccounts() (uint64, error)
 	// DiskSizePer100MTxs returns the disk size per 100M transactions.
 	DiskSizePer100MTxs() (uint64, error)
+	// DiskSizePrunedPer100MTxs returns the disk size pruned per 100M transactions.
+	DiskSizePrunedPer100MTxs() (uint64, error)
 	// TimeToFinality returns the time to finality in the blockchain.
 	TimeToFinality() (float64, error)
 }
