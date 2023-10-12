@@ -420,12 +420,9 @@ func TestMongoDb_UpdateTokensRequest(t *testing.T) {
 		t.Fatalf("failed to get latest tokens request: %v", err)
 	}
 
-	if latestTr.ClaimedAt == nil {
-		t.Fatalf("expected %d, got nil", claimedAt)
-	}
-
-	if *latestTr.ClaimedAt != claimedAt {
-		t.Fatalf("expected %d, got %d", claimedAt, latestTr.ClaimedAt)
+	// latest unclaimed tokens request should be nil, because it was claimed
+	if latestTr != nil {
+		t.Fatalf("expected nil, got %v", latestTr)
 	}
 }
 
