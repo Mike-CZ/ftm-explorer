@@ -14,10 +14,12 @@ import (
 )
 
 const (
-	// challengePrefix is template of message to be signed using Metamask.
-	challengePrefix = "Sign following challenge to obtain tokens:\n"
-	// challengePrefixLen is the length of the challenge prefix.
-	challengePrefixLen = len(challengePrefix)
+	// kFaucetChallengePrefix is template of message to be signed using Metamask.
+	kFaucetChallengePrefix = "Sign following challenge to obtain tokens:\n"
+	// kFaucetChallengePrefixLen is the length of the challenge prefix.
+	kFaucetChallengePrefixLen = len(kFaucetChallengePrefix)
+	// kFaucetClaimsPerDay defines the number of claims per day allowed from the same ip address.
+	kFaucetClaimsPerDay = 3
 )
 
 // Faucet represents a faucet instance. It provides access to the
@@ -43,23 +45,25 @@ func NewFaucet(cfg *config.Faucet, pg IFaucetPhraseGenerator, w IFaucetWallet, r
 // the challenge to be signed by the user.
 func (f *Faucet) RequestTokens(ipAddress string) (string, error) {
 	// check if the ip address is already in the database
-	tr, err := f.repo.GetLatestTokensRequest(ipAddress)
+	tr, err := f.repo.GetLatestUnclaimedTokensRequest(ipAddress)
 	if err != nil {
 		return "", fmt.Errorf("error getting latest tokens request: %v", err)
 	}
 
-	// if claim already exists, check its status
+	// if there is unclaimed request, return it
 	if tr != nil {
-		// check if the request was not already fulfilled
-		// if it was not, return the request
-		if tr.ClaimedAt == nil {
-			return challengePrefix + tr.Phrase, nil
-		}
-		// otherwise check if the claim limit was reached
-		diff := uint(time.Now().Sub(time.Unix(*tr.ClaimedAt, 0)).Seconds())
-		if diff < f.cfg.ClaimLimitSeconds {
-			return "", fmt.Errorf("must wait %d seconds before claiming again", f.cfg.ClaimLimitSeconds-diff)
-		}
+		return kFaucetChallengePrefix + tr.Phrase, nil
+	}
+
+	// otherwise get all requests for the given ip address in the last 24 hours
+	requests, err := f.repo.GetLatestClaimedTokensRequests(ipAddress, uint64(time.Now().Unix()-24*60*60))
+	if err != nil {
+		return "", fmt.Errorf("error getting latest tokens requests: %v", err)
+	}
+
+	// check if the number of requests is greater than the allowed number of claims per day
+	if len(requests) >= kFaucetClaimsPerDay {
+		return "", fmt.Errorf("too many requests, you are allowed to claim %d times per day", kFaucetClaimsPerDay)
 	}
 
 	phrase, err := f.pg.GeneratePhrase()
@@ -76,21 +80,21 @@ func (f *Faucet) RequestTokens(ipAddress string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return challengePrefix + tr.Phrase, nil
+	return kFaucetChallengePrefix + tr.Phrase, nil
 }
 
 // ClaimTokens claims tokens for the given phrase and receiver address.
 func (f *Faucet) ClaimTokens(ip string, phrase string, receiver common.Address) error {
 	// check the phrase
-	if len(phrase) < challengePrefixLen || strings.Compare(phrase[:challengePrefixLen], challengePrefix) != 0 {
+	if len(phrase) < kFaucetChallengePrefixLen || strings.Compare(phrase[:kFaucetChallengePrefixLen], kFaucetChallengePrefix) != 0 {
 		return fmt.Errorf("invalid phrase")
 	}
 
 	// remove the challenge prefix
-	phrase = phrase[challengePrefixLen:]
+	phrase = phrase[kFaucetChallengePrefixLen:]
 
 	// get the latest request for the given ip address
-	tr, err := f.repo.GetLatestTokensRequest(ip)
+	tr, err := f.repo.GetLatestUnclaimedTokensRequest(ip)
 	if err != nil {
 		return err
 	}

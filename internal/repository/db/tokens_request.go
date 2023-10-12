@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"ftm-explorer/internal/types"
 
@@ -85,22 +86,63 @@ func (db *MongoDb) UpdateTokensRequest(ctx context.Context, tr *types.TokensRequ
 	return nil
 }
 
-// LatestTokensRequest returns the latest tokens request for the given ip address.
-func (db *MongoDb) LatestTokensRequest(ctx context.Context, ipAddress string) (*types.TokensRequest, error) {
+// LatestUnclaimedTokensRequest returns the latest unclaimed tokens request for the given ip address.
+func (db *MongoDb) LatestUnclaimedTokensRequest(ctx context.Context, ipAddress string) (*types.TokensRequest, error) {
 	var tr types.TokensRequest
 
 	// try to find the latest tokens request for the given ip address
 	opts := options.FindOne().SetSort(bson.D{{kFiTokensRequestPk, -1}})
-	if err := db.tokensRequestCollection().FindOne(ctx, bson.M{kFiTokensRequestIp: ipAddress}, opts).Decode(&tr); err != nil {
-		if err == mongo.ErrNoDocuments {
-			db.log.Debugf("no tokens request found for ip address: %s", ipAddress)
+	if err := db.tokensRequestCollection().FindOne(ctx, bson.M{
+		kFiTokensRequestIp:        ipAddress,
+		kFiTokensRequestClaimedAt: nil,
+	}, opts).Decode(&tr); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			db.log.Debugf("no unclaimed tokens request found for ip address: %s", ipAddress)
 			return nil, nil
 		}
-		db.log.Criticalf("failed to get tokens request for ip address: %s. err: %v", ipAddress, err)
+		db.log.Criticalf("failed to get unclaimed tokens request for ip address: %s. err: %v", ipAddress, err)
 		return nil, err
 	}
 
 	return &tr, nil
+}
+
+// LatestClaimedTokensRequests returns the latest claimed tokens requests for the given ip address.
+// The from parameter is used to determine the starting point of the query.
+func (db *MongoDb) LatestClaimedTokensRequests(ctx context.Context, ipAddress string, from uint64) ([]types.TokensRequest, error) {
+	var requests []types.TokensRequest
+
+	opts := options.Find().SetSort(bson.D{{kFiTokensRequestPk, -1}})
+	filter := bson.M{
+		kFiTokensRequestIp:        ipAddress,
+		kFiTokensRequestClaimedAt: bson.M{"$gte": from},
+	}
+	cursor, err := db.tokensRequestCollection().Find(ctx, filter, opts)
+	if err != nil {
+		db.log.Criticalf("failed to get claimed tokens requests for ip address: %s. err: %v", ipAddress, err)
+		return nil, err
+	}
+	defer func() {
+		if err := cursor.Close(ctx); err != nil {
+			db.log.Criticalf("failed to close cursor for claimed tokens requests for ip address: %s. err: %v", ipAddress, err)
+		}
+	}()
+
+	for cursor.Next(ctx) {
+		var request types.TokensRequest
+		if err := cursor.Decode(&request); err != nil {
+			db.log.Criticalf("failed to decode claimed tokens request for ip address: %s. err: %v", ipAddress, err)
+			return nil, err
+		}
+		requests = append(requests, request)
+	}
+
+	if err := cursor.Err(); err != nil {
+		db.log.Criticalf("failed to get claimed tokens requests for ip address: %s. err: %v", ipAddress, err)
+		return nil, err // Return nil and the error if an error occurs during iteration
+	}
+
+	return requests, nil
 }
 
 // blockCollection returns the tokens request collection.

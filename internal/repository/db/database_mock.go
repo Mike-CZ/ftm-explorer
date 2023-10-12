@@ -178,19 +178,34 @@ func (mr *MockDatabaseMockRecorder) LastTransactionsWhereAddress(arg0, arg1, arg
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LastTransactionsWhereAddress", reflect.TypeOf((*MockDatabase)(nil).LastTransactionsWhereAddress), arg0, arg1, arg2)
 }
 
-// LatestTokensRequest mocks base method.
-func (m *MockDatabase) LatestTokensRequest(arg0 context.Context, arg1 string) (*types.TokensRequest, error) {
+// LatestClaimedTokensRequests mocks base method.
+func (m *MockDatabase) LatestClaimedTokensRequests(arg0 context.Context, arg1 string, arg2 uint64) ([]types.TokensRequest, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "LatestTokensRequest", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetLatestClaimedTokensRequests", arg0, arg1, arg2)
+	ret0, _ := ret[0].([]types.TokensRequest)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// LatestClaimedTokensRequests indicates an expected call of LatestClaimedTokensRequests.
+func (mr *MockDatabaseMockRecorder) LatestClaimedTokensRequests(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLatestClaimedTokensRequests", reflect.TypeOf((*MockDatabase)(nil).LatestClaimedTokensRequests), arg0, arg1, arg2)
+}
+
+// LatestUnclaimedTokensRequest mocks base method.
+func (m *MockDatabase) LatestUnclaimedTokensRequest(arg0 context.Context, arg1 string) (*types.TokensRequest, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "LatestUnclaimedTokensRequest", arg0, arg1)
 	ret0, _ := ret[0].(*types.TokensRequest)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// LatestTokensRequest indicates an expected call of LatestTokensRequest.
-func (mr *MockDatabaseMockRecorder) LatestTokensRequest(arg0, arg1 interface{}) *gomock.Call {
+// LatestUnclaimedTokensRequest indicates an expected call of LatestUnclaimedTokensRequest.
+func (mr *MockDatabaseMockRecorder) LatestUnclaimedTokensRequest(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LatestTokensRequest", reflect.TypeOf((*MockDatabase)(nil).LatestTokensRequest), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LatestUnclaimedTokensRequest", reflect.TypeOf((*MockDatabase)(nil).LatestUnclaimedTokensRequest), arg0, arg1)
 }
 
 // NumberOfAccoutns mocks base method.

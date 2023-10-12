@@ -91,8 +91,11 @@ type IRepository interface {
 	// UpdateTokensRequest updates the given tokens request.
 	UpdateTokensRequest(*types.TokensRequest) error
 
-	// GetLatestTokensRequest returns the latest tokens request for the given ip address.
-	GetLatestTokensRequest(string) (*types.TokensRequest, error)
+	// GetLatestUnclaimedTokensRequest returns the latest tokens request for the given ip address.
+	GetLatestUnclaimedTokensRequest(string) (*types.TokensRequest, error)
+
+	// GetLatestClaimedTokensRequests returns the latest claimed tokens requests for the given ip address.
+	GetLatestClaimedTokensRequests(string, uint64) ([]types.TokensRequest, error)
 
 	// SendSignedTransaction sends the signed transaction.
 	SendSignedTransaction(*eth.Transaction) error

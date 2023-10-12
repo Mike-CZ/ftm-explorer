@@ -36,8 +36,11 @@ type IDatabase interface {
 	// UpdateTokensRequest updates the given tokens request.
 	UpdateTokensRequest(context.Context, *types.TokensRequest) error
 
-	// LatestTokensRequest returns the latest tokens request for the given ip address.
-	LatestTokensRequest(context.Context, string) (*types.TokensRequest, error)
+	// LatestUnclaimedTokensRequest returns the latest unclaimed tokens request for the given ip address.
+	LatestUnclaimedTokensRequest(context.Context, string) (*types.TokensRequest, error)
+
+	// LatestClaimedTokensRequests returns the latest claimed tokens requests for the given ip address.
+	LatestClaimedTokensRequests(context.Context, string, uint64) ([]types.TokensRequest, error)
 
 	// AddTimeToFinality adds the given time to finality.
 	AddTimeToFinality(context.Context, *types.Ttf) error

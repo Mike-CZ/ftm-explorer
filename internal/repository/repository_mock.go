@@ -228,6 +228,21 @@ func (mr *MockRepositoryMockRecorder) GetLastTransactionsWhereAddress(arg0, arg1
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLastTransactionsWhereAddress", reflect.TypeOf((*MockRepository)(nil).GetLastTransactionsWhereAddress), arg0, arg1)
 }
 
+// GetLatestClaimedTokensRequests mocks base method.
+func (m *MockRepository) GetLatestClaimedTokensRequests(arg0 string, arg1 uint64) ([]types.TokensRequest, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetLatestClaimedTokensRequests", arg0, arg1)
+	ret0, _ := ret[0].([]types.TokensRequest)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetLatestClaimedTokensRequests indicates an expected call of GetLatestClaimedTokensRequests.
+func (mr *MockRepositoryMockRecorder) GetLatestClaimedTokensRequests(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLatestClaimedTokensRequests", reflect.TypeOf((*MockRepository)(nil).GetLatestClaimedTokensRequests), arg0, arg1)
+}
+
 // GetLatestObservedBlock mocks base method.
 func (m *MockRepository) GetLatestObservedBlock() *types.Block {
 	m.ctrl.T.Helper()
@@ -256,19 +271,19 @@ func (mr *MockRepositoryMockRecorder) GetLatestObservedBlocks(arg0 interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLatestObservedBlocks", reflect.TypeOf((*MockRepository)(nil).GetLatestObservedBlocks), arg0)
 }
 
-// GetLatestTokensRequest mocks base method.
-func (m *MockRepository) GetLatestTokensRequest(arg0 string) (*types.TokensRequest, error) {
+// GetLatestUnclaimedTokensRequest mocks base method.
+func (m *MockRepository) GetLatestUnclaimedTokensRequest(arg0 string) (*types.TokensRequest, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetLatestTokensRequest", arg0)
+	ret := m.ctrl.Call(m, "GetLatestUnclaimedTokensRequest", arg0)
 	ret0, _ := ret[0].(*types.TokensRequest)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetLatestTokensRequest indicates an expected call of GetLatestTokensRequest.
-func (mr *MockRepositoryMockRecorder) GetLatestTokensRequest(arg0 interface{}) *gomock.Call {
+// GetLatestUnclaimedTokensRequest indicates an expected call of GetLatestUnclaimedTokensRequest.
+func (mr *MockRepositoryMockRecorder) GetLatestUnclaimedTokensRequest(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLatestTokensRequest", reflect.TypeOf((*MockRepository)(nil).GetLatestTokensRequest), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLatestUnclaimedTokensRequest", reflect.TypeOf((*MockRepository)(nil).GetLatestUnclaimedTokensRequest), arg0)
 }
 
 // GetNewHeadersChannel mocks base method.

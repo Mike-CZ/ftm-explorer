@@ -25,7 +25,10 @@ func TestFaucet_RequestTokens(t *testing.T) {
 	ipAddress := "192.168.0.1"
 
 	// expect a call to the repository to get the latest tokens request
-	repo.EXPECT().GetLatestTokensRequest(ipAddress).Return(nil, nil)
+	repo.EXPECT().GetLatestUnclaimedTokensRequest(ipAddress).Return(nil, nil)
+
+	// expect a call to the repository to get the latest claimed tokens requests
+	repo.EXPECT().GetLatestClaimedTokensRequests(ipAddress, gomock.Any()).Return([]types.TokensRequest{}, nil)
 
 	// expect a call to the phrase generator to generate a new phrase
 	pg.EXPECT().GeneratePhrase().Return("test-phrase", nil)
@@ -41,7 +44,7 @@ func TestFaucet_RequestTokens(t *testing.T) {
 		t.Fatalf("RequestTokens failed: %v", err)
 	}
 
-	if phrase != challengePrefix+"test-phrase" {
+	if phrase != kFaucetChallengePrefix+"test-phrase" {
 		t.Fatalf("Invalid phrase returned: %s", phrase)
 	}
 }
@@ -57,7 +60,7 @@ func TestFaucet_RequestTokensAlreadyPending(t *testing.T) {
 	}
 
 	// expect a call to the repository to get the latest tokens request
-	repo.EXPECT().GetLatestTokensRequest(ipAddress).Return(tr, nil)
+	repo.EXPECT().GetLatestUnclaimedTokensRequest(ipAddress).Return(tr, nil)
 
 	// the request defined above should be returned, because it is pending
 	_, err := faucet.RequestTokens(ipAddress)
@@ -73,20 +76,37 @@ func TestFaucet_RequestTokensClaimLimitNotReached(t *testing.T) {
 	ipAddress := "192.168.0.1"
 	receiver := common.Address{0x01}
 
-	now := time.Now().Unix()
-	tr := &types.TokensRequest{
-		IpAddress: ipAddress,
-		Phrase:    "pending-phrase",
-		Receiver:  &receiver,
-		ClaimedAt: &now,
+	now := time.Now().Unix() - 12*60*60 // 12 hours ago
+	trs := []types.TokensRequest{
+		{
+			IpAddress: ipAddress,
+			Phrase:    "pending-phrase 1",
+			Receiver:  &receiver,
+			ClaimedAt: &now,
+		},
+		{
+			IpAddress: ipAddress,
+			Phrase:    "pending-phrase 2",
+			Receiver:  &receiver,
+			ClaimedAt: &now,
+		},
+		{
+			IpAddress: ipAddress,
+			Phrase:    "pending-phrase 3",
+			Receiver:  &receiver,
+			ClaimedAt: &now,
+		},
 	}
 
 	// expect a call to the repository to get the latest tokens request
-	repo.EXPECT().GetLatestTokensRequest(ipAddress).Return(tr, nil)
+	repo.EXPECT().GetLatestUnclaimedTokensRequest(ipAddress).Return(nil, nil)
+
+	// expect a call to the repository to get the latest claimed tokens requests
+	repo.EXPECT().GetLatestClaimedTokensRequests(ipAddress, gomock.Any()).Return(trs, nil)
 
 	// we should get an error, because the claim limit is not reached
 	_, err := faucet.RequestTokens(ipAddress)
-	if err == nil || !strings.Contains(err.Error(), "must wait") {
+	if err == nil || !strings.Contains(err.Error(), "too many requests") {
 		t.Fatal("RequestTokens did not return error")
 	}
 }
@@ -96,15 +116,11 @@ func TestFaucet_RequestTokensClaimLimitReached(t *testing.T) {
 	faucet, pg, _, repo := createFaucet(t)
 	ipAddress := "192.168.0.1"
 
-	lastClaim := time.Now().Add(-time.Duration(kClaimLimitSeconds) * time.Second).Unix()
-	tr := &types.TokensRequest{
-		IpAddress: ipAddress,
-		Phrase:    "pending-phrase",
-		ClaimedAt: &lastClaim,
-	}
-
 	// expect a call to the repository to get the latest tokens request
-	repo.EXPECT().GetLatestTokensRequest(ipAddress).Return(tr, nil)
+	repo.EXPECT().GetLatestUnclaimedTokensRequest(ipAddress).Return(nil, nil)
+
+	// expect a call to the repository to get the latest claimed tokens requests
+	repo.EXPECT().GetLatestClaimedTokensRequests(ipAddress, gomock.Any()).Return([]types.TokensRequest{}, nil)
 
 	// expect a call to the phrase generator to generate a new phrase
 	pg.EXPECT().GeneratePhrase().Return("different-phrase", nil)
@@ -118,7 +134,7 @@ func TestFaucet_RequestTokensClaimLimitReached(t *testing.T) {
 		t.Fatalf("RequestTokens failed: %v", err)
 	}
 
-	if phrase != challengePrefix+"different-phrase" {
+	if phrase != kFaucetChallengePrefix+"different-phrase" {
 		t.Fatalf("Invalid phrase returned: %s", phrase)
 	}
 }
@@ -131,7 +147,7 @@ func TestFaucet_ClaimTokens(t *testing.T) {
 	receiver := common.Address{0x01}
 
 	// expect a call to the repository to get the tokens request
-	repo.EXPECT().GetLatestTokensRequest(ipAddress).Return(&types.TokensRequest{
+	repo.EXPECT().GetLatestUnclaimedTokensRequest(ipAddress).Return(&types.TokensRequest{
 		IpAddress: ipAddress,
 		Phrase:    phrase,
 	}, nil)
@@ -149,7 +165,7 @@ func TestFaucet_ClaimTokens(t *testing.T) {
 	wallet.EXPECT().SendWeiToAddress(gomock.Eq(getTokensAmountInWei(kClaimTokensAmount)), gomock.Eq(receiver)).Return(nil)
 
 	// claim tokens
-	err := faucet.ClaimTokens(ipAddress, challengePrefix+phrase, receiver)
+	err := faucet.ClaimTokens(ipAddress, kFaucetChallengePrefix+phrase, receiver)
 	if err != nil {
 		t.Fatalf("ClaimTokens failed: %v", err)
 	}
@@ -163,10 +179,10 @@ func TestFaucet_ClaimTokensNoPendingRequest(t *testing.T) {
 	receiver := common.Address{0x01}
 
 	// expect a call to the repository to get the tokens request
-	repo.EXPECT().GetLatestTokensRequest(ipAddress).Return(nil, nil)
+	repo.EXPECT().GetLatestUnclaimedTokensRequest(ipAddress).Return(nil, nil)
 
 	// claim tokens
-	err := faucet.ClaimTokens(ipAddress, challengePrefix+phrase, receiver)
+	err := faucet.ClaimTokens(ipAddress, kFaucetChallengePrefix+phrase, receiver)
 	if err == nil || !strings.Contains(err.Error(), "no request found") {
 		t.Fatal("ClaimTokens did not return error")
 	}
@@ -180,13 +196,13 @@ func TestFaucet_ClaimTokensPhraseMismatch(t *testing.T) {
 	receiver := common.Address{0x01}
 
 	// expect a call to the repository to get the tokens request
-	repo.EXPECT().GetLatestTokensRequest(ipAddress).Return(&types.TokensRequest{
+	repo.EXPECT().GetLatestUnclaimedTokensRequest(ipAddress).Return(&types.TokensRequest{
 		IpAddress: ipAddress,
 		Phrase:    phrase,
 	}, nil)
 
 	// claim tokens
-	err := faucet.ClaimTokens(ipAddress, challengePrefix+"different-phrase", receiver)
+	err := faucet.ClaimTokens(ipAddress, kFaucetChallengePrefix+"different-phrase", receiver)
 	if err == nil || err.Error() != "invalid phrase" {
 		t.Fatal("ClaimTokens did not return error")
 	}
@@ -201,7 +217,7 @@ func TestFaucet_ClaimTokensAlreadyClaimed(t *testing.T) {
 	receiver := common.Address{0x01}
 
 	// expect a call to the repository to get the tokens request
-	repo.EXPECT().GetLatestTokensRequest(ipAddress).Return(&types.TokensRequest{
+	repo.EXPECT().GetLatestUnclaimedTokensRequest(ipAddress).Return(&types.TokensRequest{
 		IpAddress: ipAddress,
 		Phrase:    phrase,
 		Receiver:  &receiver,
@@ -209,7 +225,7 @@ func TestFaucet_ClaimTokensAlreadyClaimed(t *testing.T) {
 	}, nil)
 
 	// claim tokens
-	err := faucet.ClaimTokens(ipAddress, challengePrefix+phrase, receiver)
+	err := faucet.ClaimTokens(ipAddress, kFaucetChallengePrefix+phrase, receiver)
 	if err == nil || err.Error() != "tokens already claimed" {
 		t.Fatal("ClaimTokens did not return error")
 	}
@@ -237,7 +253,7 @@ func TestFaucet_ClaimTokensWalletError(t *testing.T) {
 	receiver := common.Address{0x01}
 
 	// expect a call to the repository to get the tokens request
-	repo.EXPECT().GetLatestTokensRequest(ipAddress).Return(&types.TokensRequest{
+	repo.EXPECT().GetLatestUnclaimedTokensRequest(ipAddress).Return(&types.TokensRequest{
 		IpAddress: ipAddress,
 		Phrase:    phrase,
 	}, nil)
@@ -256,7 +272,7 @@ func TestFaucet_ClaimTokensWalletError(t *testing.T) {
 	})).Return(nil)
 
 	// claim tokens
-	err := faucet.ClaimTokens(ipAddress, challengePrefix+phrase, receiver)
+	err := faucet.ClaimTokens(ipAddress, kFaucetChallengePrefix+phrase, receiver)
 	if err == nil {
 		t.Fatalf("ClaimTokens did not return error")
 	}

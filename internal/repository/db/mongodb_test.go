@@ -269,7 +269,7 @@ func TestMongoDb_AddAndGetLatestTokensRequest(t *testing.T) {
 	}
 
 	// get latest tokens request
-	latestTr, err := db.LatestTokensRequest(ctx, tr.IpAddress)
+	latestTr, err := db.LatestUnclaimedTokensRequest(ctx, tr.IpAddress)
 	if err != nil {
 		t.Fatalf("failed to get latest tokens request: %v", err)
 	}
@@ -284,12 +284,93 @@ func TestMongoDb_AddAndGetLatestTokensRequest(t *testing.T) {
 	}
 
 	// get latest tokens request
-	latestTr, err = db.LatestTokensRequest(ctx, tr.IpAddress)
+	latestTr, err = db.LatestUnclaimedTokensRequest(ctx, tr.IpAddress)
 	if err != nil {
 		t.Fatalf("failed to get latest tokens request: %v", err)
 	}
 	if latestTr.Phrase != tr.Phrase {
 		t.Fatalf("expected phrase %s, got %s", tr.Phrase, latestTr.Phrase)
+	}
+}
+
+// Test that claimed request is not returned.
+func TestMongoDb_ClaimedTokensRequestIsNotReturned(t *testing.T) {
+	db := startMongoDb(t)
+
+	// define tokens request to add
+	now := time.Now().Unix()
+	tr := types.TokensRequest{
+		IpAddress: "192.168.0.1",
+		Phrase:    "test phrase",
+		ClaimedAt: &now,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
+	defer cancel()
+
+	// add tokens request
+	if err := db.AddTokensRequest(ctx, &tr); err != nil {
+		t.Fatalf("failed to add tokens request: %v", err)
+	}
+
+	// get latest tokens request
+	latestTr, err := db.LatestUnclaimedTokensRequest(ctx, tr.IpAddress)
+	if err != nil {
+		t.Fatalf("failed to get latest tokens request: %v", err)
+	}
+	if latestTr != nil {
+		t.Fatalf("expected nil, got %v", latestTr)
+	}
+}
+
+// Test that claimed requests are returned.
+func TestMongoDb_ClaimedTokensRequestsAreReturned(t *testing.T) {
+	db := startMongoDb(t)
+
+	// define tokens requests to add
+	now := time.Now().Unix()
+	trs := []types.TokensRequest{
+		{
+			IpAddress: "192.168.0.1",
+			Phrase:    "test phrase 1",
+			ClaimedAt: &now,
+		},
+		{
+			IpAddress: "192.168.0.1",
+			Phrase:    "test phrase 2",
+			ClaimedAt: &now,
+		},
+		{
+			IpAddress: "192.168.0.1",
+			Phrase:    "test phrase 3",
+			ClaimedAt: &now,
+		},
+		{
+			// this one should not be returned as it is not claimed
+			IpAddress: "192.168.0.1",
+			Phrase:    "test phrase 4",
+			ClaimedAt: nil,
+		},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
+	defer cancel()
+
+	// add tokens requests
+	for _, tr := range trs {
+		if err := db.AddTokensRequest(ctx, &tr); err != nil {
+			t.Fatalf("failed to add tokens request: %v", err)
+		}
+	}
+
+	// get latest tokens request
+	latestTr, err := db.LatestClaimedTokensRequests(ctx, trs[0].IpAddress, uint64(now))
+	if err != nil {
+		t.Fatalf("failed to get latest tokens request: %v", err)
+	}
+
+	if len(latestTr) != 3 {
+		t.Fatalf("expected 3, got %d", len(latestTr))
 	}
 }
 
@@ -312,7 +393,7 @@ func TestMongoDb_UpdateTokensRequest(t *testing.T) {
 	}
 
 	// get latest tokens request
-	latestTr, err := db.LatestTokensRequest(ctx, tr.IpAddress)
+	latestTr, err := db.LatestUnclaimedTokensRequest(ctx, tr.IpAddress)
 	if err != nil {
 		t.Fatalf("failed to get latest tokens request: %v", err)
 	}
@@ -334,7 +415,7 @@ func TestMongoDb_UpdateTokensRequest(t *testing.T) {
 	}
 
 	// get latest tokens request
-	latestTr, err = db.LatestTokensRequest(ctx, tr.IpAddress)
+	latestTr, err = db.LatestUnclaimedTokensRequest(ctx, tr.IpAddress)
 	if err != nil {
 		t.Fatalf("failed to get latest tokens request: %v", err)
 	}
