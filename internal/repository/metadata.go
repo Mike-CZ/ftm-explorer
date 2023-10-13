@@ -28,6 +28,16 @@ func (r *Repository) SetDiskSizePer100MTxs(number uint64) {
 	r.diskSizePer100MTxs = number
 }
 
+// GetDiskSizePrunedPer100MTxs returns the disk size pruned per 100M transactions.
+func (r *Repository) GetDiskSizePrunedPer100MTxs() uint64 {
+	return r.diskSizePrunedPer100MTxs
+}
+
+// SetDiskSizePrunedPer100MTxs sets the disk size pruned per 100M transactions.
+func (r *Repository) SetDiskSizePrunedPer100MTxs(number uint64) {
+	r.diskSizePrunedPer100MTxs = number
+}
+
 // PendingNonceAt returns the nonce of the account at the given block.
 func (r *Repository) PendingNonceAt(address common.Address) (uint64, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), kRpcTimeout)

@@ -125,6 +125,21 @@ func (mr *MockRepositoryMockRecorder) FetchDiskSizePer100MTxs() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchDiskSizePer100MTxs", reflect.TypeOf((*MockRepository)(nil).FetchDiskSizePer100MTxs))
 }
 
+// FetchDiskSizePrunedPer100MTxs mocks base method.
+func (m *MockRepository) FetchDiskSizePrunedPer100MTxs() (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FetchDiskSizePrunedPer100MTxs")
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FetchDiskSizePrunedPer100MTxs indicates an expected call of FetchDiskSizePrunedPer100MTxs.
+func (mr *MockRepositoryMockRecorder) FetchDiskSizePrunedPer100MTxs() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchDiskSizePrunedPer100MTxs", reflect.TypeOf((*MockRepository)(nil).FetchDiskSizePrunedPer100MTxs))
+}
+
 // FetchNumberOfAccounts mocks base method.
 func (m *MockRepository) FetchNumberOfAccounts() (uint64, error) {
 	m.ctrl.T.Helper()
@@ -182,6 +197,20 @@ func (m *MockRepository) GetDiskSizePer100MTxs() uint64 {
 func (mr *MockRepositoryMockRecorder) GetDiskSizePer100MTxs() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDiskSizePer100MTxs", reflect.TypeOf((*MockRepository)(nil).GetDiskSizePer100MTxs))
+}
+
+// GetDiskSizePrunedPer100MTxs mocks base method.
+func (m *MockRepository) GetDiskSizePrunedPer100MTxs() uint64 {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDiskSizePrunedPer100MTxs")
+	ret0, _ := ret[0].(uint64)
+	return ret0
+}
+
+// GetDiskSizePrunedPer100MTxs indicates an expected call of GetDiskSizePrunedPer100MTxs.
+func (mr *MockRepositoryMockRecorder) GetDiskSizePrunedPer100MTxs() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDiskSizePrunedPer100MTxs", reflect.TypeOf((*MockRepository)(nil).GetDiskSizePrunedPer100MTxs))
 }
 
 // GetGasUsedAggByTimestamp mocks base method.
@@ -528,6 +557,18 @@ func (m *MockRepository) SetDiskSizePer100MTxs(arg0 uint64) {
 func (mr *MockRepositoryMockRecorder) SetDiskSizePer100MTxs(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetDiskSizePer100MTxs", reflect.TypeOf((*MockRepository)(nil).SetDiskSizePer100MTxs), arg0)
+}
+
+// SetDiskSizePrunedPer100MTxs mocks base method.
+func (m *MockRepository) SetDiskSizePrunedPer100MTxs(arg0 uint64) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetDiskSizePrunedPer100MTxs", arg0)
+}
+
+// SetDiskSizePrunedPer100MTxs indicates an expected call of SetDiskSizePrunedPer100MTxs.
+func (mr *MockRepositoryMockRecorder) SetDiskSizePrunedPer100MTxs(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetDiskSizePrunedPer100MTxs", reflect.TypeOf((*MockRepository)(nil).SetDiskSizePrunedPer100MTxs), arg0)
 }
 
 // SetGasUsedPer10Secs mocks base method.

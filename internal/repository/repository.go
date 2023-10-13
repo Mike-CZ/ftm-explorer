@@ -28,6 +28,8 @@ type Repository struct {
 	numberOfAccounts uint64
 	// diskSizePer100MTxs is the disk size per 100M transactions.
 	diskSizePer100MTxs uint64
+	// diskSizePer100MTxs is the disk size pruned per 100M transactions.
+	diskSizePrunedPer100MTxs uint64
 
 	// txCountPer10Secs is the number of transactions per 10 seconds.
 	txCountPer10Secs []types.HexUintTick

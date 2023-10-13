@@ -21,6 +21,7 @@ func TestConfig_Load(t *testing.T) {
 	  "metaFetcher": {
 		"numberOfAccountsUrl": "number-of-accounts-test-url",
 		"diskSizePer100MTxsUrl": "disk-size-test-url",
+		"diskSizePrunedPer100MTxsUrl": "disk-size-pruned-test-url",
 		"timeToFinalityUrl": "time-to-finality-test-url"
 	  },
 	  "rpc": {
@@ -92,6 +93,9 @@ func TestConfig_Load(t *testing.T) {
 	}
 	if cfg.MetaFetcher.DiskSizePer100MTxsUrl != "disk-size-test-url" {
 		t.Errorf("expected MetaFetcher.DiskSizePer100MTxsUrl to be disk-size-test-url, got %s", cfg.MetaFetcher.DiskSizePer100MTxsUrl)
+	}
+	if cfg.MetaFetcher.DiskSizePrunedPer100MTxsUrl != "disk-size-pruned-test-url" {
+		t.Errorf("expected MetaFetcher.DiskSizePrunedPer100MTxsUrl to be disk-size-pruned-test-url, got %s", cfg.MetaFetcher.DiskSizePrunedPer100MTxsUrl)
 	}
 	if cfg.MetaFetcher.TimeToFinalityUrl != "time-to-finality-test-url" {
 		t.Errorf("expected MetaFetcher.TimeToFinalityUrl to be time-to-finality-test-url, got %s", cfg.MetaFetcher.TimeToFinalityUrl)

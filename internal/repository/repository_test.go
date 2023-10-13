@@ -143,6 +143,22 @@ func TestRepository_GetAndSetDiskSizePer100MTxs(t *testing.T) {
 	}
 }
 
+// Test that the disk size pruned per 100M transactions is set and returned correctly.
+func TestRepository_GetAndSetDiskSizePrunedPer100MTxs(t *testing.T) {
+	repository, _, _, _ := createRepository(t)
+
+	// test that disk size per 100M transactions is 0 after initialization
+	if repository.GetDiskSizePrunedPer100MTxs() != 0 {
+		t.Errorf("expected 0, got %v", repository.GetDiskSizePrunedPer100MTxs())
+	}
+
+	// test that disk size per 100M transactions is set correctly
+	repository.SetDiskSizePrunedPer100MTxs(289)
+	if repository.GetDiskSizePrunedPer100MTxs() != 289 {
+		t.Errorf("expected 289, got %v", repository.GetDiskSizePrunedPer100MTxs())
+	}
+}
+
 // Test that repository transaction count is returned correctly.
 func TestRepository_GetTrxCount(t *testing.T) {
 	repository, _, mockDb, _ := createRepository(t)

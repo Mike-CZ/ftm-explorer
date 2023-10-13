@@ -60,6 +60,7 @@ func TestApiServer_Run(t *testing.T) {
 		getNumberOfTransactionsTestCase(t),
 		getNumberOfValidatorsTestCase(t),
 		getDiskSizePer100MTxsTestCase(t),
+		getDiskSizePrunedPer100MTxsTestCase(t),
 		getTimeToFinalityTestCase(t),
 		getTimeToBlockTestCase(t),
 		getCurrentStateTestCase(t),
@@ -415,6 +416,35 @@ func getDiskSizePer100MTxsTestCase(_ *testing.T) apiTestCase {
 	}
 }
 
+// getDiskSizePrunedPer100MTxsTestCase returns a test case for a disk size pruned per 100M transactions query.
+func getDiskSizePrunedPer100MTxsTestCase(_ *testing.T) apiTestCase {
+	var number uint64 = 64_494_722_457
+	return apiTestCase{
+		testName:    "GetDiskSizePrunedPer100MTxs",
+		requestBody: `{"query": "query { diskSizePrunedPer100MTxs }"}`,
+		buildStubs: func(mockRepository *repository.MockRepository, _ *faucet.MockFaucet) {
+			mockRepository.EXPECT().GetDiskSizePrunedPer100MTxs().Return(number)
+		},
+		checkResponse: func(t *testing.T, resp *http.Response) {
+			apiRes := decodeResponse(t, resp)
+			if len(apiRes.Errors) != 0 {
+				t.Errorf("expected no errors, got: %s", apiRes.Errors[0].Message)
+			}
+			// decode raw data into response
+			numberRes := struct {
+				DiskSizePrunedPer100MTxs hexutil.Uint64 `json:"diskSizePrunedPer100MTxs"`
+			}{}
+			if err := json.Unmarshal(apiRes.Data, &numberRes); err != nil {
+				t.Errorf("failed to unmarshall data: %v", err)
+			}
+			// validate disk size pruned per 100M transactions
+			if numberRes.DiskSizePrunedPer100MTxs != hexutil.Uint64(number) {
+				t.Errorf("expected disk size pruned per 100M transactions %d, got %d", number, uint64(numberRes.DiskSizePrunedPer100MTxs))
+			}
+		},
+	}
+}
+
 // getTimeToFinalityTestCase returns a test case for a time to finality query.
 func getTimeToFinalityTestCase(_ *testing.T) apiTestCase {
 	var timeToFinality = 0.5
@@ -509,11 +539,12 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 	var numberOfTransactions uint64 = 23_852_456
 	var numberOfValidators uint64 = 8
 	var diskSizePer100MTxs uint64 = 54_494_722_457
+	var diskSizePrunedPer100MTxs uint64 = 64_494_722_457
 	var timeToFinality = 1.2
 	var timeToBlock = 2.2
 	return apiTestCase{
 		testName:    "GetCurrentState",
-		requestBody: `{"query": "query { state { currentBlockHeight, numberOfAccounts, numberOfTransactions, numberOfValidators, diskSizePer100MTxs, timeToFinality, timeToBlock } }"}`,
+		requestBody: `{"query": "query { state { currentBlockHeight, numberOfAccounts, numberOfTransactions, numberOfValidators, diskSizePer100MTxs, diskSizePrunedPer100MTxs, timeToFinality, timeToBlock } }"}`,
 		buildStubs: func(mockRepository *repository.MockRepository, _ *faucet.MockFaucet) {
 			mockRepository.EXPECT().GetLatestObservedBlock().Return(&types.Block{Number: hexutil.Uint64(blockHeight)})
 			mockRepository.EXPECT().GetNumberOfAccounts().Return(numberOfAccounts)
@@ -522,6 +553,7 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 			mockRepository.EXPECT().GetTimeToFinality().Return(timeToFinality)
 			mockRepository.EXPECT().GetTimeToBlock().Return(timeToBlock)
 			mockRepository.EXPECT().GetDiskSizePer100MTxs().Return(diskSizePer100MTxs)
+			mockRepository.EXPECT().GetDiskSizePrunedPer100MTxs().Return(diskSizePrunedPer100MTxs)
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
 			apiRes := decodeResponse(t, resp)
@@ -531,13 +563,14 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 			// decode raw data into response
 			stateRes := struct {
 				State struct {
-					CurrentBlockHeight   hexutil.Uint64 `json:"currentBlockHeight"`
-					NumberOfAccounts     int32          `json:"numberOfAccounts"`
-					NumberOfTransactions hexutil.Uint64 `json:"numberOfTransactions"`
-					NumberOfValidators   int32          `json:"numberOfValidators"`
-					DiskSizePer100MTxs   hexutil.Uint64 `json:"diskSizePer100MTxs"`
-					TimeToFinality       float64        `json:"timeToFinality"`
-					TimeToBlock          float64        `json:"timeToBlock"`
+					CurrentBlockHeight       hexutil.Uint64 `json:"currentBlockHeight"`
+					NumberOfAccounts         int32          `json:"numberOfAccounts"`
+					NumberOfTransactions     hexutil.Uint64 `json:"numberOfTransactions"`
+					NumberOfValidators       int32          `json:"numberOfValidators"`
+					DiskSizePer100MTxs       hexutil.Uint64 `json:"diskSizePer100MTxs"`
+					DiskSizePrunedPer100MTxs hexutil.Uint64 `json:"diskSizePrunedPer100MTxs"`
+					TimeToFinality           float64        `json:"timeToFinality"`
+					TimeToBlock              float64        `json:"timeToBlock"`
 				}
 			}{}
 			if err := json.Unmarshal(apiRes.Data, &stateRes); err != nil {
@@ -558,6 +591,9 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 			}
 			if uint64(stateRes.State.DiskSizePer100MTxs) != diskSizePer100MTxs {
 				t.Errorf("expected disk size per 100M transactions %d, got %d", diskSizePer100MTxs, uint64(stateRes.State.DiskSizePer100MTxs))
+			}
+			if uint64(stateRes.State.DiskSizePrunedPer100MTxs) != diskSizePrunedPer100MTxs {
+				t.Errorf("expected disk size pruned per 100M transactions %d, got %d", diskSizePrunedPer100MTxs, uint64(stateRes.State.DiskSizePrunedPer100MTxs))
 			}
 			if stateRes.State.TimeToFinality != timeToFinality {
 				t.Errorf("expected time to finality %f, got %f", timeToFinality, stateRes.State.TimeToFinality)

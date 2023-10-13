@@ -36,6 +36,11 @@ func (rs *RootResolver) DiskSizePer100MTxs() hexutil.Uint64 {
 	return hexutil.Uint64(rs.repository.GetDiskSizePer100MTxs())
 }
 
+// DiskSizePrunedPer100MTxs resolves the disk pruned size per 100M transactions.
+func (rs *RootResolver) DiskSizePrunedPer100MTxs() hexutil.Uint64 {
+	return hexutil.Uint64(rs.repository.GetDiskSizePrunedPer100MTxs())
+}
+
 // NumberOfValidators resolves the number of validators in the blockchain.
 func (rs *RootResolver) NumberOfValidators() int32 {
 	number, err := rs.repository.GetNumberOfValidators()
@@ -92,6 +97,11 @@ func (cs CurrentState) NumberOfValidators() int32 {
 // DiskSizePer100MTxs resolves the disk size per 100M transactions.
 func (cs CurrentState) DiskSizePer100MTxs() hexutil.Uint64 {
 	return cs.rs.DiskSizePer100MTxs()
+}
+
+// DiskSizePrunedPer100MTxs resolves the disk size pruned per 100M transactions.
+func (cs CurrentState) DiskSizePrunedPer100MTxs() hexutil.Uint64 {
+	return cs.rs.DiskSizePrunedPer100MTxs()
 }
 
 // TimeToFinality resolves the time to finality.

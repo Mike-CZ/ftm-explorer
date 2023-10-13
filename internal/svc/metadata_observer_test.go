@@ -27,6 +27,7 @@ func TestMetadataObserver_Run(t *testing.T) {
 	// expect call to fetcher and repository
 	numberOfAccounts := uint64(100)
 	diskSizePer100MTxs := uint64(72799695667)
+	diskSizePrunedPer100MTxs := uint64(62799695667)
 	ttf := 3.5
 
 	mockRepository.EXPECT().FetchNumberOfAccounts().Return(numberOfAccounts, nil)
@@ -39,6 +40,9 @@ func TestMetadataObserver_Run(t *testing.T) {
 
 	mockRepository.EXPECT().FetchDiskSizePer100MTxs().Return(diskSizePer100MTxs, nil)
 	mockRepository.EXPECT().SetDiskSizePer100MTxs(gomock.Eq(diskSizePer100MTxs))
+
+	mockRepository.EXPECT().FetchDiskSizePrunedPer100MTxs().Return(diskSizePrunedPer100MTxs, nil)
+	mockRepository.EXPECT().SetDiskSizePrunedPer100MTxs(gomock.Eq(diskSizePrunedPer100MTxs))
 
 	// wait for ticker, add some extra time to make sure the ticker has ticked
 	time.Sleep(tickDuration + tickDuration/2)

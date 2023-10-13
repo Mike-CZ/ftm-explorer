@@ -56,6 +56,7 @@ build/demonet-explorer
   "metaFetcher": {
     "numberOfAccountsUrl": "number-of-accounts-url",
     "diskSizePer100MTxsUrl": "disk-size-url",
+    "diskSizePrunedPer100MTxsUrl": "disk-size-pruned-url",
     "timeToFinalityUrl": "time-to-finality-url"
   },
   "rpc": {

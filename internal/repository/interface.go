@@ -52,6 +52,12 @@ type IRepository interface {
 	// SetDiskSizePer100MTxs sets the disk size per 100M transactions.
 	SetDiskSizePer100MTxs(uint64)
 
+	// GetDiskSizePrunedPer100MTxs returns the disk size pruned per 100M transactions.
+	GetDiskSizePrunedPer100MTxs() uint64
+
+	// SetDiskSizePrunedPer100MTxs sets the disk size pruned per 100M transactions.
+	SetDiskSizePrunedPer100MTxs(uint64)
+
 	// GetTxCountPer10Secs returns transactions per 10 seconds.
 	GetTxCountPer10Secs() []types.HexUintTick
 
@@ -77,6 +83,10 @@ type IRepository interface {
 	// FetchDiskSizePer100MTxs returns the disk size per 100M transactions.
 	// This method will fetch data from remote host.
 	FetchDiskSizePer100MTxs() (uint64, error)
+
+	// FetchDiskSizePrunedPer100MTxs returns the disk size pruned per 100M transactions.
+	// This method will fetch data from remote host.
+	FetchDiskSizePrunedPer100MTxs() (uint64, error)
 
 	// FetchTimeToFinality returns the time to finality in the blockchain.
 	// This method will fetch data from remote host.
