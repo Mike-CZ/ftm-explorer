@@ -14,7 +14,7 @@ func (rpc *OperaRpc) BlockByNumber(ctx context.Context, number uint64) (*types.B
 	var block types.Block
 
 	// get the block by number
-	err := rpc.ftm.CallContext(ctx, &block, "ftm_getBlockByNumber", hexutil.EncodeUint64(number), false)
+	err := rpc.ftm.CallContext(ctx, &block, "eth_getBlockByNumber", hexutil.EncodeUint64(number), false)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get block by number: %v", err)
 	}

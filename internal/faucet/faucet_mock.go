@@ -125,6 +125,20 @@ func (m *MockFaucetWallet) EXPECT() *MockFaucetWalletMockRecorder {
 	return m.recorder
 }
 
+// MintErc20TokensToAddress mocks base method.
+func (m *MockFaucetWallet) MintErc20TokensToAddress(arg0, arg1 common.Address, arg2 *big.Int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MintErc20TokensToAddress", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// MintErc20TokensToAddress indicates an expected call of MintErc20TokensToAddress.
+func (mr *MockFaucetWalletMockRecorder) MintErc20TokensToAddress(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MintErc20TokensToAddress", reflect.TypeOf((*MockFaucetWallet)(nil).MintErc20TokensToAddress), arg0, arg1, arg2)
+}
+
 // SendWeiToAddress mocks base method.
 func (m *MockFaucetWallet) SendWeiToAddress(amount *big.Int, receiver common.Address) error {
 	m.ctrl.T.Helper()

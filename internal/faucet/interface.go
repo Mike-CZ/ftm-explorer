@@ -30,4 +30,7 @@ type IFaucetPhraseGenerator interface {
 type IFaucetWallet interface {
 	// SendWeiToAddress sends wei to the given address.
 	SendWeiToAddress(amount *big.Int, receiver common.Address) error
+
+	// MintErc20TokensToAddress sends erc20 tokens to the given address.
+	MintErc20TokensToAddress(common.Address, common.Address, *big.Int) error
 }

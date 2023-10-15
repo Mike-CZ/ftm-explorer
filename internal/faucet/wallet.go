@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"ftm-explorer/internal/logger"
 	"ftm-explorer/internal/repository"
-	"log"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -53,7 +52,7 @@ func (w *Wallet) SendWeiToAddress(amount *big.Int, receiver common.Address) erro
 	// get nonce
 	nonce, err := w.repo.PendingNonceAt(w.from)
 	if err != nil {
-		log.Fatal(err)
+		w.log.Criticalf("error getting nonce: %v", err)
 	}
 
 	// get gas price
@@ -72,6 +71,53 @@ func (w *Wallet) SendWeiToAddress(amount *big.Int, receiver common.Address) erro
 
 	// create transaction, set gas limit to 21000, which is the cost of a normal transaction
 	tx := types.NewTransaction(nonce, receiver, amount, 21_000, gasPrice, nil)
+
+	// sign transaction
+	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), w.pk)
+	if err != nil {
+		w.log.Criticalf("error signing transaction: %v", err)
+		return err
+	}
+
+	// send transaction
+	if err = w.repo.SendSignedTransaction(signedTx); err != nil {
+		w.log.Criticalf("error sending transaction: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+func (w *Wallet) MintErc20TokensToAddress(contract common.Address, receiver common.Address, amount *big.Int) error {
+	// get nonce
+	nonce, err := w.repo.PendingNonceAt(w.from)
+	if err != nil {
+		w.log.Criticalf("error getting nonce: %v", err)
+	}
+
+	// get gas price
+	gasPrice, err := w.repo.SuggestGasPrice()
+	if err != nil {
+		w.log.Criticalf("error getting gas price: %v", err)
+		return err
+	}
+
+	// get network id
+	chainID, err := w.repo.NetworkID()
+	if err != nil {
+		w.log.Criticalf("error getting network id: %v", err)
+		return err
+	}
+
+	// build transaction data
+	// identifier is first 4 bytes of keccak256 hash of "mint(address,uint256)"
+	var r [32]byte
+	copy(r[32-len(receiver.Bytes()):], receiver.Bytes())
+	var a [32]byte
+	copy(a[32-len(amount.Bytes()):], amount.Bytes())
+	data := append([]byte{0x40, 0xc1, 0x0f, 0x19}, append(r[:], a[:]...)...)
+	
+	tx := types.NewTransaction(nonce, contract, new(big.Int).SetUint64(0), 100_000, gasPrice, data)
 
 	// sign transaction
 	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), w.pk)
