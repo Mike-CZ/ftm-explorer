@@ -55,7 +55,6 @@ build/demonet-explorer
     "claimsPerDay": 5,
     "erc20MintAmountHex": "0x38d7ea4c68000",
     "Erc20sPath": "erc20s.json"
-    ]
   },
   "metaFetcher": {
     "numberOfAccountsUrl": "number-of-accounts-url",
