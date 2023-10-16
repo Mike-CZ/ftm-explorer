@@ -24,34 +24,39 @@ const (
 
 // FaucetErc20 represents a faucet erc20 token.
 type FaucetErc20 struct {
-	address    common.Address
-	wallet     IFaucetWallet
-	mintAmount *big.Int
+	address common.Address
+	wallet  IFaucetWallet
 }
 
 // Faucet represents a faucet instance. It provides access to the
 // faucet functionality. It is used to request and claim tokens.
 type Faucet struct {
-	pg     IFaucetPhraseGenerator
-	wallet IFaucetWallet
-	repo   repository.IRepository
-	cfg    *config.Faucet
-	erc20s map[common.Address]FaucetErc20
+	pg              IFaucetPhraseGenerator
+	wallet          IFaucetWallet
+	repo            repository.IRepository
+	cfg             *config.Faucet
+	erc20s          map[common.Address]FaucetErc20
+	erc20MintAmount *big.Int
 }
 
 // NewFaucet creates a new faucet instance.
-func NewFaucet(cfg *config.Faucet, pg IFaucetPhraseGenerator, w IFaucetWallet, erc20s []FaucetErc20, repo repository.IRepository) *Faucet {
+func NewFaucet(cfg *config.Faucet, pg IFaucetPhraseGenerator, w IFaucetWallet, erc20s []FaucetErc20, repo repository.IRepository) (*Faucet, error) {
+	mintAmount, err := hexutil.DecodeBig(cfg.Erc20MintAmountHex)
+	if err != nil {
+		return nil, fmt.Errorf("error decoding faucet erc20 amount: %v", err)
+	}
 	f := &Faucet{
-		pg:     pg,
-		wallet: w,
-		repo:   repo,
-		cfg:    cfg,
-		erc20s: make(map[common.Address]FaucetErc20),
+		pg:              pg,
+		wallet:          w,
+		repo:            repo,
+		cfg:             cfg,
+		erc20s:          make(map[common.Address]FaucetErc20),
+		erc20MintAmount: mintAmount,
 	}
 	for _, erc20 := range erc20s {
 		f.erc20s[erc20.address] = erc20
 	}
-	return f
+	return f, nil
 }
 
 // NewFaucetErc20s creates a new faucet erc20 tokens.
@@ -63,14 +68,9 @@ func NewFaucetErc20s(cfg *config.Faucet, repo repository.IRepository, log logger
 		if err != nil {
 			return nil, fmt.Errorf("error creating faucet wallet: %v", err)
 		}
-		amount, err := hexutil.DecodeBig(erc20.MintAmountHex)
-		if err != nil {
-			return nil, fmt.Errorf("error decoding faucet erc20 amount: %v", err)
-		}
 		erc20s[i] = FaucetErc20{
-			address:    address,
-			wallet:     wallet,
-			mintAmount: amount,
+			address: address,
+			wallet:  wallet,
 		}
 	}
 	return erc20s, nil
@@ -179,7 +179,7 @@ func (f *Faucet) ClaimTokens(ip string, phrase string, receiver common.Address, 
 	erc20Faucet := f.erc20s[*erc20]
 
 	// send erc20 tokens to the receiver
-	if err = erc20Faucet.wallet.MintErc20TokensToAddress(erc20Faucet.address, receiver, erc20Faucet.mintAmount); err != nil {
+	if err = erc20Faucet.wallet.MintErc20TokensToAddress(erc20Faucet.address, receiver, f.erc20MintAmount); err != nil {
 		// if we got error, we need to set back the request to the previous state
 		tr.Receiver = nil
 		tr.ClaimedAt = nil

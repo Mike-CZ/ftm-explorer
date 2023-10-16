@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/golang/mock/gomock"
 )
 
@@ -355,17 +356,21 @@ func createFaucet(t *testing.T) (*Faucet, *MockFaucetPhraseGenerator, *MockFauce
 	mockPhraseGenerator := NewMockFaucetPhraseGenerator(ctrl)
 	mockWallet := NewMockFaucetWallet(ctrl)
 	cfg := &config.Faucet{
-		ClaimLimitSeconds: kClaimLimitSeconds,
-		ClaimTokensAmount: kClaimTokensAmount,
-		ClaimsPerDay:      3,
+		ClaimLimitSeconds:  kClaimLimitSeconds,
+		ClaimTokensAmount:  kClaimTokensAmount,
+		ClaimsPerDay:       3,
+		Erc20MintAmountHex: hexutil.EncodeUint64(kErc20MintAmount),
 	}
 	mockErc20Wallet := NewMockFaucetWallet(ctrl)
 	erc20s := []FaucetErc20{
 		{
-			address:    common.HexToAddress(kErc20Address),
-			wallet:     mockErc20Wallet,
-			mintAmount: new(big.Int).SetUint64(kErc20MintAmount),
+			address: common.HexToAddress(kErc20Address),
+			wallet:  mockErc20Wallet,
 		},
 	}
-	return NewFaucet(cfg, mockPhraseGenerator, mockWallet, erc20s, mockRepository), mockPhraseGenerator, mockWallet, mockErc20Wallet, mockRepository
+	f, err := NewFaucet(cfg, mockPhraseGenerator, mockWallet, erc20s, mockRepository)
+	if err != nil {
+		t.Fatalf("NewFaucet failed: %v", err)
+	}
+	return f, mockPhraseGenerator, mockWallet, mockErc20Wallet, mockRepository
 }

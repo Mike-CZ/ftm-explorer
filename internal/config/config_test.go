@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"testing"
 )
@@ -18,13 +19,8 @@ func TestConfig_Load(t *testing.T) {
         "claimTokensAmount": 0.5,
         "walletPrivateKey": "9s4d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58a6285",
         "claimsPerDay": 5,
-        "erc20s": [
-          {
-            "address": "0x3bc666c4073853a59a7bfb0184298551d922f1df",
-            "minterPk": "904d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58e6285",
-            "mintAmountHex": "0x2e248"
-          }
-        ]
+	    "erc20MintAmountHex": "0x38d7ea4c68000",
+        "erc20sPath": "%s"
       },
 	  "metaFetcher": {
 		"numberOfAccountsUrl": "number-of-accounts-test-url",
@@ -58,6 +54,19 @@ func TestConfig_Load(t *testing.T) {
 		"password": "testPassword"
 	  }
 	}`
+	erc20CfgStr := `[
+	  {
+		"name":"Apatite",
+		"address":"0x3bc666c4073853a59a7bfb0184298551d922f1df",
+		"minter_key":"904d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58e6285"
+	  },
+	  {
+		"name":"Epidote",
+		"address":"0x1234567890123456789012345678901234567890",
+		"minter_key":"904d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58e6285"
+	  }
+	]`
+
 	// store config into temporary file
 	file, err := os.CreateTemp("", "config*.json")
 	if err != nil {
@@ -65,12 +74,27 @@ func TestConfig_Load(t *testing.T) {
 	}
 	defer os.Remove(file.Name())
 
+	erc20File, err := os.CreateTemp("", "erc20s*.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(erc20File.Name())
+
 	// Write the configuration string to the temporary file
-	_, err = file.Write([]byte(cfgStr))
+	_, err = file.Write([]byte(fmt.Sprintf(cfgStr, erc20File.Name())))
 	if err != nil {
 		t.Fatal(err)
 	}
 	if err := file.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	// Write erc20 config to the temporary file
+	_, err = erc20File.Write([]byte(erc20CfgStr))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := erc20File.Close(); err != nil {
 		t.Fatal(err)
 	}
 
@@ -99,8 +123,15 @@ func TestConfig_Load(t *testing.T) {
 	if cfg.Faucet.ClaimsPerDay != 5 {
 		t.Errorf("expected Faucet.ClaimsPerDay to be 5, got %d", cfg.Faucet.ClaimsPerDay)
 	}
-	if len(cfg.Faucet.Erc20s) != 1 {
-		t.Errorf("expected Faucet.Erc20s to have 1 element, got %d", len(cfg.Faucet.Erc20s))
+	if cfg.Faucet.Erc20sPath != erc20File.Name() {
+		t.Errorf("expected Faucet.Erc20sPath to be %s, got %s", erc20File.Name(), cfg.Faucet.Erc20sPath)
+	}
+	if cfg.Faucet.Erc20MintAmountHex != "0x38d7ea4c68000" {
+		t.Errorf("expected Faucet.Erc20MintAmountHex to be 0x38d7ea4c68000, got %s", cfg.Faucet.Erc20MintAmountHex)
+	}
+	// check erc20 config
+	if len(cfg.Faucet.Erc20s) != 2 {
+		t.Errorf("expected Faucet.Erc20s to have 2 elements, got %d", len(cfg.Faucet.Erc20s))
 	}
 	if cfg.Faucet.Erc20s[0].Address != "0x3bc666c4073853a59a7bfb0184298551d922f1df" {
 		t.Errorf("expected Faucet.Erc20s[0].Address to be 0x3bc666c4073853a59a7bfb0184298551d922f1df, got %s", cfg.Faucet.Erc20s[0].Address)
@@ -108,8 +139,11 @@ func TestConfig_Load(t *testing.T) {
 	if cfg.Faucet.Erc20s[0].MinterPk != "904d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58e6285" {
 		t.Errorf("expected Faucet.Erc20s[0].MinterPk to be 904d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58e6285, got %s", cfg.Faucet.Erc20s[0].MinterPk)
 	}
-	if cfg.Faucet.Erc20s[0].MintAmountHex != "0x2e248" {
-		t.Errorf("expected Faucet.Erc20s[0].MintAmountHex to be 0x2e248, got %s", cfg.Faucet.Erc20s[0].MintAmountHex)
+	if cfg.Faucet.Erc20s[1].Address != "0x1234567890123456789012345678901234567890" {
+		t.Errorf("expected Faucet.Erc20s[1].Address to be 0x1234567890123456789012345678901234567890, got %s", cfg.Faucet.Erc20s[1].Address)
+	}
+	if cfg.Faucet.Erc20s[1].MinterPk != "904d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58e6285" {
+		t.Errorf("expected Faucet.Erc20s[1].MinterPk to be 904d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58e6285, got %s", cfg.Faucet.Erc20s[1].MinterPk)
 	}
 	if cfg.MetaFetcher.NumberOfAccountsUrl != "number-of-accounts-test-url" {
 		t.Errorf("expected MetaFetcher.NumberOfAccountsUrl to be number-of-accounts-test-url, got %s", cfg.MetaFetcher.NumberOfAccountsUrl)

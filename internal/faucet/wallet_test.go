@@ -93,7 +93,7 @@ func TestFaucetWallet_SendWeiToAddress(t *testing.T) {
 	}
 }
 
-func TestFaucetWallet_Nevim(t *testing.T) {
+func TestFaucetWallet_MintErc20Tokens(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	receiver := common.HexToAddress("0x5A4b203939F9757A703e009fA9B733Cf33d5821b")
 
@@ -125,7 +125,6 @@ func TestFaucetWallet_Nevim(t *testing.T) {
 	// mint erc 20 tokens
 	err = wallet.MintErc20TokensToAddress(contractAddress, receiver, big.NewInt(1000))
 	if err != nil {
-		fmt.Println(err)
 		t.Fatal(err)
 	}
 }
@@ -222,7 +221,6 @@ func createContainer(t *testing.T, ctx context.Context) (testcontainers.Containe
 				"--account", "0xbb39aa88008bc6260ff9ebc816178c47a01c44efe55810ea1f271c00f5878812,200000000000000000000",
 				// address: 0x5A4b203939F9757A703e009fA9B733Cf33d5821b
 				"--account", "0x29c8b4ff78e41dafd561f5cd4a90103faf20a5b509a4b6281947b8fcdcfa8f71,100000000000000000000",
-				"--verbose",
 			},
 		},
 		Started: true,
