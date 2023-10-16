@@ -9,7 +9,7 @@
     "claimTokensAmount": 2.5,
     "walletPrivateKey": "904d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58e6285",
     "claimsPerDay": 5,
-    "erc20MintAmountHex": "0x38d7ea4c68000",
+    "erc20MintAmountHex": "0x8ac7230489e80000",
     "erc20sPath": "erc20s.json"
   },
   "metaFetcher": {
