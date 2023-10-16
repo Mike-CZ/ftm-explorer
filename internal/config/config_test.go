@@ -16,7 +16,14 @@ func TestConfig_Load(t *testing.T) {
       "faucet": {
         "claimLimitSeconds": 1000,
         "claimTokensAmount": 0.5,
-        "walletPrivateKey": "9s4d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58a6285"
+        "walletPrivateKey": "9s4d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58a6285",
+        "erc20s": [
+          {
+            "address": "0x3bc666c4073853a59a7bfb0184298551d922f1df",
+            "minterPk": "904d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58e6285",
+            "mintAmountHex": "0x2e248"
+          }
+        ]
       },
 	  "metaFetcher": {
 		"numberOfAccountsUrl": "number-of-accounts-test-url",
@@ -87,6 +94,18 @@ func TestConfig_Load(t *testing.T) {
 	}
 	if cfg.Faucet.WalletPrivateKey != "9s4d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58a6285" {
 		t.Errorf("expected Faucet.WalletPrivateKey to be 9s4d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58a6285, got %s", cfg.Faucet.WalletPrivateKey)
+	}
+	if len(cfg.Faucet.Erc20s) != 1 {
+		t.Errorf("expected Faucet.Erc20s to have 1 element, got %d", len(cfg.Faucet.Erc20s))
+	}
+	if cfg.Faucet.Erc20s[0].Address != "0x3bc666c4073853a59a7bfb0184298551d922f1df" {
+		t.Errorf("expected Faucet.Erc20s[0].Address to be 0x3bc666c4073853a59a7bfb0184298551d922f1df, got %s", cfg.Faucet.Erc20s[0].Address)
+	}
+	if cfg.Faucet.Erc20s[0].MinterPk != "904d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58e6285" {
+		t.Errorf("expected Faucet.Erc20s[0].MinterPk to be 904d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58e6285, got %s", cfg.Faucet.Erc20s[0].MinterPk)
+	}
+	if cfg.Faucet.Erc20s[0].MintAmountHex != "0x2e248" {
+		t.Errorf("expected Faucet.Erc20s[0].MintAmountHex to be 0x2e248, got %s", cfg.Faucet.Erc20s[0].MintAmountHex)
 	}
 	if cfg.MetaFetcher.NumberOfAccountsUrl != "number-of-accounts-test-url" {
 		t.Errorf("expected MetaFetcher.NumberOfAccountsUrl to be number-of-accounts-test-url, got %s", cfg.MetaFetcher.NumberOfAccountsUrl)

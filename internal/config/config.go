@@ -37,6 +37,15 @@ type Faucet struct {
 	ClaimTokensAmount float32
 	// WalletPrivateKey is the private key of the faucet wallet.
 	WalletPrivateKey string
+	// Erc20s is the list of erc20 tokens to be claimed.
+	Erc20s []FaucetErc20
+}
+
+// FaucetErc20 is the configuration structure for the faucet erc20 token.
+type FaucetErc20 struct {
+	Address       string
+	MinterPk      string
+	MintAmountHex string
 }
 
 // MetaFetcher is the configuration structure for meta fetcher obtaining blockchain metadata.

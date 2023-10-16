@@ -17,11 +17,13 @@ import (
 const (
 	kClaimLimitSeconds = 60
 	kClaimTokensAmount = 1.5
+	kErc20Address      = "0x3bc666c4073853a59a7bfb0184298551d922f1df"
+	kErc20MintAmount   = 10_000
 )
 
 // Test that the new tokens request can be created.
 func TestFaucet_RequestTokens(t *testing.T) {
-	faucet, pg, _, repo := createFaucet(t)
+	faucet, pg, _, _, repo := createFaucet(t)
 	ipAddress := "192.168.0.1"
 
 	// expect a call to the repository to get the latest tokens request
@@ -51,7 +53,7 @@ func TestFaucet_RequestTokens(t *testing.T) {
 
 // Test that the existing tokens request is returned.
 func TestFaucet_RequestTokensAlreadyPending(t *testing.T) {
-	faucet, _, _, repo := createFaucet(t)
+	faucet, _, _, _, repo := createFaucet(t)
 	ipAddress := "192.168.0.1"
 
 	tr := &types.TokensRequest{
@@ -72,7 +74,7 @@ func TestFaucet_RequestTokensAlreadyPending(t *testing.T) {
 
 // Test that error is returned when claim limit is not reached
 func TestFaucet_RequestTokensClaimLimitNotReached(t *testing.T) {
-	faucet, _, _, repo := createFaucet(t)
+	faucet, _, _, _, repo := createFaucet(t)
 	ipAddress := "192.168.0.1"
 	receiver := common.Address{0x01}
 
@@ -113,7 +115,7 @@ func TestFaucet_RequestTokensClaimLimitNotReached(t *testing.T) {
 
 // Test that request can be made when claim limit is reached
 func TestFaucet_RequestTokensClaimLimitReached(t *testing.T) {
-	faucet, pg, _, repo := createFaucet(t)
+	faucet, pg, _, _, repo := createFaucet(t)
 	ipAddress := "192.168.0.1"
 
 	// expect a call to the repository to get the latest tokens request
@@ -141,7 +143,7 @@ func TestFaucet_RequestTokensClaimLimitReached(t *testing.T) {
 
 // Test that the tokens can be claimed.
 func TestFaucet_ClaimTokens(t *testing.T) {
-	faucet, _, wallet, repo := createFaucet(t)
+	faucet, _, wallet, _, repo := createFaucet(t)
 	ipAddress := "192.168.0.1"
 	phrase := "test-phrase"
 	receiver := common.Address{0x01}
@@ -165,7 +167,7 @@ func TestFaucet_ClaimTokens(t *testing.T) {
 	wallet.EXPECT().SendWeiToAddress(gomock.Eq(getTokensAmountInWei(kClaimTokensAmount)), gomock.Eq(receiver)).Return(nil)
 
 	// claim tokens
-	err := faucet.ClaimTokens(ipAddress, kFaucetChallengePrefix+phrase, receiver)
+	err := faucet.ClaimTokens(ipAddress, kFaucetChallengePrefix+phrase, receiver, nil)
 	if err != nil {
 		t.Fatalf("ClaimTokens failed: %v", err)
 	}
@@ -173,7 +175,7 @@ func TestFaucet_ClaimTokens(t *testing.T) {
 
 // Test that error is returned when tokens request is not found.
 func TestFaucet_ClaimTokensNoPendingRequest(t *testing.T) {
-	faucet, _, _, repo := createFaucet(t)
+	faucet, _, _, _, repo := createFaucet(t)
 	ipAddress := "192.168.0.1"
 	phrase := "test-phrase"
 	receiver := common.Address{0x01}
@@ -182,7 +184,7 @@ func TestFaucet_ClaimTokensNoPendingRequest(t *testing.T) {
 	repo.EXPECT().GetLatestUnclaimedTokensRequest(ipAddress).Return(nil, nil)
 
 	// claim tokens
-	err := faucet.ClaimTokens(ipAddress, kFaucetChallengePrefix+phrase, receiver)
+	err := faucet.ClaimTokens(ipAddress, kFaucetChallengePrefix+phrase, receiver, nil)
 	if err == nil || !strings.Contains(err.Error(), "no request found") {
 		t.Fatal("ClaimTokens did not return error")
 	}
@@ -190,7 +192,7 @@ func TestFaucet_ClaimTokensNoPendingRequest(t *testing.T) {
 
 // Test that error is returned when phrase does not match.
 func TestFaucet_ClaimTokensPhraseMismatch(t *testing.T) {
-	faucet, _, _, repo := createFaucet(t)
+	faucet, _, _, _, repo := createFaucet(t)
 	ipAddress := "192.168.0.1"
 	phrase := "test-phrase"
 	receiver := common.Address{0x01}
@@ -202,7 +204,7 @@ func TestFaucet_ClaimTokensPhraseMismatch(t *testing.T) {
 	}, nil)
 
 	// claim tokens
-	err := faucet.ClaimTokens(ipAddress, kFaucetChallengePrefix+"different-phrase", receiver)
+	err := faucet.ClaimTokens(ipAddress, kFaucetChallengePrefix+"different-phrase", receiver, nil)
 	if err == nil || err.Error() != "invalid phrase" {
 		t.Fatal("ClaimTokens did not return error")
 	}
@@ -210,7 +212,7 @@ func TestFaucet_ClaimTokensPhraseMismatch(t *testing.T) {
 
 // Test that error is returned when tokens are already claimed.
 func TestFaucet_ClaimTokensAlreadyClaimed(t *testing.T) {
-	faucet, _, _, repo := createFaucet(t)
+	faucet, _, _, _, repo := createFaucet(t)
 	ipAddress := "192.168.0.1"
 	phrase := "test-phrase"
 	claimed := time.Now().Unix()
@@ -225,7 +227,7 @@ func TestFaucet_ClaimTokensAlreadyClaimed(t *testing.T) {
 	}, nil)
 
 	// claim tokens
-	err := faucet.ClaimTokens(ipAddress, kFaucetChallengePrefix+phrase, receiver)
+	err := faucet.ClaimTokens(ipAddress, kFaucetChallengePrefix+phrase, receiver, nil)
 	if err == nil || err.Error() != "tokens already claimed" {
 		t.Fatal("ClaimTokens did not return error")
 	}
@@ -233,13 +235,13 @@ func TestFaucet_ClaimTokensAlreadyClaimed(t *testing.T) {
 
 // Test that error is returned when prefix is not present.
 func TestFaucet_ClaimTokensNoPrefix(t *testing.T) {
-	faucet, _, _, _ := createFaucet(t)
+	faucet, _, _, _, _ := createFaucet(t)
 	ipAddress := "192.168.0.1"
 	phrase := "test-phrase"
 	receiver := common.Address{0x01}
 
 	// claim tokens
-	err := faucet.ClaimTokens(ipAddress, phrase, receiver)
+	err := faucet.ClaimTokens(ipAddress, phrase, receiver, nil)
 	if err == nil || err.Error() != "invalid phrase" {
 		t.Fatal("ClaimTokens did not return error")
 	}
@@ -247,7 +249,7 @@ func TestFaucet_ClaimTokensNoPrefix(t *testing.T) {
 
 // Test that error is returned when wallet returns error and claim is reset.
 func TestFaucet_ClaimTokensWalletError(t *testing.T) {
-	faucet, _, wallet, repo := createFaucet(t)
+	faucet, _, wallet, _, repo := createFaucet(t)
 	ipAddress := "192.168.0.1"
 	phrase := "test-phrase"
 	receiver := common.Address{0x01}
@@ -272,9 +274,63 @@ func TestFaucet_ClaimTokensWalletError(t *testing.T) {
 	})).Return(nil)
 
 	// claim tokens
-	err := faucet.ClaimTokens(ipAddress, kFaucetChallengePrefix+phrase, receiver)
+	err := faucet.ClaimTokens(ipAddress, kFaucetChallengePrefix+phrase, receiver, nil)
 	if err == nil {
 		t.Fatalf("ClaimTokens did not return error")
+	}
+}
+
+// Test that error is returned when erc20 is unknown.
+func TestFaucet_ClaimErc20TokensUnknownAddress(t *testing.T) {
+	faucet, _, _, _, repo := createFaucet(t)
+	ipAddress := "192.168.0.1"
+	phrase := "test-phrase"
+	receiver := common.Address{0x01}
+
+	// expect a call to the repository to get the tokens request
+	repo.EXPECT().GetLatestUnclaimedTokensRequest(ipAddress).Return(&types.TokensRequest{
+		IpAddress: ipAddress,
+		Phrase:    phrase,
+	}, nil)
+
+	// claim tokens with unknown address
+	addr := common.Address{0x02}
+	err := faucet.ClaimTokens(ipAddress, kFaucetChallengePrefix+phrase, receiver, &addr)
+	if err == nil || err.Error() != "unknown erc20 token" {
+		t.Fatal("ClaimTokens did not return error")
+	}
+}
+
+// Test that the erc 20 tokens can be minted.
+func TestFaucet_MintErc20Tokens(t *testing.T) {
+	faucet, _, _, erc20Wallet, repo := createFaucet(t)
+	ipAddress := "192.168.0.1"
+	phrase := "test-phrase"
+	receiver := common.Address{0x01}
+
+	// expect a call to the repository to get the tokens request
+	repo.EXPECT().GetLatestUnclaimedTokensRequest(ipAddress).Return(&types.TokensRequest{
+		IpAddress: ipAddress,
+		Phrase:    phrase,
+	}, nil)
+
+	// expect a call to the repository to update the tokens request
+	now := time.Now().Unix()
+	repo.EXPECT().UpdateTokensRequest(gomock.Eq(&types.TokensRequest{
+		IpAddress: ipAddress,
+		Phrase:    phrase,
+		Receiver:  &receiver,
+		ClaimedAt: &now,
+	})).Return(nil)
+
+	// expect a call to wallet to mint tokens
+	addr := common.HexToAddress(kErc20Address)
+	erc20Wallet.EXPECT().MintErc20TokensToAddress(gomock.Eq(addr), gomock.Eq(receiver), gomock.Eq(new(big.Int).SetUint64(kErc20MintAmount))).Return(nil)
+
+	// claim tokens
+	err := faucet.ClaimTokens(ipAddress, kFaucetChallengePrefix+phrase, receiver, &addr)
+	if err != nil {
+		t.Fatalf("ClaimTokens failed: %v", err)
 	}
 }
 
@@ -292,7 +348,7 @@ func TestFaucet_GetTokensAmountInWei(t *testing.T) {
 }
 
 // createFaucet creates a new faucet instance for testing.
-func createFaucet(t *testing.T) (*Faucet, *MockFaucetPhraseGenerator, *MockFaucetWallet, *repository.MockRepository) {
+func createFaucet(t *testing.T) (*Faucet, *MockFaucetPhraseGenerator, *MockFaucetWallet, *MockFaucetWallet, *repository.MockRepository) {
 	t.Helper()
 	ctrl := gomock.NewController(t)
 	mockRepository := repository.NewMockRepository(ctrl)
@@ -302,5 +358,13 @@ func createFaucet(t *testing.T) (*Faucet, *MockFaucetPhraseGenerator, *MockFauce
 		ClaimLimitSeconds: kClaimLimitSeconds,
 		ClaimTokensAmount: kClaimTokensAmount,
 	}
-	return NewFaucet(cfg, mockPhraseGenerator, mockWallet, mockRepository), mockPhraseGenerator, mockWallet, mockRepository
+	mockErc20Wallet := NewMockFaucetWallet(ctrl)
+	erc20s := []FaucetErc20{
+		{
+			address:    common.HexToAddress(kErc20Address),
+			wallet:     mockErc20Wallet,
+			mintAmount: new(big.Int).SetUint64(kErc20MintAmount),
+		},
+	}
+	return NewFaucet(cfg, mockPhraseGenerator, mockWallet, erc20s, mockRepository), mockPhraseGenerator, mockWallet, mockErc20Wallet, mockRepository
 }
