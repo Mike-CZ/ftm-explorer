@@ -20,8 +20,6 @@ const (
 	kFaucetChallengePrefix = "Sign following challenge to obtain tokens:\n"
 	// kFaucetChallengePrefixLen is the length of the challenge prefix.
 	kFaucetChallengePrefixLen = len(kFaucetChallengePrefix)
-	// kFaucetClaimsPerDay defines the number of claims per day allowed from the same ip address.
-	kFaucetClaimsPerDay = 3
 )
 
 // FaucetErc20 represents a faucet erc20 token.
@@ -99,8 +97,8 @@ func (f *Faucet) RequestTokens(ipAddress string) (string, error) {
 	}
 
 	// check if the number of requests is greater than the allowed number of claims per day
-	if len(requests) >= kFaucetClaimsPerDay {
-		return "", fmt.Errorf("too many requests, you are allowed to claim %d times per day", kFaucetClaimsPerDay)
+	if len(requests) >= int(f.cfg.ClaimsPerDay) {
+		return "", fmt.Errorf("too many requests, you are allowed to claim %d times per day", f.cfg.ClaimsPerDay)
 	}
 
 	phrase, err := f.pg.GeneratePhrase()

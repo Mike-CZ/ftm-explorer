@@ -52,6 +52,7 @@ build/demonet-explorer
     "claimLimitSeconds": 86400,
     "claimTokensAmount": 2.5,
     "walletPrivateKey": "904d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58e6285",
+    "claimsPerDay": 5,
     "erc20s": [
       {
         "address": "0x3bc666c4073853a59a7bfb0184298551d922f1df",

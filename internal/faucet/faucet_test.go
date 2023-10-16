@@ -357,6 +357,7 @@ func createFaucet(t *testing.T) (*Faucet, *MockFaucetPhraseGenerator, *MockFauce
 	cfg := &config.Faucet{
 		ClaimLimitSeconds: kClaimLimitSeconds,
 		ClaimTokensAmount: kClaimTokensAmount,
+		ClaimsPerDay:      3,
 	}
 	mockErc20Wallet := NewMockFaucetWallet(ctrl)
 	erc20s := []FaucetErc20{

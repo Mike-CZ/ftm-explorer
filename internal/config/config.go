@@ -37,6 +37,8 @@ type Faucet struct {
 	ClaimTokensAmount float32
 	// WalletPrivateKey is the private key of the faucet wallet.
 	WalletPrivateKey string
+	// ClaimsPerDay is the number of claims per day allowed from the same ip address.
+	ClaimsPerDay uint
 	// Erc20s is the list of erc20 tokens to be claimed.
 	Erc20s []FaucetErc20
 }

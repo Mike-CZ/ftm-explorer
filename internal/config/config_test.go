@@ -17,6 +17,7 @@ func TestConfig_Load(t *testing.T) {
         "claimLimitSeconds": 1000,
         "claimTokensAmount": 0.5,
         "walletPrivateKey": "9s4d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58a6285",
+        "claimsPerDay": 5,
         "erc20s": [
           {
             "address": "0x3bc666c4073853a59a7bfb0184298551d922f1df",
@@ -94,6 +95,9 @@ func TestConfig_Load(t *testing.T) {
 	}
 	if cfg.Faucet.WalletPrivateKey != "9s4d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58a6285" {
 		t.Errorf("expected Faucet.WalletPrivateKey to be 9s4d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58a6285, got %s", cfg.Faucet.WalletPrivateKey)
+	}
+	if cfg.Faucet.ClaimsPerDay != 5 {
+		t.Errorf("expected Faucet.ClaimsPerDay to be 5, got %d", cfg.Faucet.ClaimsPerDay)
 	}
 	if len(cfg.Faucet.Erc20s) != 1 {
 		t.Errorf("expected Faucet.Erc20s to have 1 element, got %d", len(cfg.Faucet.Erc20s))
