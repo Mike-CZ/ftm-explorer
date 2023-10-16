@@ -6,7 +6,9 @@ import (
 	"ftm-explorer/internal/logger"
 	"ftm-explorer/internal/repository"
 	"math/big"
+	"strings"
 
+	abi2 "github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -88,6 +90,7 @@ func (w *Wallet) SendWeiToAddress(amount *big.Int, receiver common.Address) erro
 	return nil
 }
 
+// MintErc20TokensToAddress mints erc20 tokens to the given address.
 func (w *Wallet) MintErc20TokensToAddress(contract common.Address, receiver common.Address, amount *big.Int) error {
 	// get nonce
 	nonce, err := w.repo.PendingNonceAt(w.from)
@@ -109,14 +112,14 @@ func (w *Wallet) MintErc20TokensToAddress(contract common.Address, receiver comm
 		return err
 	}
 
-	// build transaction data
-	// identifier is first 4 bytes of keccak256 hash of "mint(address,uint256)"
-	var r [32]byte
-	copy(r[32-len(receiver.Bytes()):], receiver.Bytes())
-	var a [32]byte
-	copy(a[32-len(amount.Bytes()):], amount.Bytes())
-	data := append([]byte{0x40, 0xc1, 0x0f, 0x19}, append(r[:], a[:]...)...)
-	
+	// get erc20 mint data
+	data, err := getErc20MintData(receiver, amount)
+	if err != nil {
+		w.log.Criticalf("error getting erc20 mint data: %v", err)
+		return err
+	}
+
+	// create transaction
 	tx := types.NewTransaction(nonce, contract, new(big.Int).SetUint64(0), 100_000, gasPrice, data)
 
 	// sign transaction
@@ -133,4 +136,19 @@ func (w *Wallet) MintErc20TokensToAddress(contract common.Address, receiver comm
 	}
 
 	return nil
+}
+
+// getErc20MintData returns the erc20 mint data.
+func getErc20MintData(receiver common.Address, amount *big.Int) ([]byte, error) {
+	definition := `[{"inputs":[{"internalType": "address","name": "recipient","type": "address"},{"internalType": "uint256","name": "amount","type": "uint256"}],"name": "mint","outputs": [],"stateMutability": "nonpayable","type": "function"}]`
+	abi, err := abi2.JSON(strings.NewReader(definition))
+	if err != nil {
+		return nil, err
+	}
+	// pack constructor params
+	data, err := abi.Pack("mint", receiver, amount)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }
