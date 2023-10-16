@@ -38,4 +38,5 @@ func applyDefaults(cfg *viper.Viper) {
 	cfg.SetDefault("faucet.walletPrivateKey", "bb39aa88008bc6260ff9ebc816178c47a01c44efe55810ea1f271c00f5878812")
 	cfg.SetDefault("faucet.claimLimitSeconds", 86400)
 	cfg.SetDefault("faucet.claimTokensAmount", 0.5)
+	cfg.SetDefault("faucet.Erc20MintAmountHex", "0x38d7ea4c68000")
 }
