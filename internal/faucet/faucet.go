@@ -3,6 +3,7 @@ package faucet
 import (
 	"fmt"
 	"ftm-explorer/internal/config"
+	"ftm-explorer/internal/logger"
 	"ftm-explorer/internal/repository"
 	"ftm-explorer/internal/types"
 	"math/big"
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/params"
 )
 
@@ -18,27 +20,60 @@ const (
 	kFaucetChallengePrefix = "Sign following challenge to obtain tokens:\n"
 	// kFaucetChallengePrefixLen is the length of the challenge prefix.
 	kFaucetChallengePrefixLen = len(kFaucetChallengePrefix)
-	// kFaucetClaimsPerDay defines the number of claims per day allowed from the same ip address.
-	kFaucetClaimsPerDay = 3
 )
+
+// FaucetErc20 represents a faucet erc20 token.
+type FaucetErc20 struct {
+	address common.Address
+	wallet  IFaucetWallet
+}
 
 // Faucet represents a faucet instance. It provides access to the
 // faucet functionality. It is used to request and claim tokens.
 type Faucet struct {
-	pg     IFaucetPhraseGenerator
-	wallet IFaucetWallet
-	repo   repository.IRepository
-	cfg    *config.Faucet
+	pg              IFaucetPhraseGenerator
+	wallet          IFaucetWallet
+	repo            repository.IRepository
+	cfg             *config.Faucet
+	erc20s          map[common.Address]FaucetErc20
+	erc20MintAmount *big.Int
 }
 
 // NewFaucet creates a new faucet instance.
-func NewFaucet(cfg *config.Faucet, pg IFaucetPhraseGenerator, w IFaucetWallet, repo repository.IRepository) *Faucet {
-	return &Faucet{
-		pg:     pg,
-		wallet: w,
-		repo:   repo,
-		cfg:    cfg,
+func NewFaucet(cfg *config.Faucet, pg IFaucetPhraseGenerator, w IFaucetWallet, erc20s []FaucetErc20, repo repository.IRepository) (*Faucet, error) {
+	mintAmount, err := hexutil.DecodeBig(cfg.Erc20MintAmountHex)
+	if err != nil {
+		return nil, fmt.Errorf("error decoding faucet erc20 amount: %v", err)
 	}
+	f := &Faucet{
+		pg:              pg,
+		wallet:          w,
+		repo:            repo,
+		cfg:             cfg,
+		erc20s:          make(map[common.Address]FaucetErc20),
+		erc20MintAmount: mintAmount,
+	}
+	for _, erc20 := range erc20s {
+		f.erc20s[erc20.address] = erc20
+	}
+	return f, nil
+}
+
+// NewFaucetErc20s creates a new faucet erc20 tokens.
+func NewFaucetErc20s(cfg *config.Faucet, repo repository.IRepository, log logger.ILogger) ([]FaucetErc20, error) {
+	erc20s := make([]FaucetErc20, len(cfg.Erc20s))
+	for i, erc20 := range cfg.Erc20s {
+		address := common.HexToAddress(erc20.Address)
+		wallet, err := NewWallet(repo, log, erc20.MinterPk)
+		if err != nil {
+			return nil, fmt.Errorf("error creating faucet wallet: %v", err)
+		}
+		erc20s[i] = FaucetErc20{
+			address: address,
+			wallet:  wallet,
+		}
+	}
+	return erc20s, nil
 }
 
 // RequestTokens requests tokens for the given ip address and phrase. Returns
@@ -62,8 +97,8 @@ func (f *Faucet) RequestTokens(ipAddress string) (string, error) {
 	}
 
 	// check if the number of requests is greater than the allowed number of claims per day
-	if len(requests) >= kFaucetClaimsPerDay {
-		return "", fmt.Errorf("too many requests, you are allowed to claim %d times per day", kFaucetClaimsPerDay)
+	if len(requests) >= int(f.cfg.ClaimsPerDay) {
+		return "", fmt.Errorf("too many requests, you are allowed to claim %d times per day", f.cfg.ClaimsPerDay)
 	}
 
 	phrase, err := f.pg.GeneratePhrase()
@@ -84,7 +119,7 @@ func (f *Faucet) RequestTokens(ipAddress string) (string, error) {
 }
 
 // ClaimTokens claims tokens for the given phrase and receiver address.
-func (f *Faucet) ClaimTokens(ip string, phrase string, receiver common.Address) error {
+func (f *Faucet) ClaimTokens(ip string, phrase string, receiver common.Address, erc20 *common.Address) error {
 	// check the phrase
 	if len(phrase) < kFaucetChallengePrefixLen || strings.Compare(phrase[:kFaucetChallengePrefixLen], kFaucetChallengePrefix) != 0 {
 		return fmt.Errorf("invalid phrase")
@@ -112,6 +147,14 @@ func (f *Faucet) ClaimTokens(ip string, phrase string, receiver common.Address) 
 		return fmt.Errorf("tokens already claimed")
 	}
 
+	// check if it is known erc20 token when erc20 is not nil
+	if erc20 != nil {
+		_, ok := f.erc20s[*erc20]
+		if !ok {
+			return fmt.Errorf("unknown erc20 token")
+		}
+	}
+
 	// update the request
 	tr.Receiver = &receiver
 	now := time.Now().Unix()
@@ -121,13 +164,27 @@ func (f *Faucet) ClaimTokens(ip string, phrase string, receiver common.Address) 
 		return fmt.Errorf("error updating tokens request: %v", err)
 	}
 
-	// send wei to the receiver
-	if err = f.wallet.SendWeiToAddress(getTokensAmountInWei(float64(f.cfg.ClaimTokensAmount)), receiver); err != nil {
+	// send native tokens to the receiver if erc20 is nil
+	if erc20 == nil {
+		if err = f.wallet.SendWeiToAddress(getTokensAmountInWei(float64(f.cfg.ClaimTokensAmount)), receiver); err != nil {
+			// if we got error, we need to set back the request to the previous state
+			tr.Receiver = nil
+			tr.ClaimedAt = nil
+			_ = f.repo.UpdateTokensRequest(tr)
+			return fmt.Errorf("error sending wei to address: %v", err)
+		}
+		return nil
+	}
+
+	erc20Faucet := f.erc20s[*erc20]
+
+	// send erc20 tokens to the receiver
+	if err = erc20Faucet.wallet.MintErc20TokensToAddress(erc20Faucet.address, receiver, f.erc20MintAmount); err != nil {
 		// if we got error, we need to set back the request to the previous state
 		tr.Receiver = nil
 		tr.ClaimedAt = nil
 		_ = f.repo.UpdateTokensRequest(tr)
-		return fmt.Errorf("error sending wei to address: %v", err)
+		return fmt.Errorf("error minting erc20 to address: %v", err)
 	}
 
 	return nil

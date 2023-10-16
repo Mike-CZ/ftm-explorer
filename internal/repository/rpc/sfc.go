@@ -11,7 +11,7 @@ import (
 func (rpc *OperaRpc) NumberOfValidators(ctx context.Context) (uint64, error) {
 	// get latest sealed epoch
 	var epoch hexutil.Bytes
-	err := rpc.ftm.CallContext(ctx, &epoch, "ftm_call", map[string]interface{}{
+	err := rpc.ftm.CallContext(ctx, &epoch, "eth_call", map[string]interface{}{
 		"to":   rpc.sfcAddress,
 		"data": hexutil.Bytes([]byte{0x7c, 0xac, 0xb1, 0xd6})}, "latest")
 	if err != nil {
@@ -20,7 +20,7 @@ func (rpc *OperaRpc) NumberOfValidators(ctx context.Context) (uint64, error) {
 
 	// get number of validators in the epoch
 	var out hexutil.Bytes
-	err = rpc.ftm.CallContext(ctx, &out, "ftm_call", map[string]interface{}{
+	err = rpc.ftm.CallContext(ctx, &out, "eth_call", map[string]interface{}{
 		"to":   rpc.sfcAddress,
 		"data": hexutil.Bytes(append([]byte{0xb8, 0x8a, 0x37, 0xe2}, []byte(epoch)...))}, "latest")
 	if err != nil {

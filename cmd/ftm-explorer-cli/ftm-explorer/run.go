@@ -86,5 +86,13 @@ func createFaucet(cfg *config.Config, repo *repository.Repository, log logger.IL
 	if err != nil {
 		return nil, fmt.Errorf("can not create faucet wallet: %v", err)
 	}
-	return faucet.NewFaucet(&cfg.Faucet, faucet.NewPhraseGenerator(), wallet, repo), nil
+	erc20s, err := faucet.NewFaucetErc20s(&cfg.Faucet, repo, log)
+	if err != nil {
+		return nil, fmt.Errorf("can not create faucet erc20s: %v", err)
+	}
+	f, err := faucet.NewFaucet(&cfg.Faucet, faucet.NewPhraseGenerator(), wallet, erc20s, repo)
+	if err != nil {
+		return nil, fmt.Errorf("can not create faucet: %v", err)
+	}
+	return f, nil
 }

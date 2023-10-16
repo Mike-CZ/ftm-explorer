@@ -20,10 +20,8 @@ type Explorer struct {
 	// BlockBufferSize is the size of the block buffer. The buffer is used to
 	// store blocks in memory, so that they can be accessed quickly.
 	BlockBufferSize uint
-
 	// IsPersisted is the flag indicating whether the explorer data is persisted.
 	IsPersisted bool
-
 	// MaxTxsCount is the maximum number of transactions to be stored in the database.
 	// If the number of transactions in the database exceeds this value, the oldest
 	// transactions are removed.
@@ -37,6 +35,20 @@ type Faucet struct {
 	ClaimTokensAmount float32
 	// WalletPrivateKey is the private key of the faucet wallet.
 	WalletPrivateKey string
+	// ClaimsPerDay is the number of claims per day allowed from the same ip address.
+	ClaimsPerDay uint
+	// Erc20sPath is the path to the erc20 tokens configuration file.
+	Erc20sPath string
+	// Erc20MintAmountHex is the amount of erc20 tokens to be minted.
+	Erc20MintAmountHex string
+	// Erc20s is the list of erc20 tokens to be claimed.
+	Erc20s []FaucetErc20
+}
+
+// FaucetErc20 is the configuration structure for the faucet erc20 token.
+type FaucetErc20 struct {
+	Address  string `json:"address"`
+	MinterPk string `json:"minter_key"`
 }
 
 // MetaFetcher is the configuration structure for meta fetcher obtaining blockchain metadata.

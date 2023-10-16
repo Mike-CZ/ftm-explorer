@@ -16,7 +16,7 @@ func (rpc *OperaRpc) TransactionByHash(ctx context.Context, hash common.Hash) (*
 	var trx types.Transaction
 
 	// get the block by number
-	err := rpc.ftm.CallContext(ctx, &trx, "ftm_getTransactionByHash", hash)
+	err := rpc.ftm.CallContext(ctx, &trx, "eth_getTransactionByHash", hash)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get transaction by hash: %v", err)
 	}
@@ -32,7 +32,7 @@ func (rpc *OperaRpc) TransactionByHash(ctx context.Context, hash common.Hash) (*
 		}
 
 		// call for the transaction receipt data
-		err := rpc.ftm.Call(&rec, "ftm_getTransactionReceipt", hash)
+		err := rpc.ftm.Call(&rec, "eth_getTransactionReceipt", hash)
 		if err != nil {
 			return nil, err
 		}

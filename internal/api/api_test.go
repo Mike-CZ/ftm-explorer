@@ -647,7 +647,7 @@ func getClaimTokensTestCase(t *testing.T) apiTestCase {
 		testName:    "ClaimTokens",
 		requestBody: fmt.Sprintf(`{"query": "mutation { claimTokens(address: \"%s\", challenge: \"%s\", signature: \"%s\") }"}`, derivedAddress.Hex(), message, hexutil.Encode(signature)),
 		buildStubs: func(_ *repository.MockRepository, mockFaucet *faucet.MockFaucet) {
-			mockFaucet.EXPECT().ClaimTokens(gomock.Any(), gomock.Eq(message), gomock.Eq(derivedAddress)).Return(nil)
+			mockFaucet.EXPECT().ClaimTokens(gomock.Any(), gomock.Eq(message), gomock.Eq(derivedAddress), gomock.Nil()).Return(nil)
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
 			apiRes := decodeResponse(t, resp)

@@ -61,5 +61,5 @@ type Mutation {
     requestTokens: String!
 
     # Send signed phrase to faucet to obtain tokens.
-    claimTokens(address: Address!, challenge: String!, signature: String!): Boolean!
+    claimTokens(address: Address!, challenge: String!, signature: String!, erc20Address: Address): Boolean!
 }

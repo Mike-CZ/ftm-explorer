@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"ftm-explorer/internal/logger"
 	"ftm-explorer/internal/repository"
-	"log"
 	"math/big"
+	"strings"
 
+	abi2 "github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -53,7 +54,7 @@ func (w *Wallet) SendWeiToAddress(amount *big.Int, receiver common.Address) erro
 	// get nonce
 	nonce, err := w.repo.PendingNonceAt(w.from)
 	if err != nil {
-		log.Fatal(err)
+		w.log.Criticalf("error getting nonce: %v", err)
 	}
 
 	// get gas price
@@ -87,4 +88,67 @@ func (w *Wallet) SendWeiToAddress(amount *big.Int, receiver common.Address) erro
 	}
 
 	return nil
+}
+
+// MintErc20TokensToAddress mints erc20 tokens to the given address.
+func (w *Wallet) MintErc20TokensToAddress(contract common.Address, receiver common.Address, amount *big.Int) error {
+	// get nonce
+	nonce, err := w.repo.PendingNonceAt(w.from)
+	if err != nil {
+		w.log.Criticalf("error getting nonce: %v", err)
+	}
+
+	// get gas price
+	gasPrice, err := w.repo.SuggestGasPrice()
+	if err != nil {
+		w.log.Criticalf("error getting gas price: %v", err)
+		return err
+	}
+
+	// get network id
+	chainID, err := w.repo.NetworkID()
+	if err != nil {
+		w.log.Criticalf("error getting network id: %v", err)
+		return err
+	}
+
+	// get erc20 mint data
+	data, err := getErc20MintData(receiver, amount)
+	if err != nil {
+		w.log.Criticalf("error getting erc20 mint data: %v", err)
+		return err
+	}
+
+	// create transaction
+	tx := types.NewTransaction(nonce, contract, new(big.Int).SetUint64(0), 100_000, gasPrice, data)
+
+	// sign transaction
+	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), w.pk)
+	if err != nil {
+		w.log.Criticalf("error signing transaction: %v", err)
+		return err
+	}
+
+	// send transaction
+	if err = w.repo.SendSignedTransaction(signedTx); err != nil {
+		w.log.Criticalf("error sending transaction: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+// getErc20MintData returns the erc20 mint data.
+func getErc20MintData(receiver common.Address, amount *big.Int) ([]byte, error) {
+	definition := `[{"inputs":[{"internalType": "address","name": "recipient","type": "address"},{"internalType": "uint256","name": "amount","type": "uint256"}],"name": "mint","outputs": [],"stateMutability": "nonpayable","type": "function"}]`
+	abi, err := abi2.JSON(strings.NewReader(definition))
+	if err != nil {
+		return nil, err
+	}
+	// pack constructor params
+	data, err := abi.Pack("mint", receiver, amount)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }

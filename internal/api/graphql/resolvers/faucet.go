@@ -31,9 +31,10 @@ func (rs *RootResolver) RequestTokens(ctx context.Context) (string, error) {
 
 // ClaimTokens claims the tokens from faucet. It requires the user to sign the challenge.
 func (rs *RootResolver) ClaimTokens(ctx context.Context, args struct {
-	Address   common.Address
-	Challenge string
-	Signature string
+	Address      common.Address
+	Challenge    string
+	Signature    string
+	Erc20Address *common.Address
 }) (bool, error) {
 	// get the ip address from the context
 	ip, err := auth.GetIpOrErr(ctx)
@@ -55,7 +56,7 @@ func (rs *RootResolver) ClaimTokens(ctx context.Context, args struct {
 			return "", fmt.Errorf("signature verification failed; %s", err)
 		}
 		// claim tokens
-		err = rs.faucet.ClaimTokens(ip, args.Challenge, args.Address)
+		err = rs.faucet.ClaimTokens(ip, args.Challenge, args.Address, args.Erc20Address)
 		return "", err
 	})
 	if err != nil {

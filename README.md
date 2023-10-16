@@ -51,7 +51,10 @@ build/demonet-explorer
   "faucet": {
     "claimLimitSeconds": 86400,
     "claimTokensAmount": 2.5,
-    "walletPrivateKey": "904d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58e6285"
+    "walletPrivateKey": "904d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58e6285",
+    "claimsPerDay": 5,
+    "erc20MintAmountHex": "0x38d7ea4c68000",
+    "Erc20sPath": "erc20s.json"
   },
   "metaFetcher": {
     "numberOfAccountsUrl": "number-of-accounts-url",

@@ -12,10 +12,10 @@ import (
 // faucet functionality. It is used to request and claim tokens.
 type IFaucet interface {
 	// RequestTokens requests tokens for the given ip address.
-	RequestTokens(ip string) (string, error)
+	RequestTokens(string) (string, error)
 
 	// ClaimTokens claims tokens for the given phrase and receiver address.
-	ClaimTokens(ip string, phrase string, receiver common.Address) error
+	ClaimTokens(ip string, phrase string, receiver common.Address, erc20 *common.Address) error
 }
 
 // IFaucetPhraseGenerator represents a faucet phrase generator interface.
@@ -30,4 +30,7 @@ type IFaucetPhraseGenerator interface {
 type IFaucetWallet interface {
 	// SendWeiToAddress sends wei to the given address.
 	SendWeiToAddress(amount *big.Int, receiver common.Address) error
+
+	// MintErc20TokensToAddress sends erc20 tokens to the given address.
+	MintErc20TokensToAddress(common.Address, common.Address, *big.Int) error
 }

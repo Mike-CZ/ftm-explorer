@@ -36,32 +36,32 @@ func (m *MockFaucet) EXPECT() *MockFaucetMockRecorder {
 }
 
 // ClaimTokens mocks base method.
-func (m *MockFaucet) ClaimTokens(ip, phrase string, receiver common.Address) error {
+func (m *MockFaucet) ClaimTokens(ip, phrase string, receiver common.Address, erc20 *common.Address) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ClaimTokens", ip, phrase, receiver)
+	ret := m.ctrl.Call(m, "ClaimTokens", ip, phrase, receiver, erc20)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ClaimTokens indicates an expected call of ClaimTokens.
-func (mr *MockFaucetMockRecorder) ClaimTokens(ip, phrase, receiver interface{}) *gomock.Call {
+func (mr *MockFaucetMockRecorder) ClaimTokens(ip, phrase, receiver, erc20 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClaimTokens", reflect.TypeOf((*MockFaucet)(nil).ClaimTokens), ip, phrase, receiver)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClaimTokens", reflect.TypeOf((*MockFaucet)(nil).ClaimTokens), ip, phrase, receiver, erc20)
 }
 
 // RequestTokens mocks base method.
-func (m *MockFaucet) RequestTokens(ip string) (string, error) {
+func (m *MockFaucet) RequestTokens(arg0 string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RequestTokens", ip)
+	ret := m.ctrl.Call(m, "RequestTokens", arg0)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // RequestTokens indicates an expected call of RequestTokens.
-func (mr *MockFaucetMockRecorder) RequestTokens(ip interface{}) *gomock.Call {
+func (mr *MockFaucetMockRecorder) RequestTokens(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestTokens", reflect.TypeOf((*MockFaucet)(nil).RequestTokens), ip)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestTokens", reflect.TypeOf((*MockFaucet)(nil).RequestTokens), arg0)
 }
 
 // MockFaucetPhraseGenerator is a mock of IFaucetPhraseGenerator interface.
@@ -123,6 +123,20 @@ func NewMockFaucetWallet(ctrl *gomock.Controller) *MockFaucetWallet {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockFaucetWallet) EXPECT() *MockFaucetWalletMockRecorder {
 	return m.recorder
+}
+
+// MintErc20TokensToAddress mocks base method.
+func (m *MockFaucetWallet) MintErc20TokensToAddress(arg0, arg1 common.Address, arg2 *big.Int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MintErc20TokensToAddress", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// MintErc20TokensToAddress indicates an expected call of MintErc20TokensToAddress.
+func (mr *MockFaucetWalletMockRecorder) MintErc20TokensToAddress(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MintErc20TokensToAddress", reflect.TypeOf((*MockFaucetWallet)(nil).MintErc20TokensToAddress), arg0, arg1, arg2)
 }
 
 // SendWeiToAddress mocks base method.
