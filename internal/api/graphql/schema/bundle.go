@@ -47,6 +47,9 @@ type Transaction {
     # Null if the transaction is pending.
     blockNumber: Long
 
+    # Block is the block this transaction was assigned to.
+    block: Block
+
     # From is the address of the account that sent this transaction
     from: Address!
 

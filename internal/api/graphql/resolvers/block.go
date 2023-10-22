@@ -128,7 +128,7 @@ func (blk *Block) FullTransactions() ([]*Transaction, error) {
 			expensiveIndexes = append(expensiveIndexes, ix)
 		}
 
-		result = append(result, (*Transaction)(trx))
+		result = append(result, &Transaction{Transaction: *trx, rs: blk.rs})
 	}
 
 	// move expensive transactions to reserved slots

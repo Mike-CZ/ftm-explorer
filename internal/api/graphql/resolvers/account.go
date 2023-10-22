@@ -39,7 +39,7 @@ func (acc Account) Transactions() ([]*Transaction, error) {
 		if err != nil {
 			return nil, err
 		}
-		rv[i] = (*Transaction)(t)
+		rv[i] = &Transaction{Transaction: *t, rs: acc.rs}
 	}
 
 	return rv, nil
