@@ -22,4 +22,7 @@ type CurrentState {
 
     # Get time to block in seconds (rounded to 2 decimal places)
     timeToBlock:Float!
+
+    # Get idle state of the blockchain.
+    isIdle: Boolean!
 }

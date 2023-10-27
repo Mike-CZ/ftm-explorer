@@ -140,6 +140,12 @@ type IRepository interface {
 	// GetLastTransactionsWhereAddress returns the last transactions where the given address is involved.
 	GetLastTransactionsWhereAddress(common.Address, uint) ([]db_types.Transaction, error)
 
+	// IsIdle returns isIdle.
+	IsIdle() bool
+
+	// SetIsIdle sets isIdle.
+	SetIsIdle(isIdle bool)
+
 	// ShrinkTransactions shrinks the transactions collection. It will persist the given number of transactions.
 	// It will delete the oldest transactions.
 	ShrinkTransactions(int64) error

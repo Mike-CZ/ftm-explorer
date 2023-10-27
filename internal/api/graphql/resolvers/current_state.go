@@ -71,7 +71,12 @@ func (rs *RootResolver) TimeToFinality() float64 {
 
 // TimeToBlock resolves the time to block.
 func (rs *RootResolver) TimeToBlock() float64 {
-	return float64(rs.repository.GetTimeToBlock())
+	return rs.repository.GetTimeToBlock()
+}
+
+// IsIdle resolves if the chain is idle.
+func (rs *RootResolver) IsIdle() bool {
+	return rs.repository.IsIdle()
 }
 
 // CurrentBlockHeight resolves the current block height.
@@ -112,6 +117,11 @@ func (cs CurrentState) TimeToFinality() float64 {
 // TimeToBlock resolves the time to block.
 func (cs CurrentState) TimeToBlock() float64 {
 	return cs.rs.TimeToBlock()
+}
+
+// IsIdle resolves if the chain is idle.
+func (cs CurrentState) IsIdle() bool {
+	return cs.rs.IsIdle()
 }
 
 // Timestamp resolves tick timestamp.

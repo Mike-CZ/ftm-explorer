@@ -37,6 +37,9 @@ type Repository struct {
 	gasUsedPer10Secs []types.HexUintTick
 	// ttfPer10Secs is the time to finality per 10 seconds.
 	ttfPer10Secs []types.FloatTick
+
+	// isIdle indicates if the chain is idle.
+	isIdle bool
 }
 
 // NewRepository creates a new repository.

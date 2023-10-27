@@ -145,6 +145,9 @@ type CurrentState {
 
     # Get time to block in seconds (rounded to 2 decimal places)
     timeToBlock:Float!
+
+    # Get idle state of the blockchain.
+    isIdle: Boolean!
 }
 # Account defines block-chain account information container
 type Account {
@@ -235,6 +238,9 @@ type Query {
 
     # Get an Account information by hash address.
     account(address:Address!):Account!
+
+    # Get idle state of the blockchain.
+    isIdle: Boolean!
 }
 
 type Mutation {

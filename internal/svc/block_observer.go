@@ -4,9 +4,13 @@ import (
 	db_types "ftm-explorer/internal/repository/db/types"
 	"ftm-explorer/internal/types"
 	"sync"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 )
+
+// kObserverChainTimeOutDuration represents the timeout duration of the observer chain.
+const kObserverChainTimeOutDuration = 5 * time.Second
 
 // blockObserver represents an observer of blockchain blocks.
 type blockObserver struct {
@@ -16,6 +20,12 @@ type blockObserver struct {
 
 	// lastAggTime is the last time the aggregator was run.
 	lastAggTime uint64
+
+	// lastBlkTime is the last time a block was processed.
+	lastBlkTime uint64
+
+	// timeOutDuration is the timeout duration of the observer chain.
+	timeOutDuration time.Duration
 
 	// aggMtx is a mutex used to synchronize access to the aggregator
 	aggMtx sync.Mutex
@@ -30,8 +40,9 @@ func newBlockObserver(mgr *Manager, inBlocks <-chan *types.Block) *blockObserver
 			repo: mgr.repo,
 			log:  mgr.log.ModuleLogger("block_observer"),
 		},
-		inBlocks: inBlocks,
-		sigClose: make(chan struct{}, 1),
+		inBlocks:        inBlocks,
+		sigClose:        make(chan struct{}, 1),
+		timeOutDuration: kObserverChainTimeOutDuration,
 	}
 }
 
@@ -55,6 +66,8 @@ func (bs *blockObserver) name() string {
 // execute executes the block observer.
 func (bs *blockObserver) execute() {
 	wg := sync.WaitGroup{}
+	ticker := time.NewTicker(bs.timeOutDuration)
+	defer ticker.Stop()
 
 	for {
 		select {
@@ -62,10 +75,20 @@ func (bs *blockObserver) execute() {
 			// wait for all goroutines to finish, then return
 			wg.Wait()
 			return
+		case <-ticker.C:
+			// if the last block time is older than the timeout duration, set the idle flag
+			if !bs.repo.IsIdle() && uint64(time.Now().Unix())-bs.lastBlkTime >= uint64(bs.timeOutDuration.Seconds()) {
+				bs.repo.SetIsIdle(true)
+			}
 		case block, ok := <-bs.inBlocks:
 			if !ok {
 				bs.log.Notice("input blocks channel closed. stopping block observer")
 				return
+			}
+			bs.lastBlkTime = uint64(time.Now().Unix())
+			// reset the idle flag
+			if bs.repo.IsIdle() {
+				bs.repo.SetIsIdle(false)
 			}
 			wg.Add(1)
 			go bs.processBlock(block, &wg)

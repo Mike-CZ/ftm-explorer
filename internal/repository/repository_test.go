@@ -355,6 +355,24 @@ func TestRepository_TimeToBlock(t *testing.T) {
 	}
 }
 
+// Test that repository is idle after initialization.
+func TestRepository_IsIdle(t *testing.T) {
+	repository, _, _, _ := createRepository(t)
+
+	// test that repository is not idle after initialization
+	if repository.IsIdle() {
+		t.Errorf("expected false, got %v", repository.IsIdle())
+	}
+
+	// set repository to idle
+	repository.SetIsIdle(true)
+
+	// test that repository is idle
+	if !repository.IsIdle() {
+		t.Errorf("expected true, got %v", repository.IsIdle())
+	}
+}
+
 // createRepository creates a new repository instance with mocked dependencies.
 func createRepository(t *testing.T) (*Repository, *rpc.MockRpc, *db.MockDatabase, *meta_fetcher.MockMetaFetcher) {
 	t.Helper()

@@ -503,6 +503,20 @@ func (mr *MockRepositoryMockRecorder) IncrementTrxCount(arg0 interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IncrementTrxCount", reflect.TypeOf((*MockRepository)(nil).IncrementTrxCount), arg0)
 }
 
+// IsIdle mocks base method.
+func (m *MockRepository) IsIdle() bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsIdle")
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// IsIdle indicates an expected call of IsIdle.
+func (mr *MockRepositoryMockRecorder) IsIdle() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsIdle", reflect.TypeOf((*MockRepository)(nil).IsIdle))
+}
+
 // NetworkID mocks base method.
 func (m *MockRepository) NetworkID() (*big.Int, error) {
 	m.ctrl.T.Helper()
@@ -581,6 +595,18 @@ func (m *MockRepository) SetGasUsedPer10Secs(arg0 []types.HexUintTick) {
 func (mr *MockRepositoryMockRecorder) SetGasUsedPer10Secs(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetGasUsedPer10Secs", reflect.TypeOf((*MockRepository)(nil).SetGasUsedPer10Secs), arg0)
+}
+
+// SetIsIdle mocks base method.
+func (m *MockRepository) SetIsIdle(isIdle bool) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetIsIdle", isIdle)
+}
+
+// SetIsIdle indicates an expected call of SetIsIdle.
+func (mr *MockRepositoryMockRecorder) SetIsIdle(isIdle interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetIsIdle", reflect.TypeOf((*MockRepository)(nil).SetIsIdle), isIdle)
 }
 
 // SetNumberOfAccounts mocks base method.

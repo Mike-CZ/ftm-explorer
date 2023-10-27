@@ -125,6 +125,16 @@ func (r *Repository) SetTimeToFinalityPer10Secs(data []types.FloatTick) {
 	r.ttfPer10Secs = cpy
 }
 
+// IsIdle returns isIdle.
+func (r *Repository) IsIdle() bool {
+	return r.isIdle
+}
+
+// SetIsIdle sets isIdle.
+func (r *Repository) SetIsIdle(isIdle bool) {
+	r.isIdle = isIdle
+}
+
 // GetTimeToBlock returns the time to block.
 func (r *Repository) GetTimeToBlock() float64 {
 	// get last 100 blocks from buffer

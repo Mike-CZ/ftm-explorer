@@ -54,6 +54,9 @@ type Query {
 
     # Get an Account information by hash address.
     account(address:Address!):Account!
+
+    # Get idle state of the blockchain.
+    isIdle: Boolean!
 }
 
 type Mutation {
