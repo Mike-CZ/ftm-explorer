@@ -12,7 +12,7 @@ import (
 // faucet functionality. It is used to request and claim tokens.
 type IFaucet interface {
 	// RequestTokens requests tokens for the given ip address.
-	RequestTokens(string) (string, error)
+	RequestTokens(string, *string) (string, error)
 
 	// ClaimTokens claims tokens for the given phrase and receiver address.
 	ClaimTokens(ip string, phrase string, receiver common.Address, erc20 *common.Address) error

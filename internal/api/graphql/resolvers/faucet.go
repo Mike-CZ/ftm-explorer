@@ -10,7 +10,9 @@ import (
 )
 
 // RequestTokens initiates the request for tokens from faucet.
-func (rs *RootResolver) RequestTokens(ctx context.Context) (string, error) {
+func (rs *RootResolver) RequestTokens(ctx context.Context, args struct {
+	Symbol *string
+}) (string, error) {
 	// get the ip address from the context
 	ip, err := auth.GetIpOrErr(ctx)
 	if err != nil {
@@ -20,7 +22,7 @@ func (rs *RootResolver) RequestTokens(ctx context.Context) (string, error) {
 	// run the faucet request as singleflight group to prevent multiple requests from the same ip
 	key := fmt.Sprintf("request_tokens_%s", ip)
 	phrase, err, _ := rs.sfg.Do(key, func() (interface{}, error) {
-		return rs.faucet.RequestTokens(ip)
+		return rs.faucet.RequestTokens(ip, args.Symbol)
 	})
 	if err != nil {
 		return "", err

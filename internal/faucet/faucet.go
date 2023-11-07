@@ -6,8 +6,9 @@ import (
 	"ftm-explorer/internal/logger"
 	"ftm-explorer/internal/repository"
 	"ftm-explorer/internal/types"
+	"math"
 	"math/big"
-	"strings"
+	"regexp"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -17,9 +18,10 @@ import (
 
 const (
 	// kFaucetChallengePrefix is template of message to be signed using Metamask.
-	kFaucetChallengePrefix = "Sign following challenge to obtain tokens:\n"
-	// kFaucetChallengePrefixLen is the length of the challenge prefix.
-	kFaucetChallengePrefixLen = len(kFaucetChallengePrefix)
+	kFaucetChallengePrefixTemplate = "Please sign following text to obtain %s %s tokens:\n\n"
+
+	// kFaucetChallengePrefixRegex is regex to match the message signed by Metamask.
+	kFaucetChallengePrefixRegex = `(?mi)^Please sign following text to obtain \d+(\.\d+)? [a-z\s]{3,25} tokens:\n\n(.+)`
 )
 
 // FaucetErc20 represents a faucet erc20 token.
@@ -78,16 +80,25 @@ func NewFaucetErc20s(cfg *config.Faucet, repo repository.IRepository, log logger
 
 // RequestTokens requests tokens for the given ip address and phrase. Returns
 // the challenge to be signed by the user.
-func (f *Faucet) RequestTokens(ipAddress string) (string, error) {
+func (f *Faucet) RequestTokens(ipAddress string, symbol *string) (string, error) {
 	// check if the ip address is already in the database
 	tr, err := f.repo.GetLatestUnclaimedTokensRequest(ipAddress)
 	if err != nil {
 		return "", fmt.Errorf("error getting latest tokens request: %v", err)
 	}
 
+	// validate symbol
+	if symbol != nil {
+		if err = validateSymbol(*symbol); err != nil {
+			return "", err
+		}
+	}
+
+	prefix := generatePrefix(float64(f.cfg.ClaimTokensAmount), symbol)
+
 	// if there is unclaimed request, return it
 	if tr != nil {
-		return kFaucetChallengePrefix + tr.Phrase, nil
+		return prefix + tr.Phrase, nil
 	}
 
 	// otherwise get all requests for the given ip address in the last 24 hours
@@ -115,18 +126,19 @@ func (f *Faucet) RequestTokens(ipAddress string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return kFaucetChallengePrefix + tr.Phrase, nil
+	return prefix + tr.Phrase, nil
 }
 
 // ClaimTokens claims tokens for the given phrase and receiver address.
 func (f *Faucet) ClaimTokens(ip string, phrase string, receiver common.Address, erc20 *common.Address) error {
-	// check the phrase
-	if len(phrase) < kFaucetChallengePrefixLen || strings.Compare(phrase[:kFaucetChallengePrefixLen], kFaucetChallengePrefix) != 0 {
+	// check the phrase regex
+	re := regexp.MustCompile(kFaucetChallengePrefixRegex)
+	matches := re.FindStringSubmatch(phrase)
+	if matches == nil || len(matches) <= 1 {
 		return fmt.Errorf("invalid phrase")
 	}
-
 	// remove the challenge prefix
-	phrase = phrase[kFaucetChallengePrefixLen:]
+	phrase = matches[len(matches)-1]
 
 	// get the latest request for the given ip address
 	tr, err := f.repo.GetLatestUnclaimedTokensRequest(ip)
@@ -197,4 +209,28 @@ func getTokensAmountInWei(amount float64) *big.Int {
 	product := new(big.Rat).Mul(a, e)
 	result := new(big.Int).Div(product.Num(), product.Denom())
 	return result
+}
+
+// validateSymbol validates the given symbol.
+func validateSymbol(symbol string) error {
+	r := regexp.MustCompile(`(?mi)^[a-z\s]{3,25}$`)
+	if !r.MatchString(symbol) {
+		return fmt.Errorf("invalid symbol")
+	}
+	return nil
+}
+
+// generatePrefix generates the challenge prefix.
+func generatePrefix(amount float64, symbol *string) string {
+	// generate amount string, if it is whole number, omit the decimal part
+	var a string
+	if math.Trunc(amount) == amount {
+		a = fmt.Sprintf("%d", int(amount))
+	} else {
+		a = fmt.Sprintf("%.1f", amount)
+	}
+	if symbol != nil {
+		return fmt.Sprintf(kFaucetChallengePrefixTemplate, a, *symbol)
+	}
+	return fmt.Sprintf(kFaucetChallengePrefixTemplate, a, "selected")
 }

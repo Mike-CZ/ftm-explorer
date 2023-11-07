@@ -50,18 +50,18 @@ func (mr *MockFaucetMockRecorder) ClaimTokens(ip, phrase, receiver, erc20 interf
 }
 
 // RequestTokens mocks base method.
-func (m *MockFaucet) RequestTokens(arg0 string) (string, error) {
+func (m *MockFaucet) RequestTokens(arg0 string, arg1 *string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RequestTokens", arg0)
+	ret := m.ctrl.Call(m, "RequestTokens", arg0, arg1)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // RequestTokens indicates an expected call of RequestTokens.
-func (mr *MockFaucetMockRecorder) RequestTokens(arg0 interface{}) *gomock.Call {
+func (mr *MockFaucetMockRecorder) RequestTokens(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestTokens", reflect.TypeOf((*MockFaucet)(nil).RequestTokens), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestTokens", reflect.TypeOf((*MockFaucet)(nil).RequestTokens), arg0, arg1)
 }
 
 // MockFaucetPhraseGenerator is a mock of IFaucetPhraseGenerator interface.

@@ -648,7 +648,7 @@ func getRequestTokensTestCase(_ *testing.T) apiTestCase {
 		testName:    "RequestTokens",
 		requestBody: `{"query": "mutation { requestTokens }"}`,
 		buildStubs: func(_ *repository.MockRepository, mockFaucet *faucet.MockFaucet) {
-			mockFaucet.EXPECT().RequestTokens(gomock.Any()).Return(phrase, nil)
+			mockFaucet.EXPECT().RequestTokens(gomock.Any(), gomock.Nil()).Return(phrase, nil)
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
 			apiRes := decodeResponse(t, resp)

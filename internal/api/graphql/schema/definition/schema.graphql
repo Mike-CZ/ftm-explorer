@@ -61,7 +61,7 @@ type Query {
 
 type Mutation {
     # Send request to obtain tokens from faucet. Returns phrase that should be signed by the user.
-    requestTokens: String!
+    requestTokens(symbol: String): String!
 
     # Send signed phrase to faucet to obtain tokens.
     claimTokens(address: Address!, challenge: String!, signature: String!, erc20Address: Address): Boolean!

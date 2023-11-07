@@ -3,6 +3,7 @@ package faucet
 import (
 	"fmt"
 
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/tyler-smith/go-bip39"
 )
 
@@ -26,5 +27,11 @@ func (f *PhraseGenerator) GeneratePhrase() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("error generating mnemonic: %v", err)
 	}
-	return mnemonic, nil
+	// calculate hash from mnemonic
+	hash, err := bip39.MnemonicToByteArray(mnemonic)
+	if err != nil {
+		return "", fmt.Errorf("error calculating hash from mnemonic: %v", err)
+	}
+	// return hex encoded hash
+	return hexutil.Encode(hash), nil
 }

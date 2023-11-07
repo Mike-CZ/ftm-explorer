@@ -1,6 +1,8 @@
 package faucet
 
-import "testing"
+import (
+	"testing"
+)
 
 // Test that the phrase generator returns a valid phrase.
 func TestMockFaucetPhraseGenerator_GeneratePhrase(t *testing.T) {
