@@ -17,6 +17,7 @@ import (
 type ApiServer struct {
 	cfg      *config.ApiServer
 	log      logger.ILogger
+	repo     repository.IRepository
 	srv      *http.Server
 	resolver *resolvers.RootResolver
 }
@@ -28,6 +29,7 @@ func NewApiServer(cfg *config.Config, repo repository.IRepository, faucet faucet
 		resolver: resolvers.NewResolver(repo, apiLogger, faucet, cfg.Explorer.IsPersisted),
 		cfg:      &cfg.Api,
 		log:      apiLogger.ModuleLogger("api"),
+		repo:     repo,
 	}
 	server.makeHttpServer()
 	return server
@@ -58,6 +60,9 @@ func (api *ApiServer) makeHttpServer() {
 	srvMux.Handle("/", h)
 	srvMux.Handle("/api", h)
 	srvMux.Handle("/graphql", h)
+
+	// handle gas price request
+	srvMux.HandleFunc("/json/gas", handlers.GasPriceHandler(api.repo, api.log))
 
 	// handle GraphiQL interface
 	srvMux.Handle("/graphi", handlers.GraphiHandler(api.cfg.DomainAddress, api.log))
