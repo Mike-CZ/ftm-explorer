@@ -22,6 +22,10 @@ func TestConfig_Load(t *testing.T) {
 	    "erc20MintAmountHex": "0x38d7ea4c68000",
         "erc20sPath": "%s"
       },
+	  "maze": {
+ 		"visibilityRange": 3,
+	    "configPaths": ["%s"]
+	  },
 	  "metaFetcher": {
 		"numberOfAccountsUrl": "number-of-accounts-test-url",
 		"diskSizePer100MTxsUrl": "disk-size-test-url",
@@ -66,6 +70,42 @@ func TestConfig_Load(t *testing.T) {
 		"minter_key":"904d5dea0bdffb09d78a81c15f0b3b893f504679eb8cd1de585309cad58e6285"
 	  }
 	]`
+	mazeCfgStr := `{
+	  "name": "Black Squirrel",
+	  "address": "0x0000000000000000000000000000000000000000",
+	  "width": 3,
+	  "height": 3,
+	  "entry": 0,
+	  "exit": 6,
+	  "tiles": [
+		{
+		  "id": 1941,
+		  "position": {
+			"x": 0,
+			"y": 0
+		  },
+		  "paths": {
+			"north": null,
+			"south": 3,
+			"east": null,
+			"west": null
+		  }
+		},
+		{
+		  "id": 808,
+		  "position": {
+			"x": 1,
+			"y": 0
+		  },
+		  "paths": {
+			"north": null,
+			"south": null,
+			"east": 2,
+			"west": null
+		  }
+		}
+	  ]
+	}`
 
 	// store config into temporary file
 	file, err := os.CreateTemp("", "config*.json")
@@ -80,8 +120,14 @@ func TestConfig_Load(t *testing.T) {
 	}
 	defer os.Remove(erc20File.Name())
 
+	mazeFile, err := os.CreateTemp("", "maze*.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(mazeFile.Name())
+
 	// Write the configuration string to the temporary file
-	_, err = file.Write([]byte(fmt.Sprintf(cfgStr, erc20File.Name())))
+	_, err = file.Write([]byte(fmt.Sprintf(cfgStr, erc20File.Name(), mazeFile.Name())))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -95,6 +141,15 @@ func TestConfig_Load(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := erc20File.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	// Write maze config to the temporary file
+	_, err = mazeFile.Write([]byte(mazeCfgStr))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := mazeFile.Close(); err != nil {
 		t.Fatal(err)
 	}
 
@@ -213,5 +268,87 @@ func TestConfig_Load(t *testing.T) {
 	}
 	if *cfg.MongoDb.Password != "testPassword" {
 		t.Errorf("expected Mongodb.Password to be testPassword, got %s", *cfg.MongoDb.Password)
+	}
+	// check maze config
+	if cfg.Maze == nil {
+		t.Errorf("expected Maze to be not nil")
+	}
+	if cfg.Maze.VisibilityRange != 3 {
+		t.Errorf("expected Maze.VisibilityRange to be 3, got %d", cfg.Maze.VisibilityRange)
+	}
+	if len(cfg.Maze.ConfigPaths) != 1 || cfg.Maze.ConfigPaths[0] != mazeFile.Name() {
+		t.Errorf("expected Maze.ConfigPaths to be [%s], got %v", mazeFile.Name(), cfg.Maze.ConfigPaths)
+	}
+	if len(cfg.Maze.Configs) != 1 {
+		t.Errorf("expected Maze.Configs to have 1 element, got %d", len(cfg.Maze.Configs))
+	}
+	if cfg.Maze.Configs[0].Name != "Black Squirrel" {
+		t.Errorf("expected Maze.Configs[0].Name to be Black Squirrel, got %s", cfg.Maze.Configs[0].Name)
+	}
+	if cfg.Maze.Configs[0].Address != "0x0000000000000000000000000000000000000000" {
+		t.Errorf("expected Maze.Configs[0].Address to be \"0x0000000000000000000000000000000000000000\", got %s", cfg.Maze.Configs[0].Address)
+	}
+	if cfg.Maze.Configs[0].Width != 3 {
+		t.Errorf("expected Maze.Configs[0].Width to be 3, got %d", cfg.Maze.Configs[0].Width)
+	}
+	if cfg.Maze.Configs[0].Height != 3 {
+		t.Errorf("expected Maze.Configs[0].Height to be 3, got %d", cfg.Maze.Configs[0].Height)
+	}
+	if cfg.Maze.Configs[0].Entry != 0 {
+		t.Errorf("expected Maze.Configs[0].Entry to be 0, got %d", cfg.Maze.Configs[0].Entry)
+	}
+	if cfg.Maze.Configs[0].Exit != 6 {
+		t.Errorf("expected Maze.Configs[0].Exit to be 6, got %d", cfg.Maze.Configs[0].Exit)
+	}
+	if len(cfg.Maze.Configs[0].Tiles) != 2 {
+		t.Errorf("expected Maze.Configs[0].Tiles to have 2 elements, got %d", len(cfg.Maze.Configs[0].Tiles))
+	}
+	if cfg.Maze.Configs[0].Tiles[0].Id != 1941 {
+		t.Errorf("expected Maze.Configs[0].Tiles[0].Id to be 1941, got %d", cfg.Maze.Configs[0].Tiles[0].Id)
+	}
+	if cfg.Maze.Configs[0].Tiles[0].Position.X != 0 {
+		t.Errorf("expected Maze.Configs[0].Tiles[0].Position.X to be 0, got %d", cfg.Maze.Configs[0].Tiles[0].Position.X)
+	}
+	if cfg.Maze.Configs[0].Tiles[0].Position.Y != 0 {
+		t.Errorf("expected Maze.Configs[0].Tiles[0].Position.Y to be 0, got %d", cfg.Maze.Configs[0].Tiles[0].Position.Y)
+	}
+	if cfg.Maze.Configs[0].Tiles[0].Paths.North != nil {
+		t.Errorf("expected Maze.Configs[0].Tiles[0].Paths.North to be nil, got %d", *cfg.Maze.Configs[0].Tiles[0].Paths.North)
+	}
+	if cfg.Maze.Configs[0].Tiles[0].Paths.South == nil {
+		t.Errorf("expected Maze.Configs[0].Tiles[0].Paths.South to be not nil")
+	}
+	if *cfg.Maze.Configs[0].Tiles[0].Paths.South != 3 {
+		t.Errorf("expected Maze.Configs[0].Tiles[0].Paths.South to be 3, got %d", *cfg.Maze.Configs[0].Tiles[0].Paths.South)
+	}
+	if cfg.Maze.Configs[0].Tiles[0].Paths.East != nil {
+		t.Errorf("expected Maze.Configs[0].Tiles[0].Paths.East to be nil, got %d", *cfg.Maze.Configs[0].Tiles[0].Paths.East)
+	}
+	if cfg.Maze.Configs[0].Tiles[0].Paths.West != nil {
+		t.Errorf("expected Maze.Configs[0].Tiles[0].Paths.West to be nil, got %d", *cfg.Maze.Configs[0].Tiles[0].Paths.West)
+	}
+	if cfg.Maze.Configs[0].Tiles[1].Id != 808 {
+		t.Errorf("expected Maze.Configs[0].Tiles[1].Id to be 808, got %d", cfg.Maze.Configs[0].Tiles[1].Id)
+	}
+	if cfg.Maze.Configs[0].Tiles[1].Position.X != 1 {
+		t.Errorf("expected Maze.Configs[0].Tiles[1].Position.X to be 1, got %d", cfg.Maze.Configs[0].Tiles[1].Position.X)
+	}
+	if cfg.Maze.Configs[0].Tiles[1].Position.Y != 0 {
+		t.Errorf("expected Maze.Configs[0].Tiles[1].Position.Y to be 0, got %d", cfg.Maze.Configs[0].Tiles[1].Position.Y)
+	}
+	if cfg.Maze.Configs[0].Tiles[1].Paths.North != nil {
+		t.Errorf("expected Maze.Configs[0].Tiles[1].Paths.North to be nil, got %d", *cfg.Maze.Configs[0].Tiles[1].Paths.North)
+	}
+	if cfg.Maze.Configs[0].Tiles[1].Paths.South != nil {
+		t.Errorf("expected Maze.Configs[0].Tiles[1].Paths.South to be nil, got %d", *cfg.Maze.Configs[0].Tiles[1].Paths.South)
+	}
+	if cfg.Maze.Configs[0].Tiles[1].Paths.East == nil {
+		t.Errorf("expected Maze.Configs[0].Tiles[1].Paths.East to be not nil")
+	}
+	if *cfg.Maze.Configs[0].Tiles[1].Paths.East != 2 {
+		t.Errorf("expected Maze.Configs[0].Tiles[1].Paths.East to be 2, got %d", *cfg.Maze.Configs[0].Tiles[1].Paths.East)
+	}
+	if cfg.Maze.Configs[0].Tiles[1].Paths.West != nil {
+		t.Errorf("expected Maze.Configs[0].Tiles[1].Paths.West to be nil, got %d", *cfg.Maze.Configs[0].Tiles[1].Paths.West)
 	}
 }

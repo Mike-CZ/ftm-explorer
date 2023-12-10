@@ -121,6 +121,76 @@ enum AggSubject {
     TXS_COUNT,
     GAS_USED
 }
+# MazePathDirection is an enum that represents the four directions that a MazePath can go in.
+enum MazePathDirection {
+    NORTH,
+    EAST,
+    SOUTH,
+    WEST
+}
+
+# MazePath is a type that represents a path in a maze.
+type MazePath {
+    # The direction that the path goes in.
+    direction: MazePathDirection!,
+
+    # The length of the path, which represents the number of steps before encountering an obstacle or a turn.
+    length: Int!
+
+    # The id of the next tile in the path.
+    id: Int!
+
+    # X is the x coordinate of the path.
+    x: Int!,
+
+    # Y is the y coordinate of the path.
+    y: Int!,
+}
+
+# MazePosition is a type that represents a position in a maze.
+type MazePosition {
+    # Id is the id of the tile.
+    id: Int!
+
+    # X is the x coordinate of the tile.
+    x: Int!,
+
+    # Y is the y coordinate of the tile.
+    y: Int!,
+
+    # Paths is a list of paths that can be taken from this tile.
+    paths: [MazePath!]!
+}
+
+# Maze is a type that represents a maze.
+type Maze {
+    # Width is the width of the maze.
+    width: Int!,
+
+    # Height is the height of the maze.
+    height: Int!,
+
+    # VisibilityRange is the range that the player can see.
+    visibilityRange: Int!,
+
+    # Address is the address of the maze.
+    address: Address!
+
+    # Name is the name of the maze.
+    name: String!
+
+    # StartX is the x coordinate of the starting tile.
+    startX: Int!
+
+    # StartY is the y coordinate of the starting tile.
+    startY: Int!
+
+    # EndX is the x coordinate of the ending tile.
+    endX: Int!
+
+    # EndY is the y coordinate of the ending tile.
+    endY: Int!
+}
 type CurrentState {
     # Get current block height
     currentBlockHeight:Long
@@ -241,6 +311,12 @@ type Query {
 
     # Get idle state of the blockchain.
     isIdle: Boolean!
+
+    # Get list of maze games.
+    mazeList: [Maze!]!
+
+    # Get maze metadata.
+    maze(address:Address!): Maze!
 }
 
 type Mutation {
@@ -249,6 +325,12 @@ type Mutation {
 
     # Send signed phrase to faucet to obtain tokens.
     claimTokens(address: Address!, challenge: String!, signature: String!, erc20Address: Address): Boolean!
+
+    # Generate challenge that should be signed by the user to obtain position.
+    mazeGameSession: String!
+
+    # Send signed challenge to obtain position.
+    mazeMyPosition(address: Address!, challenge: String!, signature: String!, mazeAddress: Address!): MazePosition
 }
 
 `

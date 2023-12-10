@@ -1,0 +1,127 @@
+{
+  "name": "Black Squirrel",
+  "address": "0x0000000000000000000000000000000000000000",
+  "width": 3,
+  "height": 3,
+  "entry": 0,
+  "exit": 6,
+  "tiles": [
+    {
+      "id": 1941,
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "paths": {
+        "north": null,
+        "south": 3,
+        "east": null,
+        "west": null
+      }
+    },
+    {
+      "id": 808,
+      "position": {
+        "x": 1,
+        "y": 0
+      },
+      "paths": {
+        "north": null,
+        "south": null,
+        "east": 2,
+        "west": null
+      }
+    },
+    {
+      "id": 1089,
+      "position": {
+        "x": 2,
+        "y": 0
+      },
+      "paths": {
+        "north": null,
+        "south": 5,
+        "east": null,
+        "west": 1
+      }
+    },
+    {
+      "id": 337,
+      "position": {
+        "x": 0,
+        "y": 1
+      },
+      "paths": {
+        "north": 0,
+        "south": null,
+        "east": 4,
+        "west": null
+      }
+    },
+    {
+      "id": 1982,
+      "position": {
+        "x": 1,
+        "y": 1
+      },
+      "paths": {
+        "north": null,
+        "south": null,
+        "east": 5,
+        "west": 3
+      }
+    },
+    {
+      "id": 3257,
+      "position": {
+        "x": 2,
+        "y": 1
+      },
+      "paths": {
+        "north": 2,
+        "south": 8,
+        "east": null,
+        "west": 4
+      }
+    },
+    {
+      "id": 109,
+      "position": {
+        "x": 0,
+        "y": 2
+      },
+      "paths": {
+        "north": null,
+        "south": null,
+        "east": 7,
+        "west": null
+      }
+    },
+    {
+      "id": 1738,
+      "position": {
+        "x": 1,
+        "y": 2
+      },
+      "paths": {
+        "north": null,
+        "south": null,
+        "east": 8,
+        "west": 6
+      }
+    },
+    {
+      "id": 915,
+      "position": {
+        "x": 2,
+        "y": 2
+      },
+      "paths": {
+        "north": 5,
+        "south": null,
+        "east": null,
+        "west": 7
+      }
+    }
+  ]
+}

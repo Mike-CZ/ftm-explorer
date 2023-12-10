@@ -7,6 +7,7 @@ import (
 	"ftm-explorer/internal/config"
 	"ftm-explorer/internal/faucet"
 	"ftm-explorer/internal/logger"
+	"ftm-explorer/internal/maze"
 	"ftm-explorer/internal/repository"
 	"net/http"
 	"time"
@@ -23,10 +24,10 @@ type ApiServer struct {
 }
 
 // NewApiServer creates a new GraphQL API server.
-func NewApiServer(cfg *config.Config, repo repository.IRepository, faucet faucet.IFaucet, log logger.ILogger) *ApiServer {
+func NewApiServer(cfg *config.Config, repo repository.IRepository, faucet faucet.IFaucet, maze maze.IMaze, log logger.ILogger) *ApiServer {
 	apiLogger := log.ModuleLogger("api")
 	server := &ApiServer{
-		resolver: resolvers.NewResolver(repo, apiLogger, faucet, cfg.Explorer.IsPersisted),
+		resolver: resolvers.NewResolver(repo, apiLogger, faucet, maze, cfg.Explorer.IsPersisted),
 		cfg:      &cfg.Api,
 		log:      apiLogger.ModuleLogger("api"),
 		repo:     repo,
