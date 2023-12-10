@@ -56,6 +56,10 @@ build/demonet-explorer
     "erc20MintAmountHex": "0x8ac7230489e80000",
     "Erc20sPath": "erc20s.json"
   },
+  "maze": {
+    "visibilityRange": 3,
+    "configPaths": ["path1.json", "path2.json"]
+  },
   "metaFetcher": {
     "numberOfAccountsUrl": "number-of-accounts-url",
     "diskSizePer100MTxsUrl": "disk-size-url",

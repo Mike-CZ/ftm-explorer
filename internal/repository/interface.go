@@ -161,4 +161,7 @@ type IRepository interface {
 
 	// AccountBalance returns the balance of the account.
 	AccountBalance(common.Address) (*hexutil.Big, error)
+
+	// MazePlayerPosition returns the position of the player in the maze.
+	MazePlayerPosition(common.Address, common.Address) (uint16, error)
 }

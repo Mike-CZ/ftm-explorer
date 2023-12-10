@@ -7,6 +7,7 @@ import (
 	"ftm-explorer/internal/config"
 	"ftm-explorer/internal/faucet"
 	"ftm-explorer/internal/logger"
+	"ftm-explorer/internal/maze"
 	"ftm-explorer/internal/repository"
 	"ftm-explorer/internal/repository/db"
 	"ftm-explorer/internal/repository/meta_fetcher"
@@ -50,8 +51,14 @@ func run(ctx *cli.Context) error {
 		return fmt.Errorf("can not create faucet: %v", err)
 	}
 
+	// create maze if enabled
+	var m maze.IMaze
+	if cfg.Maze != nil {
+		m = maze.NewMaze(cfg.Maze)
+	}
+
 	// create api server
-	apiServer := api.NewApiServer(cfg, repo, fct, log)
+	apiServer := api.NewApiServer(cfg, repo, fct, m, log)
 
 	// run api server
 	apiServer.Start()

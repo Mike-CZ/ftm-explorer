@@ -517,6 +517,21 @@ func (mr *MockRepositoryMockRecorder) IsIdle() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsIdle", reflect.TypeOf((*MockRepository)(nil).IsIdle))
 }
 
+// MazePlayerPosition mocks base method.
+func (m *MockRepository) MazePlayerPosition(arg0, arg1 common.Address) (uint16, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MazePlayerPosition", arg0, arg1)
+	ret0, _ := ret[0].(uint16)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// MazePlayerPosition indicates an expected call of MazePlayerPosition.
+func (mr *MockRepositoryMockRecorder) MazePlayerPosition(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MazePlayerPosition", reflect.TypeOf((*MockRepository)(nil).MazePlayerPosition), arg0, arg1)
+}
+
 // NetworkID mocks base method.
 func (m *MockRepository) NetworkID() (*big.Int, error) {
 	m.ctrl.T.Helper()

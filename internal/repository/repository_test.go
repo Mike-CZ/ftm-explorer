@@ -373,6 +373,24 @@ func TestRepository_IsIdle(t *testing.T) {
 	}
 }
 
+// Test that repository returns maze player position.
+func TestRepository_MazePlayerPosition(t *testing.T) {
+	repository, mockRpc, _, _ := createRepository(t)
+
+	mazeAddr := common.Address{0x1}
+	playerAddr := common.Address{0x1}
+
+	// check that maze player position is returned
+	mockRpc.EXPECT().MazePlayerPosition(gomock.Any(), gomock.Eq(mazeAddr), gomock.Eq(playerAddr)).Return(uint16(10), nil)
+	position, err := repository.MazePlayerPosition(mazeAddr, playerAddr)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if position != 10 {
+		t.Errorf("expected 10, got %v", position)
+	}
+}
+
 // createRepository creates a new repository instance with mocked dependencies.
 func createRepository(t *testing.T) (*Repository, *rpc.MockRpc, *db.MockDatabase, *meta_fetcher.MockMetaFetcher) {
 	t.Helper()

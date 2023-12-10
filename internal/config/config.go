@@ -13,6 +13,7 @@ type Config struct {
 	Api         ApiServer
 	Logger      Logger
 	MongoDb     MongoDb
+	Maze        *Maze
 }
 
 // Explorer is the configuration structure for the explorer.
@@ -90,4 +91,34 @@ type MongoDb struct {
 	Db       string
 	User     *string
 	Password *string
+}
+
+// Maze is the configuration structure for the maze.
+type Maze struct {
+	VisibilityRange uint
+	ConfigPaths     []string
+	Configs         []MazeConfig
+}
+
+// MazeConfig is the configuration structure for the maze.
+type MazeConfig struct {
+	Name    string `json:"name"`
+	Address string `json:"address"`
+	Width   int32  `json:"width"`
+	Height  int32  `json:"height"`
+	Entry   int32  `json:"entry"`
+	Exit    int32  `json:"exit"`
+	Tiles   []struct {
+		Id       int32 `json:"id"`
+		Position struct {
+			X int32 `json:"x"`
+			Y int32 `json:"y"`
+		} `json:"position"`
+		Paths struct {
+			North *int32 `json:"north"`
+			East  *int32 `json:"east"`
+			South *int32 `json:"south"`
+			West  *int32 `json:"west"`
+		} `json:"paths"`
+	} `json:"tiles"`
 }

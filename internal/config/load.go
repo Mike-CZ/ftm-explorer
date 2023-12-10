@@ -62,6 +62,24 @@ func readConfigFile(path string) (*viper.Viper, error) {
 		cfg.Set("faucet.erc20s", erc20s)
 	}
 
+	// load mazes
+	mazesPath := cfg.GetStringSlice("maze.configPaths")
+	if len(mazesPath) == 0 {
+		log.Println("mazes configPaths is empty")
+	} else {
+		var mazes []MazeConfig
+		for _, mazePath := range mazesPath {
+			log.Println("loading maze from: ", mazePath)
+			maze, err := readMazeFile(mazePath)
+			if err != nil {
+				log.Printf("can not read maze file. Err: %v", err)
+				return nil, err
+			}
+			mazes = append(mazes, *maze)
+		}
+		cfg.Set("maze.configs", mazes)
+	}
+
 	return cfg, nil
 }
 
@@ -90,4 +108,31 @@ func readErc20sFile(path string) ([]FaucetErc20, error) {
 	}
 
 	return erc20s, nil
+}
+
+// readMazeFile reads the maze file from the given path.
+func readMazeFile(path string) (*MazeConfig, error) {
+	// Open our jsonFile
+	jsonFile, err := os.Open(path)
+	// if we os.Open returns an error then handle it
+	if err != nil {
+		log.Printf("can not open maze file. Err: %v", err)
+		return nil, err
+	}
+	defer jsonFile.Close()
+
+	// read our opened xmlFile as a byte array.
+	byteValue, err := io.ReadAll(jsonFile)
+	if err != nil {
+		log.Printf("can not read maze file. Err: %v", err)
+		return nil, err
+	}
+
+	var maze MazeConfig
+	if err := json.Unmarshal(byteValue, &maze); err != nil {
+		log.Printf("can not unmarshal maze file. Err: %v", err)
+		return nil, err
+	}
+
+	return &maze, nil
 }
