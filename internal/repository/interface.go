@@ -92,6 +92,10 @@ type IRepository interface {
 	// This method will fetch data from remote host.
 	FetchTimeToFinality() (float64, error)
 
+	// FetchIsIdleStatus returns the is idle status of the explorer.
+	// This method will fetch data from remote host.
+	FetchIsIdleStatus() (bool, error)
+
 	// GetTimeToFinality returns the time to finality in the blockchain.
 	GetTimeToFinality() float64
 
@@ -144,7 +148,13 @@ type IRepository interface {
 	IsIdle() bool
 
 	// SetIsIdle sets isIdle.
-	SetIsIdle(isIdle bool)
+	SetIsIdle(bool)
+
+	// IsIdleOverride returns isIdleOverride.
+	IsIdleOverride() bool
+
+	// SetIsIdleOverride sets isIdleOverride.
+	SetIsIdleOverride(bool)
 
 	// ShrinkTransactions shrinks the transactions collection. It will persist the given number of transactions.
 	// It will delete the oldest transactions.
@@ -154,7 +164,7 @@ type IRepository interface {
 	ShrinkTtf(int64) error
 
 	// AddAccounts adds accounts to the database.
-	AddAccounts(accs []common.Address, stamp int64) error
+	AddAccounts([]common.Address, int64) error
 
 	// GetNumberOfAccountsInDb returns the number of accounts in the database.
 	GetNumberOfAccountsInDb() (uint64, error)

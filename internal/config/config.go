@@ -58,6 +58,7 @@ type MetaFetcher struct {
 	DiskSizePer100MTxsUrl       string
 	DiskSizePrunedPer100MTxsUrl string
 	TimeToFinalityUrl           string
+	IsIdleStatusUrl             string
 }
 
 // Rpc is the configuration structure for RPC.

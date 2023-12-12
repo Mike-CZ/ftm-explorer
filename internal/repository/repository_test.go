@@ -373,6 +373,23 @@ func TestRepository_IsIdle(t *testing.T) {
 	}
 }
 
+func TestRepository_IsIdleOverride(t *testing.T) {
+	repository, _, _, _ := createRepository(t)
+
+	// test that repository is not idle after initialization
+	if repository.IsIdleOverride() {
+		t.Errorf("expected false, got %v", repository.IsIdleOverride())
+	}
+
+	// set repository to idle
+	repository.SetIsIdleOverride(true)
+
+	// test that repository is idle
+	if !repository.IsIdleOverride() {
+		t.Errorf("expected true, got %v", repository.IsIdleOverride())
+	}
+}
+
 // Test that repository returns maze player position.
 func TestRepository_MazePlayerPosition(t *testing.T) {
 	repository, mockRpc, _, _ := createRepository(t)

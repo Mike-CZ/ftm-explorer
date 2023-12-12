@@ -64,7 +64,8 @@ build/demonet-explorer
     "numberOfAccountsUrl": "number-of-accounts-url",
     "diskSizePer100MTxsUrl": "disk-size-url",
     "diskSizePrunedPer100MTxsUrl": "disk-size-pruned-url",
-    "timeToFinalityUrl": "time-to-finality-url"
+    "timeToFinalityUrl": "time-to-finality-url",
+    "isIdleStatusUrl": "is-idle-status-url"
   },
   "rpc": {
     "operaRpcUrl": "https://rpcapi.fantom.network",

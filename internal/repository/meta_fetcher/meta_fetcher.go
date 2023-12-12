@@ -17,6 +17,7 @@ type MetaFetcher struct {
 	diskSizePer100MTxsUrl       string
 	diskSizePrunedPer100MTxsUrl string
 	timeToFinalityUrl           string
+	isIdleStatusUrl             string
 }
 
 // NewMetaFetcher returns a new meta fetcher.
@@ -27,6 +28,7 @@ func NewMetaFetcher(cfg *config.MetaFetcher, log logger.ILogger) *MetaFetcher {
 		diskSizePer100MTxsUrl:       cfg.DiskSizePer100MTxsUrl,
 		diskSizePrunedPer100MTxsUrl: cfg.DiskSizePrunedPer100MTxsUrl,
 		timeToFinalityUrl:           cfg.TimeToFinalityUrl,
+		isIdleStatusUrl:             cfg.IsIdleStatusUrl,
 	}
 }
 
@@ -146,4 +148,19 @@ func (mf *MetaFetcher) TimeToFinality() (float64, error) {
 	}
 
 	return res.TimeToFinality, nil
+}
+
+// IsIdleStatus returns whether the explorer is in idle status.
+func (mf *MetaFetcher) IsIdleStatus() (bool, error) {
+	resp, err := http.Head(mf.isIdleStatusUrl)
+	if err != nil {
+		mf.log.Errorf("failed to get is idle status: %v", err)
+		return false, err
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			mf.log.Errorf("failed to close response body: %v", err)
+		}
+	}()
+	return resp.StatusCode == http.StatusOK, nil
 }

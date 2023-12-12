@@ -63,6 +63,7 @@ func TestApiServer_Run(t *testing.T) {
 		getDiskSizePrunedPer100MTxsTestCase(t),
 		getTimeToFinalityTestCase(t),
 		getIsIdleTestCase(t),
+		getIsIdleOverrideTestCase(t),
 		getTimeToBlockTestCase(t),
 		getCurrentStateTestCase(t),
 		getRequestTokensTestCase(t),
@@ -512,6 +513,36 @@ func getIsIdleTestCase(_ *testing.T) apiTestCase {
 		requestBody: `{"query": "query { isIdle }"}`,
 		buildStubs: func(mockRepository *repository.MockRepository, _ *faucet.MockFaucet) {
 			mockRepository.EXPECT().IsIdle().Return(isIdle)
+			mockRepository.EXPECT().IsIdleOverride().Return(false)
+		},
+		checkResponse: func(t *testing.T, resp *http.Response) {
+			apiRes := decodeResponse(t, resp)
+			if len(apiRes.Errors) != 0 {
+				t.Errorf("expected no errors, got: %s", apiRes.Errors[0].Message)
+			}
+			// decode raw data into response
+			idleRes := struct {
+				IsIdle bool `json:"isIdle"`
+			}{}
+			if err := json.Unmarshal(apiRes.Data, &idleRes); err != nil {
+				t.Errorf("failed to unmarshall data: %v", err)
+			}
+			// validate is idle
+			if idleRes.IsIdle != isIdle {
+				t.Errorf("expected is idle %v, got %v", isIdle, idleRes.IsIdle)
+			}
+		},
+	}
+}
+
+// getIsIdleTestCase returns a test case for is idle override query.
+func getIsIdleOverrideTestCase(_ *testing.T) apiTestCase {
+	isIdle := true
+	return apiTestCase{
+		testName:    "GetIsIdle",
+		requestBody: `{"query": "query { isIdle }"}`,
+		buildStubs: func(mockRepository *repository.MockRepository, _ *faucet.MockFaucet) {
+			mockRepository.EXPECT().IsIdleOverride().Return(isIdle)
 		},
 		checkResponse: func(t *testing.T, resp *http.Response) {
 			apiRes := decodeResponse(t, resp)
@@ -584,6 +615,7 @@ func getCurrentStateTestCase(_ *testing.T) apiTestCase {
 			mockRepository.EXPECT().GetTimeToFinality().Return(timeToFinality)
 			mockRepository.EXPECT().GetTimeToBlock().Return(timeToBlock)
 			mockRepository.EXPECT().IsIdle().Return(isIdle)
+			mockRepository.EXPECT().IsIdleOverride().Return(false)
 			mockRepository.EXPECT().GetDiskSizePer100MTxs().Return(diskSizePer100MTxs)
 			mockRepository.EXPECT().GetDiskSizePrunedPer100MTxs().Return(diskSizePrunedPer100MTxs)
 		},

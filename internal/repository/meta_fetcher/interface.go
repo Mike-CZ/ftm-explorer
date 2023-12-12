@@ -12,4 +12,6 @@ type IMetaFetcher interface {
 	DiskSizePrunedPer100MTxs() (uint64, error)
 	// TimeToFinality returns the time to finality in the blockchain.
 	TimeToFinality() (float64, error)
+	// IsIdleStatus returns whether the explorer is in idle status.
+	IsIdleStatus() (bool, error)
 }

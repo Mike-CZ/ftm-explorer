@@ -135,6 +135,16 @@ func (r *Repository) SetIsIdle(isIdle bool) {
 	r.isIdle = isIdle
 }
 
+// IsIdleOverride returns isIdleOverride.
+func (r *Repository) IsIdleOverride() bool {
+	return r.isIdleOverride
+}
+
+// SetIsIdleOverride sets isIdleOverride.
+func (r *Repository) SetIsIdleOverride(isIdleOverride bool) {
+	r.isIdleOverride = isIdleOverride
+}
+
 // GetTimeToBlock returns the time to block.
 func (r *Repository) GetTimeToBlock() float64 {
 	// get last 100 blocks from buffer

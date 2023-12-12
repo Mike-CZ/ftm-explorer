@@ -55,17 +55,17 @@ func (mr *MockRepositoryMockRecorder) AccountBalance(arg0 interface{}) *gomock.C
 }
 
 // AddAccounts mocks base method.
-func (m *MockRepository) AddAccounts(accs []common.Address, stamp int64) error {
+func (m *MockRepository) AddAccounts(arg0 []common.Address, arg1 int64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddAccounts", accs, stamp)
+	ret := m.ctrl.Call(m, "AddAccounts", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AddAccounts indicates an expected call of AddAccounts.
-func (mr *MockRepositoryMockRecorder) AddAccounts(accs, stamp interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) AddAccounts(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddAccounts", reflect.TypeOf((*MockRepository)(nil).AddAccounts), accs, stamp)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddAccounts", reflect.TypeOf((*MockRepository)(nil).AddAccounts), arg0, arg1)
 }
 
 // AddTimeToFinality mocks base method.
@@ -138,6 +138,21 @@ func (m *MockRepository) FetchDiskSizePrunedPer100MTxs() (uint64, error) {
 func (mr *MockRepositoryMockRecorder) FetchDiskSizePrunedPer100MTxs() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchDiskSizePrunedPer100MTxs", reflect.TypeOf((*MockRepository)(nil).FetchDiskSizePrunedPer100MTxs))
+}
+
+// FetchIsIdleStatus mocks base method.
+func (m *MockRepository) FetchIsIdleStatus() (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FetchIsIdleStatus")
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FetchIsIdleStatus indicates an expected call of FetchIsIdleStatus.
+func (mr *MockRepositoryMockRecorder) FetchIsIdleStatus() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchIsIdleStatus", reflect.TypeOf((*MockRepository)(nil).FetchIsIdleStatus))
 }
 
 // FetchNumberOfAccounts mocks base method.
@@ -517,6 +532,20 @@ func (mr *MockRepositoryMockRecorder) IsIdle() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsIdle", reflect.TypeOf((*MockRepository)(nil).IsIdle))
 }
 
+// IsIdleOverride mocks base method.
+func (m *MockRepository) IsIdleOverride() bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsIdleOverride")
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// IsIdleOverride indicates an expected call of IsIdleOverride.
+func (mr *MockRepositoryMockRecorder) IsIdleOverride() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsIdleOverride", reflect.TypeOf((*MockRepository)(nil).IsIdleOverride))
+}
+
 // MazePlayerPosition mocks base method.
 func (m *MockRepository) MazePlayerPosition(arg0, arg1 common.Address) (uint16, error) {
 	m.ctrl.T.Helper()
@@ -613,15 +642,27 @@ func (mr *MockRepositoryMockRecorder) SetGasUsedPer10Secs(arg0 interface{}) *gom
 }
 
 // SetIsIdle mocks base method.
-func (m *MockRepository) SetIsIdle(isIdle bool) {
+func (m *MockRepository) SetIsIdle(arg0 bool) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "SetIsIdle", isIdle)
+	m.ctrl.Call(m, "SetIsIdle", arg0)
 }
 
 // SetIsIdle indicates an expected call of SetIsIdle.
-func (mr *MockRepositoryMockRecorder) SetIsIdle(isIdle interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) SetIsIdle(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetIsIdle", reflect.TypeOf((*MockRepository)(nil).SetIsIdle), isIdle)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetIsIdle", reflect.TypeOf((*MockRepository)(nil).SetIsIdle), arg0)
+}
+
+// SetIsIdleOverride mocks base method.
+func (m *MockRepository) SetIsIdleOverride(arg0 bool) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetIsIdleOverride", arg0)
+}
+
+// SetIsIdleOverride indicates an expected call of SetIsIdleOverride.
+func (mr *MockRepositoryMockRecorder) SetIsIdleOverride(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetIsIdleOverride", reflect.TypeOf((*MockRepository)(nil).SetIsIdleOverride), arg0)
 }
 
 // SetNumberOfAccounts mocks base method.

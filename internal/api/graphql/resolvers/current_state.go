@@ -76,7 +76,7 @@ func (rs *RootResolver) TimeToBlock() float64 {
 
 // IsIdle resolves if the chain is idle.
 func (rs *RootResolver) IsIdle() bool {
-	return rs.repository.IsIdle()
+	return rs.repository.IsIdleOverride() || rs.repository.IsIdle()
 }
 
 // CurrentBlockHeight resolves the current block height.

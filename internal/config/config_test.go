@@ -30,7 +30,8 @@ func TestConfig_Load(t *testing.T) {
 		"numberOfAccountsUrl": "number-of-accounts-test-url",
 		"diskSizePer100MTxsUrl": "disk-size-test-url",
 		"diskSizePrunedPer100MTxsUrl": "disk-size-pruned-test-url",
-		"timeToFinalityUrl": "time-to-finality-test-url"
+		"timeToFinalityUrl": "time-to-finality-test-url",
+		"isIdleStatusUrl": "is-idle-status-test-url"
 	  },
 	  "rpc": {
 		"operaRpcUrl": "opera-rpc",
@@ -211,6 +212,9 @@ func TestConfig_Load(t *testing.T) {
 	}
 	if cfg.MetaFetcher.TimeToFinalityUrl != "time-to-finality-test-url" {
 		t.Errorf("expected MetaFetcher.TimeToFinalityUrl to be time-to-finality-test-url, got %s", cfg.MetaFetcher.TimeToFinalityUrl)
+	}
+	if cfg.MetaFetcher.IsIdleStatusUrl != "is-idle-status-test-url" {
+		t.Errorf("expected MetaFetcher.IsIdleStatusUrl to be is-idle-status-test-url, got %s", cfg.MetaFetcher.IsIdleStatusUrl)
 	}
 	if cfg.Rpc.OperaRpcUrl != "opera-rpc" {
 		t.Errorf("expected RPC.OperaRpcUrl to be opera-rpc, got %s", cfg.Rpc.OperaRpcUrl)

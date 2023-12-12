@@ -23,3 +23,9 @@ func (r *Repository) FetchDiskSizePrunedPer100MTxs() (uint64, error) {
 func (r *Repository) FetchTimeToFinality() (float64, error) {
 	return r.metaFetcher.TimeToFinality()
 }
+
+// FetchIsIdleStatus returns the is idle status of the explorer.
+// This method will fetch data from remote host.
+func (r *Repository) FetchIsIdleStatus() (bool, error) {
+	return r.metaFetcher.IsIdleStatus()
+}

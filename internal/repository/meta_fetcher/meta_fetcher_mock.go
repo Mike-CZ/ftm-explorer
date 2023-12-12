@@ -63,6 +63,21 @@ func (mr *MockMetaFetcherMockRecorder) DiskSizePrunedPer100MTxs() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DiskSizePrunedPer100MTxs", reflect.TypeOf((*MockMetaFetcher)(nil).DiskSizePrunedPer100MTxs))
 }
 
+// IsIdleStatus mocks base method.
+func (m *MockMetaFetcher) IsIdleStatus() (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsIdleStatus")
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsIdleStatus indicates an expected call of IsIdleStatus.
+func (mr *MockMetaFetcherMockRecorder) IsIdleStatus() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsIdleStatus", reflect.TypeOf((*MockMetaFetcher)(nil).IsIdleStatus))
+}
+
 // NumberOfAccounts mocks base method.
 func (m *MockMetaFetcher) NumberOfAccounts() (uint64, error) {
 	m.ctrl.T.Helper()

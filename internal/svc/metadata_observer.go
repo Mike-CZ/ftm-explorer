@@ -55,6 +55,8 @@ func (mo *metadataObserver) execute() {
 	lastNumberOfAccounts := uint64(0)
 	latestDiskSizePer100MTxs := uint64(0)
 	latestDiskSizePrunedPer100MTxs := uint64(0)
+	latestIsIdleStatus := false
+
 	for {
 		select {
 		case <-mo.sigClose:
@@ -119,6 +121,15 @@ func (mo *metadataObserver) execute() {
 					}
 					mo.log.Noticef("time to finality: %f", ttf)
 				}
+			}
+
+			isIdleStatus, err := mo.repo.FetchIsIdleStatus()
+			if err != nil {
+				mo.log.Errorf("failed to get is idle status: %v", err)
+			} else if isIdleStatus != latestIsIdleStatus {
+				mo.log.Noticef("is idle status: %v", isIdleStatus)
+				mo.repo.SetIsIdleOverride(isIdleStatus)
+				latestIsIdleStatus = isIdleStatus
 			}
 		}
 	}

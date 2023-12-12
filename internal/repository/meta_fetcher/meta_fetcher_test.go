@@ -71,6 +71,36 @@ func TestMetaFetcher_TimeToFinality(t *testing.T) {
 	}
 }
 
+// Test meta fetcher idle status
+func TestMetaFetcher_IsIdleStatus(t *testing.T) {
+	server := startServer(t)
+
+	mf := NewMetaFetcher(&config.MetaFetcher{IsIdleStatusUrl: server.URL + "/is_idle_status"}, logger.NewMockLogger())
+
+	idle, err := mf.IsIdleStatus()
+	if err != nil {
+		t.Errorf("failed to get time to finality: %v", err)
+	}
+	if !idle {
+		t.Errorf("expected is idle status to be true, got %t", idle)
+	}
+}
+
+// Test meta fetcher idle status not found
+func TestMetaFetcher_IsIdleStatus_NotFound(t *testing.T) {
+	server := startServer(t)
+
+	mf := NewMetaFetcher(&config.MetaFetcher{IsIdleStatusUrl: server.URL + "/is_idle_status_404"}, logger.NewMockLogger())
+
+	idle, err := mf.IsIdleStatus()
+	if err != nil {
+		t.Errorf("failed to get time to finality: %v", err)
+	}
+	if idle {
+		t.Errorf("expected is idle status to be false, got %t", idle)
+	}
+}
+
 // startServer starts a test server that will server metadata.
 func startServer(t *testing.T) *httptest.Server {
 	t.Helper()
@@ -97,6 +127,10 @@ func startServer(t *testing.T) *httptest.Server {
 			if _, err := w.Write([]byte(`{"ttf":0.9009191708000002}`)); err != nil {
 				t.Fatalf("failed to write response: %v", err)
 			}
+			return
+		}
+		if r.URL.Path == "/is_idle_status" {
+			// return 200 status code
 			return
 		}
 		w.WriteHeader(http.StatusNotFound)

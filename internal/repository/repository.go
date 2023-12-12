@@ -40,6 +40,9 @@ type Repository struct {
 
 	// isIdle indicates if the chain is idle.
 	isIdle bool
+
+	// isIdleOverride indicates if the chain is idle. This is used to override the isIdle value.
+	isIdleOverride bool
 }
 
 // NewRepository creates a new repository.

@@ -44,6 +44,9 @@ func TestMetadataObserver_Run(t *testing.T) {
 	mockRepository.EXPECT().FetchDiskSizePrunedPer100MTxs().Return(diskSizePrunedPer100MTxs, nil)
 	mockRepository.EXPECT().SetDiskSizePrunedPer100MTxs(gomock.Eq(diskSizePrunedPer100MTxs))
 
+	mockRepository.EXPECT().FetchIsIdleStatus().Return(true, nil)
+	mockRepository.EXPECT().SetIsIdleOverride(gomock.Eq(true))
+
 	// wait for ticker, add some extra time to make sure the ticker has ticked
 	time.Sleep(tickDuration + tickDuration/2)
 }
