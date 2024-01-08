@@ -152,15 +152,29 @@ func (mf *MetaFetcher) TimeToFinality() (float64, error) {
 
 // IsIdleStatus returns whether the explorer is in idle status.
 func (mf *MetaFetcher) IsIdleStatus() (bool, error) {
-	resp, err := http.Head(mf.isIdleStatusUrl)
+	resp, err := http.Get(mf.isIdleStatusUrl)
 	if err != nil {
 		mf.log.Errorf("failed to get is idle status: %v", err)
 		return false, err
 	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		mf.log.Errorf("failed to read response body: %v", err)
+		return false, err
+	}
+
+	numStr := strings.TrimSpace(string(body))
+	num, err := strconv.Atoi(numStr)
+	if err != nil {
+		mf.log.Errorf("failed to convert number of accounts: %v", err)
+		return false, err
+	}
+
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
 			mf.log.Errorf("failed to close response body: %v", err)
 		}
 	}()
-	return resp.StatusCode == http.StatusOK, nil
+	return num == 1, nil
 }

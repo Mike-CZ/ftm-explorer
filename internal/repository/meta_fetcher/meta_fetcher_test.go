@@ -86,21 +86,6 @@ func TestMetaFetcher_IsIdleStatus(t *testing.T) {
 	}
 }
 
-// Test meta fetcher idle status not found
-func TestMetaFetcher_IsIdleStatus_NotFound(t *testing.T) {
-	server := startServer(t)
-
-	mf := NewMetaFetcher(&config.MetaFetcher{IsIdleStatusUrl: server.URL + "/is_idle_status_404"}, logger.NewMockLogger())
-
-	idle, err := mf.IsIdleStatus()
-	if err != nil {
-		t.Errorf("failed to get time to finality: %v", err)
-	}
-	if idle {
-		t.Errorf("expected is idle status to be false, got %t", idle)
-	}
-}
-
 // startServer starts a test server that will server metadata.
 func startServer(t *testing.T) *httptest.Server {
 	t.Helper()
@@ -130,7 +115,9 @@ func startServer(t *testing.T) *httptest.Server {
 			return
 		}
 		if r.URL.Path == "/is_idle_status" {
-			// return 200 status code
+			if _, err := w.Write([]byte("1")); err != nil {
+				t.Fatalf("failed to write response: %v", err)
+			}
 			return
 		}
 		w.WriteHeader(http.StatusNotFound)
