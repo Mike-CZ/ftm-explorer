@@ -10,7 +10,7 @@ import (
 )
 
 // kRpcTimeout represents the timeout for RPC calls.
-const kRpcTimeout = 5 * time.Second
+const kRpcTimeout = 15 * time.Second
 
 // kDbTimeout represents the timeout for DB calls.
 const kDbTimeout = 2 * time.Minute
