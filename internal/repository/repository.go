@@ -13,7 +13,7 @@ import (
 const kRpcTimeout = 5 * time.Second
 
 // kDbTimeout represents the timeout for DB calls.
-const kDbTimeout = 5 * time.Second
+const kDbTimeout = 2 * time.Minute
 
 // Repository represents the repository.
 // It contains the RPC client and a buffer for blocks.
